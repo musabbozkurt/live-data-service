@@ -39,7 +39,6 @@ public class LiveDataServiceApplication implements CommandLineRunner {
             repository.saveAll(Arrays.asList(scoreBoard, scoreBoard1, scoreBoard2, scoreBoard3, scoreBoard4));
         } catch (Exception e) {
             log.error("Exception occurred while saving entities. run - Exception: {}", ExceptionUtils.getStackTrace(e));
-            e.printStackTrace();
         }
     }
 }
