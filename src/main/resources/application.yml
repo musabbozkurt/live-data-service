@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: live-data-service
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  datasource:
+    username: sa
+    password: sa
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:${DB_NAME:SPORT_RADAR}
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: ${SHOW_SQL_ENABLED:true}
+    hibernate:
+      ddl-auto: update
+
+  flyway:
+    enabled: true
+    baseline-version: 0
+    baseline-on-migrate: true
+    schemas: LIVE_DATA
+    table: schema_version
+    validate-on-migrate: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+  zipkin:
+    base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
+    enabled: false
+  sleuth:
+    sampler:
+      probability: 1.0
+    scheduled:
+      enabled: false
+    async:
+      enabled: false
