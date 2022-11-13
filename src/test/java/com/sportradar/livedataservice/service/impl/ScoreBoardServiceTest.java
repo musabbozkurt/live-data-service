@@ -175,21 +175,21 @@ class ScoreBoardServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void findAll_shouldReturnListOfString_whenGetAllScoreBoardsInDescendingOrderByModifiedDateTimeIsCalled() {
+    void findAll_shouldReturnListOfString_whenGetAllScoreBoardsInAscendingOrderByModifiedDateTimeIsCalled() {
         List<ScoreBoard> scoreBoardList = getScoreBoardList();
         List<String> scoreBoardsAsStringList = getScoreBoardsAsStringList();
 
         when(repository.findAll(Sort.by("modifiedDateTime").ascending())).thenReturn(scoreBoardList);
 
         // Act
-        List<String> allScoreBoardsInDescendingOrderByModifiedDateTime = service.getAllScoreBoardsInDescendingOrderByModifiedDateTime();
+        List<String> allScoreBoardsInAscendingOrderByModifiedDateTime = service.getAllScoreBoardsInAscendingOrderByModifiedDateTime();
 
         // Assertions
-        assertEquals(scoreBoardList.size(), allScoreBoardsInDescendingOrderByModifiedDateTime.size());
-        assertEquals(scoreBoardsAsStringList.get(0), allScoreBoardsInDescendingOrderByModifiedDateTime.get(0));
-        assertEquals(scoreBoardsAsStringList.get(1), allScoreBoardsInDescendingOrderByModifiedDateTime.get(1));
-        assertEquals(scoreBoardsAsStringList.get(2), allScoreBoardsInDescendingOrderByModifiedDateTime.get(2));
-        assertEquals(scoreBoardsAsStringList.get(3), allScoreBoardsInDescendingOrderByModifiedDateTime.get(3));
-        assertEquals(scoreBoardsAsStringList.get(4), allScoreBoardsInDescendingOrderByModifiedDateTime.get(4));
+        assertEquals(scoreBoardList.size(), allScoreBoardsInAscendingOrderByModifiedDateTime.size());
+        assertEquals(scoreBoardsAsStringList.get(0), allScoreBoardsInAscendingOrderByModifiedDateTime.get(0));
+        assertEquals(scoreBoardsAsStringList.get(1), allScoreBoardsInAscendingOrderByModifiedDateTime.get(1));
+        assertEquals(scoreBoardsAsStringList.get(2), allScoreBoardsInAscendingOrderByModifiedDateTime.get(2));
+        assertEquals(scoreBoardsAsStringList.get(3), allScoreBoardsInAscendingOrderByModifiedDateTime.get(3));
+        assertEquals(scoreBoardsAsStringList.get(4), allScoreBoardsInAscendingOrderByModifiedDateTime.get(4));
     }
 }

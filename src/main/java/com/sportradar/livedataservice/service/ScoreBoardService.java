@@ -18,5 +18,5 @@ public interface ScoreBoardService {
 
     void removeScoreBoardById(Long id);
 
-    List<String> getAllScoreBoardsInDescendingOrderByModifiedDateTime();
+    List<String> getAllScoreBoardsInAscendingOrderByModifiedDateTime();
 }
