@@ -2,8 +2,8 @@ package com.sportradar.livedataservice.mapper;
 
 import com.sportradar.livedataservice.api.request.ApiScoreBoardRequest;
 import com.sportradar.livedataservice.api.request.ApiScoreBoardUpdateRequest;
-import com.sportradar.livedataservice.base.BaseUnitTest;
 import com.sportradar.livedataservice.api.response.ApiScoreBoardResponse;
+import com.sportradar.livedataservice.base.BaseUnitTest;
 import com.sportradar.livedataservice.data.model.ScoreBoard;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;

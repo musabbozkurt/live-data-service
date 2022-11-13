@@ -12,9 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,7 +63,7 @@ public class ScoreBoardServiceImpl implements ScoreBoardService {
     }
 
     @Override
-    public List<String> getAllScoreBoardsInDescendingOrderByModifiedDateTime() {
+    public List<String> getAllScoreBoardsInAscendingOrderByModifiedDateTime() {
         return scoreBoardRepository.findAll(Sort.by("modifiedDateTime").ascending())
                 .stream()
                 .map(scoreBoard -> String.format("%d. %s - %s : %d - %d", scoreBoard.getId(), scoreBoard.getHomeTeamName(), scoreBoard.getAwayTeamName(), scoreBoard.getHomeTeamScore(), scoreBoard.getAwayTeamScore()))

@@ -65,10 +65,10 @@ public class ScoreBoardController {
     }
 
     @GetMapping("/score-boards/summary")
-    @ApiOperation(value = "Get all score boards in descending order by modified date time")
-    public ResponseEntity<List<String>> getAllScoreBoardsInDescendingOrderByModifiedDateTime() {
-        log.info("Received a request to get all score boards in descending order by modified date time. getAllScoreBoardsInDescendingOrderByModifiedDateTime.");
-        return ResponseEntity.ok(scoreBoardService.getAllScoreBoardsInDescendingOrderByModifiedDateTime());
+    @ApiOperation(value = "Get all score boards in ascending order by modified date time")
+    public ResponseEntity<List<String>> getAllScoreBoardsInAscendingOrderByModifiedDateTime() {
+        log.info("Received a request to get all score boards in ascending order by modified date time. getAllScoreBoardsInAscendingOrderByModifiedDateTime.");
+        return ResponseEntity.ok(scoreBoardService.getAllScoreBoardsInAscendingOrderByModifiedDateTime());
     }
 
 }
