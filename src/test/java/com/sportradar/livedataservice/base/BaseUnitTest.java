@@ -5,7 +5,6 @@ import com.sportradar.livedataservice.api.request.ApiScoreBoardUpdateRequest;
 import com.sportradar.livedataservice.api.response.ApiScoreBoardResponse;
 import com.sportradar.livedataservice.data.model.ScoreBoard;
 
-import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
