@@ -5,6 +5,7 @@ import com.sportradar.livedataservice.api.request.ApiScoreBoardUpdateRequest;
 import com.sportradar.livedataservice.api.response.ApiScoreBoardResponse;
 import com.sportradar.livedataservice.data.model.ScoreBoard;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -40,21 +41,19 @@ public abstract class BaseUnitTest {
     }
 
     public ApiScoreBoardUpdateRequest getApiScoreBoardUpdateRequest() {
-        ApiScoreBoardUpdateRequest apiScoreBoardUpdateRequest = new ApiScoreBoardUpdateRequest();
-        apiScoreBoardUpdateRequest.setHomeTeamName("TURKEY");
-        apiScoreBoardUpdateRequest.setAwayTeamName("IRELAND");
-        apiScoreBoardUpdateRequest.setHomeTeamScore(0);
-        apiScoreBoardUpdateRequest.setAwayTeamScore(0);
-        return apiScoreBoardUpdateRequest;
+        return new ApiScoreBoardUpdateRequest("UruguayUpdated", "ItalyUpdated", 6, 6);
+    }
+
+    public ScoreBoard getUpdatedScoreBoard() {
+        return new ScoreBoard("UruguayUpdated", "ItalyUpdated", 6, 6);
+    }
+
+    public ApiScoreBoardResponse getUpdatedApiScoreBoardResponse() {
+        return new ApiScoreBoardResponse(1L, OffsetDateTime.now(), OffsetDateTime.now(), "UruguayUpdated", "ItalyUpdated", 6, 6);
     }
 
     public ApiScoreBoardResponse getApiScoreBoardResponse() {
-        ApiScoreBoardResponse apiScoreBoardResponse = new ApiScoreBoardResponse();
-        apiScoreBoardResponse.setHomeTeamName("TURKEY");
-        apiScoreBoardResponse.setAwayTeamName("IRELAND");
-        apiScoreBoardResponse.setHomeTeamScore(0);
-        apiScoreBoardResponse.setAwayTeamScore(0);
-        return apiScoreBoardResponse;
+        return new ApiScoreBoardResponse(1L, OffsetDateTime.now(), OffsetDateTime.now(), "Uruguay", "Italy", 6, 6);
     }
 
     public List<ScoreBoard> getScoreBoardList() {
@@ -73,6 +72,14 @@ public abstract class BaseUnitTest {
         ScoreBoard scoreBoard4 = new ScoreBoard("Germany", "France", 2, 2);
         scoreBoard4.setId(5L);
         return Arrays.asList(scoreBoard, scoreBoard1, scoreBoard2, scoreBoard3, scoreBoard4);
+    }
+
+    public List<ApiScoreBoardResponse> getApiScoreBoardResponseList() {
+        return Arrays.asList(new ApiScoreBoardResponse(1L, OffsetDateTime.now(), OffsetDateTime.now(), "Uruguay", "Italy", 6, 6),
+                new ApiScoreBoardResponse(2L, OffsetDateTime.now(), OffsetDateTime.now(), "Spain", "Brazil", 10, 2),
+                new ApiScoreBoardResponse(3L, OffsetDateTime.now(), OffsetDateTime.now(), "Mexico", "Canada", 0, 5),
+                new ApiScoreBoardResponse(4L, OffsetDateTime.now(), OffsetDateTime.now(), "Argentina", "Australia", 3, 1),
+                new ApiScoreBoardResponse(5L, OffsetDateTime.now(), OffsetDateTime.now(), "Germany", "France", 2, 2));
     }
 
     public List<String> getScoreBoardsAsStringList() {
