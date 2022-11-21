@@ -8,21 +8,25 @@ import com.sportradar.livedataservice.base.BaseUnitTest;
 import com.sportradar.livedataservice.data.model.ScoreBoard;
 import com.sportradar.livedataservice.exception.BaseException;
 import com.sportradar.livedataservice.exception.LiveDataErrorCode;
+import com.sportradar.livedataservice.exception.RestResponseExceptionHandler;
 import com.sportradar.livedataservice.mapper.ScoreBoardMapper;
 import com.sportradar.livedataservice.service.ScoreBoardService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-@ContextConfiguration(classes = ScoreBoardController.class)
+@ContextConfiguration(classes = {ScoreBoardController.class, RestResponseExceptionHandler.class})
 class ScoreBoardControllerTests extends BaseUnitTest {
     @MockBean
     private ScoreBoardService scoreBoardService;
@@ -73,11 +77,12 @@ class ScoreBoardControllerTests extends BaseUnitTest {
         PageImpl<ScoreBoard> scoreBoards = new PageImpl<>(scoreBoardList);
         PageImpl<ApiScoreBoardResponse> apiScoreBoardResponses = new PageImpl<>(apiScoreBoardResponseList);
 
-        when(scoreBoardService.getAllScoreBoards(Pageable.unpaged())).thenReturn(scoreBoards);
+        given(scoreBoardService.getAllScoreBoards(Mockito.any(PageRequest.class))).willReturn(scoreBoards);
+        given(scoreBoardMapper.map(scoreBoards)).willReturn(apiScoreBoardResponses);
 
         mockMvc.perform(get("/score-boards"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(scoreBoards.getContent().size()))
+                .andExpect(jsonPath("$.content", hasSize(scoreBoards.getContent().size())))
                 .andDo(print());
     }
 

@@ -3,7 +3,6 @@ package com.sportradar.livedataservice.api.controller;
 import com.sportradar.livedataservice.api.request.ApiScoreBoardRequest;
 import com.sportradar.livedataservice.api.request.ApiScoreBoardUpdateRequest;
 import com.sportradar.livedataservice.api.response.ApiScoreBoardResponse;
-import com.sportradar.livedataservice.data.model.ScoreBoard;
 import com.sportradar.livedataservice.mapper.ScoreBoardMapper;
 import com.sportradar.livedataservice.service.ScoreBoardService;
 import io.swagger.annotations.Api;
@@ -38,8 +37,7 @@ public class ScoreBoardController {
     @ApiOperation(value = "Get all score board by pagination")
     public ResponseEntity<Page<ApiScoreBoardResponse>> getAllScoreBoards(Pageable pageable) {
         log.info("Received a request to get all score board by pagination. getAllScoreBoards - Pageable: {}", pageable);
-        Page<ScoreBoard> allScoreBoards = scoreBoardService.getAllScoreBoards(pageable);
-        return ResponseEntity.ok(allScoreBoards.map(scoreBoardMapper::map));
+        return ResponseEntity.ok(scoreBoardMapper.map(scoreBoardService.getAllScoreBoards(pageable)));
     }
 
     @GetMapping("/score-boards/{id}")
