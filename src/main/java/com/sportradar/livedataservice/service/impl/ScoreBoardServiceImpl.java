@@ -25,7 +25,7 @@ public class ScoreBoardServiceImpl implements ScoreBoardService {
 
     @Override
     public ScoreBoard createScoreBoard(ScoreBoard scoreBoard) {
-        Optional<ScoreBoard> optionalScoreBoard = scoreBoardRepository.findByHomeTeamNameAndAwayTeamName(scoreBoard.getHomeTeamName(), scoreBoard.getAwayTeamName());
+        Optional<ScoreBoard> optionalScoreBoard = scoreBoardRepository.findByHomeTeamNameAndAwayTeamNameAndDeletedIsFalse(scoreBoard.getHomeTeamName(), scoreBoard.getAwayTeamName());
         if (optionalScoreBoard.isPresent()) {
             throw new BaseException(LiveDataErrorCode.SCORE_BOARD_HAS_NOT_ENDED);
         }
@@ -34,12 +34,12 @@ public class ScoreBoardServiceImpl implements ScoreBoardService {
 
     @Override
     public Page<ScoreBoard> getAllScoreBoards(Pageable pageable) {
-        return scoreBoardRepository.findAll(pageable);
+        return scoreBoardRepository.findAllByDeletedIsFalse(pageable);
     }
 
     @Override
     public ScoreBoard getScoreBoardById(Long id) {
-        Optional<ScoreBoard> optionalScoreBoard = scoreBoardRepository.findById(id);
+        Optional<ScoreBoard> optionalScoreBoard = scoreBoardRepository.findByIdAndDeletedIsFalse(id);
         if (optionalScoreBoard.isPresent()) {
             return optionalScoreBoard.get();
         } else {
@@ -64,7 +64,7 @@ public class ScoreBoardServiceImpl implements ScoreBoardService {
 
     @Override
     public List<String> getAllScoreBoardsInAscendingOrderByModifiedDateTime() {
-        return scoreBoardRepository.findAll(Sort.by("modifiedDateTime").ascending())
+        return scoreBoardRepository.findAllByDeletedIsTrue(Sort.by("modifiedDateTime").ascending())
                 .stream()
                 .map(scoreBoard -> String.format("%d. %s - %s : %d - %d", scoreBoard.getId(), scoreBoard.getHomeTeamName(), scoreBoard.getAwayTeamName(), scoreBoard.getHomeTeamScore(), scoreBoard.getAwayTeamScore()))
                 .collect(Collectors.toList());
