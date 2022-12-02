@@ -53,7 +53,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
         // Arrange
         ScoreBoard scoreBoard = getScoreBoard();
 
-        when(repository.findByHomeTeamNameAndAwayTeamName(scoreBoard.getHomeTeamName(), scoreBoard.getAwayTeamName())).thenReturn(Optional.of(scoreBoard));
+        when(repository.findByHomeTeamNameAndAwayTeamNameAndDeletedIsFalse(scoreBoard.getHomeTeamName(), scoreBoard.getAwayTeamName())).thenReturn(Optional.of(scoreBoard));
 
         // Act
         BaseException exception = assertThrows(BaseException.class, () -> service.createScoreBoard(scoreBoard));
@@ -70,7 +70,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
         ScoreBoard scoreBoard = new ScoreBoard();
         scoreBoard.setId(scoreBoardId);
 
-        when(repository.findById(scoreBoardId)).thenReturn(Optional.empty());
+        when(repository.findByIdAndDeletedIsFalse(scoreBoardId)).thenReturn(Optional.empty());
 
         // Act
         BaseException exception = assertThrows(BaseException.class, () -> service.updateScoreBoardById(scoreBoardId, scoreBoard));
@@ -86,7 +86,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
 
         ScoreBoard scoreBoard = getScoreBoardForUpdate();
 
-        when(repository.findById(scoreBoardId)).thenReturn(Optional.of(new ScoreBoard()));
+        when(repository.findByIdAndDeletedIsFalse(scoreBoardId)).thenReturn(Optional.of(new ScoreBoard()));
 
         // Act
         service.updateScoreBoardById(scoreBoardId, scoreBoard);
@@ -111,7 +111,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
         service.getAllScoreBoards(pageable);
 
         // Assertions
-        verify(repository, times(1)).findAll(pageable);
+        verify(repository, times(1)).findAllByDeletedIsFalse(pageable);
     }
 
     @Test
@@ -119,7 +119,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
         // Arrange
         Long scoreBoardId = new Random().nextLong();
 
-        when(repository.findById(scoreBoardId)).thenReturn(Optional.empty());
+        when(repository.findByIdAndDeletedIsFalse(scoreBoardId)).thenReturn(Optional.empty());
 
         // Act
         BaseException exception = assertThrows(BaseException.class, () -> service.getScoreBoardById(scoreBoardId));
@@ -136,7 +136,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
         ScoreBoard scoreBoard = new ScoreBoard();
         scoreBoard.setId(scoreBoardId);
 
-        when(repository.findById(scoreBoardId)).thenReturn(Optional.of(scoreBoard));
+        when(repository.findByIdAndDeletedIsFalse(scoreBoardId)).thenReturn(Optional.of(scoreBoard));
 
         // Act
         ScoreBoard objectUnderTest = service.getScoreBoardById(scoreBoardId);
@@ -149,7 +149,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
     void delete_shouldThrowException_whenScoreBoardDoesNotExistWithId() {
         Long scoreBoardId = new Random().nextLong();
 
-        when(repository.findById(scoreBoardId)).thenReturn(Optional.empty());
+        when(repository.findByIdAndDeletedIsFalse(scoreBoardId)).thenReturn(Optional.empty());
 
         // Act
         BaseException exception = assertThrows(BaseException.class, () -> service.getScoreBoardById(scoreBoardId));
@@ -165,7 +165,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
         ScoreBoard scoreBoard = new ScoreBoard();
         scoreBoard.setId(scoreBoardId);
 
-        when(repository.findById(scoreBoardId)).thenReturn(Optional.of(scoreBoard));
+        when(repository.findByIdAndDeletedIsFalse(scoreBoardId)).thenReturn(Optional.of(scoreBoard));
 
         // Act
         service.removeScoreBoardById(scoreBoardId);
@@ -179,7 +179,7 @@ class ScoreBoardServiceTest extends BaseUnitTest {
         List<ScoreBoard> scoreBoardList = getScoreBoardList();
         List<String> scoreBoardsAsStringList = getScoreBoardsAsStringList();
 
-        when(repository.findAll(Sort.by("modifiedDateTime").ascending())).thenReturn(scoreBoardList);
+        when(repository.findAllByDeletedIsTrue(Sort.by("modifiedDateTime").ascending())).thenReturn(scoreBoardList);
 
         // Act
         List<String> allScoreBoardsInAscendingOrderByModifiedDateTime = service.getAllScoreBoardsInAscendingOrderByModifiedDateTime();
