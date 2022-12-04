@@ -80,6 +80,10 @@ $ Use Swagger and click on Try it out button and fill the input payload accordin
 ### How_To_Run_And_Test_Docker_Compose
 
 - Please follow the following steps, if you want to build and run docker-compose.yml
+- Docker -> Preferences -> Resources -> File sharing -> click add button and select prometheus folder under the
+  /src/main/resources -> Apply & Restart
+
+![img.png](img.png)
 
 ```
 1 - cd live-data-service
