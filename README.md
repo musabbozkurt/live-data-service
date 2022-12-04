@@ -95,12 +95,12 @@ $ Default H2 Database url: http://localhost:8080/h2-console
 $ Use Swagger and click on Try it out button and fill the input payload according to the contract.
 ```
 
-- docker-compose.yml contains Grafana and Prometheus to track metrics 
-  - Actuator url: http://localhost:8080/actuator/prometheus
-  - Prometheus url: http://localhost:9090/graph
-  - Grafana url: http://localhost:3000/login
-      - username: admin
-      - password: admin
+- docker-compose.yml contains Grafana and Prometheus to track metrics
+    - Actuator url: http://localhost:8080/actuator/prometheus
+    - Prometheus url: http://localhost:9090/graph
+    - Grafana url: http://localhost:3000/login
+        - username: admin
+        - password: admin
 
 ### Reference Documentation
 

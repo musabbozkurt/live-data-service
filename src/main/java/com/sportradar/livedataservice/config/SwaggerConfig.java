@@ -35,6 +35,10 @@ import java.util.function.Predicate;
 @EnableConfigurationProperties({SwaggerConfig.class, SwaggerConfig.SwaggerServices.class})
 public class SwaggerConfig {
 
+    @Getter
+    @Setter
+    public List<SwaggerServices> services;
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -66,14 +70,9 @@ public class SwaggerConfig {
         return new WebMvcEndpointHandlerMapping(endpointMapping, webEndpoints, endpointMediaTypes, corsProperties.toCorsConfiguration(), new EndpointLinksResolver(allEndpoints, basePath), shouldRegisterLinksMapping, null);
     }
 
-
     private boolean shouldRegisterLinksMapping(WebEndpointProperties webEndpointProperties, Environment environment, String basePath) {
         return webEndpointProperties.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(environment).equals(ManagementPortType.DIFFERENT));
     }
-
-    @Getter
-    @Setter
-    public List<SwaggerServices> services;
 
     @Data
     @ToString
