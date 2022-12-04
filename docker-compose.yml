@@ -1,0 +1,19 @@
+version: '3'
+services:
+  live-data-service:
+    image: "mb/live-data-service"
+    ports:
+      - "8080:8080"
+    container_name: live-data-service
+  prometheus:
+    image: "prom/prometheus"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./src/main/resources/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    container_name: prometheus
+  grafana:
+    image: "grafana/grafana"
+    ports:
+      - "3000:3000"
+    container_name: grafana
