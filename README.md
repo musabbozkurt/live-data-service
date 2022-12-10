@@ -17,14 +17,14 @@
 
 ### Prerequisites
 
-- Java 8+ needs to be installed
+- Java 11+ needs to be installed
 - Maven needs to be installed
 - Install any Java IDE (Eclipse, STS, Intellij etc..) and ensure you are able to launch
 - Clone or checkout the project from version control system (git) and follow below steps
 
 ### Tech_Stack
 
-- Java 8+
+- Java 11+
 - Spring Boot: 2.7.5
 - H2 Database (Default values are provided below)
     - username: sa
@@ -99,12 +99,13 @@ $ Default H2 Database url: http://localhost:8080/h2-console
 $ Use Swagger and click on Try it out button and fill the input payload according to the contract.
 ```
 
-- docker-compose.yml contains Grafana and Prometheus to track metrics
+- docker-compose.yml contains Grafana and Prometheus to track metrics, Kafka for event-driven architecture
     - Actuator url: http://localhost:8080/actuator/prometheus
     - Prometheus url: http://localhost:9090/graph
     - Grafana url: http://localhost:3000/login
         - username: admin
         - password: admin
+    - Kafka UI url: http://localhost:9091/
 
 ### Reference Documentation
 
