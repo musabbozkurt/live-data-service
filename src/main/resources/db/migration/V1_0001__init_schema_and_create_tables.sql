@@ -1,9 +1,9 @@
-CREATE SCHEMA IF NOT EXISTS SPORT_RADAR;
+CREATE SCHEMA IF NOT EXISTS MB_TEST;
 
-CREATE SEQUENCE IF NOT EXISTS SPORT_RADAR.hibernate_sequence START WITH 1;
-CREATE SEQUENCE IF NOT EXISTS SPORT_RADAR.default_sequence_generator START WITH 1;
+CREATE SEQUENCE IF NOT EXISTS MB_TEST.hibernate_sequence START WITH 1;
+CREATE SEQUENCE IF NOT EXISTS MB_TEST.default_sequence_generator START WITH 1;
 
-CREATE TABLE IF NOT EXISTS SPORT_RADAR.`SCORE_BOARD`
+CREATE TABLE IF NOT EXISTS MB_TEST.`SCORE_BOARD`
 (
     `id`                 BIGINT                      not null primary key,
     `deleted`            boolean                     NOT NULL default false,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS SPORT_RADAR.`SCORE_BOARD`
     `away_team_score`    INT                         NOT NULL,
 );
 
-CREATE TABLE IF NOT EXISTS SPORT_RADAR.`SCORE_BOARD_AUD`
+CREATE TABLE IF NOT EXISTS MB_TEST.`SCORE_BOARD_AUD`
 (
     `id`                      BIGINT                      NOT NULL,
     `rev`                     BIGINT                      NOT NULL,
@@ -36,14 +36,14 @@ CREATE TABLE IF NOT EXISTS SPORT_RADAR.`SCORE_BOARD_AUD`
 
 -- Since H2 database is being used, insert scripts can not be run with flyway scripts
 
-INSERT INTO SPORT_RADAR.`SCORE_BOARD`
-VALUES ((select NEXTVAL from NEXTVAL('SPORT_RADAR.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
+INSERT INTO MB_TEST.`SCORE_BOARD`
+VALUES ((select NEXTVAL from NEXTVAL('MB_TEST.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
         DATEADD('DAY', -1, CURRENT_DATE), 'Uruguay', 'Italy', 6, 6),
-       ((select NEXTVAL from NEXTVAL('SPORT_RADAR.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
+       ((select NEXTVAL from NEXTVAL('MB_TEST.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
         DATEADD('DAY', -2, CURRENT_DATE), 'Spain', 'Brazil', 10, 2),
-       ((select NEXTVAL from NEXTVAL('SPORT_RADAR.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
+       ((select NEXTVAL from NEXTVAL('MB_TEST.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
         DATEADD('DAY', -3, CURRENT_DATE), 'Mexico', 'Canada', 0, 5),
-       ((select NEXTVAL from NEXTVAL('SPORT_RADAR.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
+       ((select NEXTVAL from NEXTVAL('MB_TEST.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
         DATEADD('DAY', -4, CURRENT_DATE), 'Argentina', 'Australia', 3, 1),
-       ((select NEXTVAL from NEXTVAL('SPORT_RADAR.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
+       ((select NEXTVAL from NEXTVAL('MB_TEST.default_sequence_generator')), false, DATEADD('DAY', 0, CURRENT_DATE),
         DATEADD('DAY', -5, CURRENT_DATE), 'Germany', 'France', 2, 2);

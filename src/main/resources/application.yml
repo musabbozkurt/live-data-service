@@ -13,7 +13,7 @@ spring:
     username: sa
     password: sa
     driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:${DB_NAME:SPORT_RADAR}
+    url: jdbc:h2:mem:${DB_NAME:MB_TEST}
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect

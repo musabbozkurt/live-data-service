@@ -29,7 +29,7 @@
 - H2 Database (Default values are provided below)
     - username: sa
     - password: sa
-    - url: jdbc:h2:mem:SPORT_RADAR;DB_CLOSE_DELAY=-1
+    - url: jdbc:h2:mem:MB_TEST;DB_CLOSE_DELAY=-1
     - Default H2 Database url: http://localhost:8080/h2-console
 - Swagger2 - For API Local Testing
     - Default Swagger url: http://localhost:8080/swagger-ui/

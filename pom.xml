@@ -8,7 +8,7 @@
         <version>2.7.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.sportradar</groupId>
+    <groupId>com.mb</groupId>
     <artifactId>live-data-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>live-data-service</name>
