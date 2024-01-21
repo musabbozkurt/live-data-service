@@ -16,14 +16,13 @@
 
     <properties>
         <java.version>17</java.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <springfox-swagger2.version>3.0.0</springfox-swagger2.version>
-        <org.projectlombok.version>1.18.22</org.projectlombok.version>
+        <org.projectlombok.version>1.18.30</org.projectlombok.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <spring.cloud.starter.sleuth.version>3.1.5</spring.cloud.starter.sleuth.version>
         <spring.cloud.sleuth.zipkin.version>3.1.5</spring.cloud.sleuth.zipkin.version>
-
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
     </properties>
@@ -42,11 +41,12 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <version>2.2.224</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>8.0.0.Final</version>
         </dependency>
@@ -118,6 +118,7 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+            <version>3.0.10</version>
         </dependency>
 
     </dependencies>

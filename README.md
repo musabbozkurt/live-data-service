@@ -17,14 +17,14 @@
 
 ### Prerequisites
 
-- Java 11+ needs to be installed
+- Java 17+ needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`
 - Maven needs to be installed
 - Install any Java IDE (Eclipse, STS, Intellij etc..) and ensure you are able to launch
 - Clone or checkout the project from version control system (git) and follow below steps
 
 ### Tech_Stack
 
-- Java 11+
+- Java 17+
 - Spring Boot: 2.7.5
 - H2 Database (Default values are provided below)
     - username: sa
@@ -46,7 +46,7 @@
 *** Run the application by following these steps.
 
 1 - cd live-data-service
-2 - mvn clean install
+2 - mvn clean install or mvn clean package 
 3 - mvn spring-boot:run
 
 *** Test the application by following these steps.
