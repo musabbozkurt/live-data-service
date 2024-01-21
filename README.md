@@ -17,7 +17,7 @@
 
 ### Prerequisites
 
-- Java 17+ needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`
+- Java 17+ needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 17)`
 - Maven needs to be installed
 - Install any Java IDE (Eclipse, STS, Intellij etc..) and ensure you are able to launch
 - Clone or checkout the project from version control system (git) and follow below steps
