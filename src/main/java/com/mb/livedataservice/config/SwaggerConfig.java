@@ -1,36 +1,28 @@
 package com.mb.livedataservice.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
-import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
-import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
-import org.springframework.boot.actuate.endpoint.ExposableEndpoint;
-import org.springframework.boot.actuate.endpoint.web.*;
-import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpointsSupplier;
-import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpointsSupplier;
-import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springdoc.core.customizers.SpringDocCustomizers;
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springdoc.core.properties.SpringDocConfigProperties;
+import org.springdoc.core.providers.SpringDocProviders;
+import org.springdoc.core.service.AbstractRequestService;
+import org.springdoc.core.service.GenericResponseService;
+import org.springdoc.core.service.OpenAPIService;
+import org.springdoc.core.service.OperationService;
+import org.springdoc.webmvc.api.MultipleOpenApiWebMvcResource;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.List;
 
 @Configuration
-@EnableSwagger2
 @ConfigurationProperties(prefix = "swagger.documentation")
 @EnableConfigurationProperties({SwaggerConfig.class, SwaggerConfig.SwaggerServices.class})
 public class SwaggerConfig {
@@ -40,38 +32,27 @@ public class SwaggerConfig {
     public List<SwaggerServices> services;
 
     @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(Predicate.not(PathSelectors.regex("/error")))
-                .paths(Predicate.not(PathSelectors.regex("/actuator.*")))
-                .build()
-                .produces(new HashSet<>(Collections.singletonList(MediaType.APPLICATION_JSON_VALUE)));
+    public OpenAPI springShopOpenAPI() {
+        return new OpenAPI();
     }
 
-    @Bean
-    @ConditionalOnMissingBean(WebMvcEndpointHandlerMapping.class)
-    public WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(WebEndpointsSupplier webEndpointsSupplier,
-                                                                         ServletEndpointsSupplier servletEndpointsSupplier,
-                                                                         ControllerEndpointsSupplier controllerEndpointsSupplier,
-                                                                         EndpointMediaTypes endpointMediaTypes,
-                                                                         CorsEndpointProperties corsProperties,
-                                                                         WebEndpointProperties webEndpointProperties,
-                                                                         Environment environment) {
-        List<ExposableEndpoint<?>> allEndpoints = new ArrayList<>();
-        Collection<ExposableWebEndpoint> webEndpoints = webEndpointsSupplier.getEndpoints();
-        allEndpoints.addAll(webEndpoints);
-        allEndpoints.addAll(servletEndpointsSupplier.getEndpoints());
-        allEndpoints.addAll(controllerEndpointsSupplier.getEndpoints());
-        String basePath = webEndpointProperties.getBasePath();
-        EndpointMapping endpointMapping = new EndpointMapping(basePath);
-        boolean shouldRegisterLinksMapping = this.shouldRegisterLinksMapping(webEndpointProperties, environment, basePath);
-        return new WebMvcEndpointHandlerMapping(endpointMapping, webEndpoints, endpointMediaTypes, corsProperties.toCorsConfiguration(), new EndpointLinksResolver(allEndpoints, basePath), shouldRegisterLinksMapping, null);
-    }
+    @Bean()
+    MultipleOpenApiWebMvcResource multipleOpenApiResource(List<GroupedOpenApi> groupedOpenApis,
+                                                          ObjectFactory<OpenAPIService> defaultOpenAPIBuilder,
+                                                          AbstractRequestService requestBuilder,
+                                                          GenericResponseService responseBuilder,
+                                                          OperationService operationParser,
+                                                          SpringDocConfigProperties springDocConfigProperties,
+                                                          SpringDocProviders springDocProviders,
+                                                          SpringDocCustomizers springDocCustomizers) {
 
-    private boolean shouldRegisterLinksMapping(WebEndpointProperties webEndpointProperties, Environment environment, String basePath) {
-        return webEndpointProperties.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(environment).equals(ManagementPortType.DIFFERENT));
+        services.forEach(swaggerService -> groupedOpenApis.add(GroupedOpenApi.builder()
+                .group(swaggerService.getName())
+                .pathsToMatch("/**")
+                .pathsToExclude("/actuator/**")
+                .build()));
+
+        return new MultipleOpenApiWebMvcResource(groupedOpenApis, defaultOpenAPIBuilder, requestBuilder, responseBuilder, operationParser, springDocConfigProperties, springDocProviders, springDocCustomizers);
     }
 
     @Data

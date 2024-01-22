@@ -17,15 +17,14 @@
 
 ### Prerequisites
 
-- Java 17+ needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 17)`
+- Java 21+ needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`
 - Maven needs to be installed
 - Install any Java IDE (Eclipse, STS, Intellij etc..) and ensure you are able to launch
 - Clone or checkout the project from version control system (git) and follow below steps
 
 ### Tech_Stack
 
-- Java 17+
-- Spring Boot: 2.7.5
+- Java 21+
 - H2 Database (Default values are provided below)
     - username: sa
     - password: sa
@@ -106,20 +105,3 @@ $ Use Swagger and click on Try it out button and fill the input payload accordin
         - username: admin
         - password: admin
     - Kafka UI url: http://localhost:9091/
-
-### Reference Documentation
-
-For further reference, please consider the following sections:
-
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.7.5/maven-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.7.5/maven-plugin/reference/html/#build-image)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/2.7.5/reference/htmlsingle/#web)
-
-### Guides
-
-The following guides illustrate how to use some features concretely:
-
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)

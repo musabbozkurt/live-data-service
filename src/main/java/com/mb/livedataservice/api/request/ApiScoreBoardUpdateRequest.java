@@ -1,13 +1,12 @@
 package com.mb.livedataservice.api.request;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -18,18 +17,20 @@ import javax.validation.constraints.NotNull;
 public class ApiScoreBoardUpdateRequest {
 
     @NotNull(message = "Home Team Name is mandatory")
-    @ApiModelProperty(value = "Home Team Name", example = "TURKEY")
+    @Schema(name = "Home Team Name", example = "TURKEY")
     private String homeTeamName;
 
     @NotNull(message = "Away Team Name is mandatory")
-    @ApiModelProperty(value = "Away Team Name", example = "IRELAND")
+    @Schema(name = "Away Team Name", example = "IRELAND")
     private String awayTeamName;
 
+    @Builder.Default
     @NotNull(message = "Home Team Score is mandatory")
-    @ApiModelProperty(value = "Home Team Score", example = "0")
+    @Schema(name = "Home Team Score", example = "0")
     private int homeTeamScore = 0;
 
+    @Builder.Default
     @NotNull(message = "Away Team Score is mandatory")
-    @ApiModelProperty(value = "Away Team Score", example = "0")
+    @Schema(name = "Away Team Score", example = "0")
     private int awayTeamScore = 0;
 }
