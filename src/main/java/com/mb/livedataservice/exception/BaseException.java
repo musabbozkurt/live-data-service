@@ -1,12 +1,14 @@
 package com.mb.livedataservice.exception;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.io.Serializable;
 
 @Data
 @ToString
+@EqualsAndHashCode(callSuper = true)
 public class BaseException extends RuntimeException implements Serializable {
     private ErrorCode errorCode;
     private String message;

@@ -1,11 +1,12 @@
-version: '3'
+version: '3.9'
 services:
-  live-data-service:
-    image: "mb/live-data-service"
-    restart: always
-    ports:
-      - "8080:8080"
-    container_name: live-data-service
+  #  live-data-service:
+  #    image: "mb/live-data-service"
+  #    restart: always
+  #    ports:
+  #      - "8080:8080"
+  #    container_name: live-data-service
+
   prometheus:
     image: "prom/prometheus"
     restart: always
@@ -14,6 +15,7 @@ services:
     volumes:
       - ./src/main/resources/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     container_name: prometheus
+
   grafana:
     image: "grafana/grafana"
     restart: always
@@ -30,6 +32,7 @@ services:
       - "zookeeper_data:/bitnami"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+
   kafka:
     image: "docker.io/bitnami/kafka:2-debian-10"
     restart: always
@@ -49,6 +52,7 @@ services:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
     depends_on:
       - zookeeper
+
   kafka-ui:
     image: provectuslabs/kafka-ui
     restart: always
