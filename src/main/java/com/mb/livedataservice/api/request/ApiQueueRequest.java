@@ -14,8 +14,8 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 public class ApiQueueRequest {
 
-    @NotNull(message = "Message content")
-    @Schema(name = "Message content", example = "Publishing a message")
+    @NotNull
+    @Schema(example = "Publishing a message")
     private String message;
 
 }

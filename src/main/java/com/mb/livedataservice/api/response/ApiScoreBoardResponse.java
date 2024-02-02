@@ -18,24 +18,21 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 public class ApiScoreBoardResponse {
 
-    @Schema(name = "Id of score board")
     private Long id;
 
-    @Schema(name = "Created date of score board")
     private OffsetDateTime createdDateTime;
 
-    @Schema(name = "Last modified date of score board")
     private OffsetDateTime modifiedDateTime;
 
-    @Schema(name = "Home Team Name", example = "TURKEY")
+    @Schema(example = "TURKEY")
     private String homeTeamName;
 
-    @Schema(name = "Away Team Name", example = "IRELAND")
+    @Schema(example = "IRELAND")
     private String awayTeamName;
 
-    @Schema(name = "Home Team Score", example = "0")
+    @Schema(example = "0")
     private int homeTeamScore;
 
-    @Schema(name = "Away Team Score", example = "0")
+    @Schema(example = "0")
     private int awayTeamScore;
 }

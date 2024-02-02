@@ -14,21 +14,21 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 public class ApiScoreBoardRequest {
 
-    @NotNull(message = "Home Team Name is mandatory")
-    @Schema(name = "Home Team Name", example = "TURKEY")
+    @NotNull
+    @Schema(example = "TURKEY")
     private String homeTeamName;
 
-    @NotNull(message = "Away Team Name is mandatory")
-    @Schema(name = "Away Team Name", example = "IRELAND")
+    @NotNull
+    @Schema(example = "IRELAND")
     private String awayTeamName;
 
+    @NotNull
     @Builder.Default
-    @NotNull(message = "Home Team Score is mandatory")
-    @Schema(name = "Home Team Score", example = "0")
+    @Schema(example = "0")
     private int homeTeamScore = 0;
 
+    @NotNull
     @Builder.Default
-    @NotNull(message = "Away Team Score is mandatory")
-    @Schema(name = "Away Team Score", example = "0")
+    @Schema(example = "0")
     private int awayTeamScore = 0;
 }

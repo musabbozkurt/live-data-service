@@ -1,11 +1,11 @@
 version: '3.9'
 services:
-  live-data-service:
-    image: "mb/live-data-service"
-    restart: always
-    ports:
-      - "8080:8080"
-    container_name: live-data-service
+  #  live-data-service:
+  #    image: "mb/live-data-service"
+  #    restart: always
+  #    ports:
+  #      - "8080:8080"
+  #    container_name: live-data-service
 
   prometheus:
     image: "prom/prometheus"

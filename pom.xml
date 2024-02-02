@@ -18,11 +18,10 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
         <org.projectlombok.version>1.18.30</org.projectlombok.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <spring.cloud.starter.sleuth.version>3.1.5</spring.cloud.starter.sleuth.version>
-        <spring.cloud.sleuth.zipkin.version>3.1.5</spring.cloud.sleuth.zipkin.version>
+        <spring.cloud.starter.sleuth.version>3.1.10</spring.cloud.starter.sleuth.version>
+        <spring.cloud.sleuth.zipkin.version>3.1.10</spring.cloud.sleuth.zipkin.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
     </properties>
@@ -119,6 +118,11 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
             <version>3.0.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-docker-compose</artifactId>
         </dependency>
 
     </dependencies>

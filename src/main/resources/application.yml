@@ -13,7 +13,7 @@ spring:
     username: sa
     password: sa
     driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:${DB_NAME:MB_TEST}
+    url: jdbc:h2:mem:${DB_NAME:MB_TEST};DB_CLOSE_DELAY=-1
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -60,6 +60,10 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     kafka-topics:
       test-topic: test_topic
+
+  docker:
+    compose:
+      enabled: false
 
 management:
   endpoints:
