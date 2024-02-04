@@ -36,15 +36,15 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Container
     @ServiceConnection
-    private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.1");
-
-    @Container
-    @ServiceConnection
     public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:7.2.4")).withExposedPorts(6379);
 
     @Container
     @ServiceConnection
     public static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"));
+
+    @Container
+    @ServiceConnection
+    private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.1");
 
     @Autowired
     private TestRestTemplate restTemplate;

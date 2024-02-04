@@ -27,21 +27,6 @@ import java.util.Map;
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 public class CacheConfig {
 
-    @Bean(name = "cacheManager")
-    @ConditionalOnMissingBean(name = "cacheManager")
-    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        RedisCacheConfiguration expireIn1Day = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1));
-
-        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-
-        cacheConfigurations.put(RedisConstants.CACHE_KEY, expireIn1Day);
-
-        return RedisCacheManager.RedisCacheManagerBuilder
-                .fromConnectionFactory(connectionFactory)
-                .withInitialCacheConfigurations(cacheConfigurations)
-                .build();
-    }
-
     /*
      * If the Redis client is protected, add this config bean. Otherwise, this bean can be removed.
      *
@@ -57,5 +42,20 @@ public class CacheConfig {
     @Bean
     public static ConfigureRedisAction configureRedisAction() {
         return ConfigureRedisAction.NO_OP;
+    }
+
+    @Bean(name = "cacheManager")
+    @ConditionalOnMissingBean(name = "cacheManager")
+    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration expireIn1Day = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1));
+
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+
+        cacheConfigurations.put(RedisConstants.CACHE_KEY, expireIn1Day);
+
+        return RedisCacheManager.RedisCacheManagerBuilder
+                .fromConnectionFactory(connectionFactory)
+                .withInitialCacheConfigurations(cacheConfigurations)
+                .build();
     }
 }
