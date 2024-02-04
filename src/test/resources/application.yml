@@ -50,3 +50,8 @@ redisson:
 services:
   token:
     store: redis
+
+# https://developer.android.com/google/play/integrity/overview
+play-integrity-api:
+  credentials-file: ${PLAY_INTEGRITY_API_CREDENTIALS_JSON:play-integrity-credentials-json-file}
+  application-name: project_id # project_id in play-integrity-credentials.json file

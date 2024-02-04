@@ -9,6 +9,7 @@
     <li><a href="#How_To_Run_And_Test_Dockerfile">How To Run And Test Application with Dockerfile (OPTIONAL)</a></li>
     <li><a href="#How_To_Run_And_Test_Docker_Compose">How To Run And Test Application with docker-compose.yml (OPTIONAL)</a></li>
     <li><a href="#Redis">Redis Commands</a></li>
+    <li><a href="#Google_Play_Integrity_API">Google Play Integrity API</a></li>
     <li><a href="#References">References</a></li>
   </ol>
 </details>
@@ -121,24 +122,37 @@
 
 ### Redis
 
-* The following command returns all matched data by `'keyPattern:*'` pattern
-    * `redis-cli --scan --pattern 'keyPattern:*'`
+- The following command returns all matched data by `'keyPattern:*'` pattern
+    - `redis-cli --scan --pattern 'keyPattern:*'`
 
-* The following command deletes all matched data by `'keyPattern:*'` pattern
-    * `redis-cli KEYS 'keyPattern:*' | xargs redis-cli DEL`
+- The following command deletes all matched data by `'keyPattern:*'` pattern
+    - `redis-cli KEYS 'keyPattern:*' | xargs redis-cli DEL`
 
-* The following command finds `TYPE` in redis with `KEY`
-    * `TYPE key` -> `TYPE xxx:hashedIdOrSomethingElse`
+- The following command finds `TYPE` in redis with `KEY`
+    - `TYPE key` -> `TYPE xxx:hashedIdOrSomethingElse`
 
-* The following commands search by `TYPE`
+- The following commands search by `TYPE`
+    - for `"string" TYPE`: `get key`
+    - for `"hash" TYPE`: `hgetall key`
+    - for `"list" TYPE`: `lrange key 0 -1`
+    - for `"set" TYPE`: `smembers key`
+    - for `"zset" TYPE`: `zrange key 0 -1 withScores`
 
-    * for `"string" TYPE`: `get key`
-    * for `"hash" TYPE`: `hgetall key`
-    * for `"list" TYPE`: `lrange key 0 -1`
-    * for `"set" TYPE`: `smembers key`
-    * for `"zset" TYPE`: `zrange key 0 -1 withScores`
+- `RedisInsight`: http://localhost:8001/
 
-* RedisInsight: 
+-------
+
+### Google_Play_Integrity_API
+
+- [Setup Firebase](https://firebase.google.com/docs/admin/setup) or Just follow the following steps
+  to [Initialize the SDK, Create and Download Firebase Credentials JSON File](https://firebase.google.com/docs/admin/setup#initialize-sdk)
+    - After JSON file is downloaded, copy the content of downloaded file and replace `play-integrity-credentials.json`
+      content with that copied text
+    - Replace `application-name` value in application.yml file with `project_id` variable that is
+      in `play-integrity-credentials.json`
+    - [HELPFUL LINK BUT IT SHOULD NOT BE NEEDED](https://stackoverflow.com/a/40799378)
+
+-------
 
 ### References
 
@@ -147,3 +161,4 @@
 - [Spring Boot Rest Controller Unit Test with @WebMvcTest](https://www.bezkoder.com/spring-boot-webmvctest/)
 - [Redis Commands](https://auth0.com/blog/introduction-to-redis-install-cli-commands-and-data-types/)
 - [Running RedisInsight using Docker Compose](https://collabnix.com/running-redisinsight-using-docker-compose/)
+- [Google Play Integrity API](https://developer.android.com/google/play/integrity)
