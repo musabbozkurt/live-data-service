@@ -17,5 +17,4 @@ public class ApiQueueRequest {
     @NotNull
     @Schema(example = "Publishing a message")
     private String message;
-
 }

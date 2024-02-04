@@ -8,5 +8,4 @@ import lombok.ToString;
 public class QueueRequest {
 
     private String message;
-
 }

@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 @Mapper(componentModel = "spring")
 public interface ScoreBoardMapper {
 
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createdDateTime", ignore = true)
@@ -29,5 +28,4 @@ public interface ScoreBoardMapper {
     default Page<ApiScoreBoardResponse> map(Page<ScoreBoard> scoreBoards) {
         return scoreBoards.map(this::map);
     }
-
 }

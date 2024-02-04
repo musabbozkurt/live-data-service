@@ -1,6 +1,6 @@
 package com.mb.livedataservice.queue;
 
-import com.mb.livedataservice.data.entity.RedisHashData;
+import com.mb.livedataservice.data.redis.model.RedisHashData;
 import com.mb.livedataservice.service.RedisHashService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

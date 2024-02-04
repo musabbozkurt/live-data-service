@@ -28,5 +28,4 @@ public enum LiveDataErrorCode implements Serializable, ErrorCode {
     public String getCode() {
         return this.name();
     }
-
 }

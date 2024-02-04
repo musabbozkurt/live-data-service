@@ -24,5 +24,4 @@ public class QueueController {
         log.info("Received a request to publish a message. publishMessage - ApiQueueRequest: {}.", apiQueueRequest);
         producerService.publishMessage(JsonUtils.serialize(apiQueueRequest));
     }
-
 }

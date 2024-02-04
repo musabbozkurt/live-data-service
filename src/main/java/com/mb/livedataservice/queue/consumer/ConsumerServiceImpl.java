@@ -18,5 +18,4 @@ public class ConsumerServiceImpl {
         QueueRequest queueRequest = JsonUtils.deserialize(message, QueueRequest.class);
         log.info("QueueRequest is deserialized. consumeMessage - QueueRequest: {}.", queueRequest);
     }
-
 }

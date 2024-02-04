@@ -66,5 +66,4 @@ public class ScoreBoardController {
         log.info("Received a request to get all score boards in ascending order by modified date time. getAllScoreBoardsInAscendingOrderByModifiedDateTime.");
         return ResponseEntity.ok(scoreBoardService.getAllScoreBoardsInAscendingOrderByModifiedDateTime());
     }
-
 }

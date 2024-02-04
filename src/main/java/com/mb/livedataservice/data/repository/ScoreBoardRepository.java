@@ -20,5 +20,4 @@ public interface ScoreBoardRepository extends JpaRepository<ScoreBoard, Long> {
     Optional<ScoreBoard> findByIdAndDeletedIsFalse(Long id);
 
     List<ScoreBoard> findAllByDeletedIsTrue(Sort sort);
-
 }

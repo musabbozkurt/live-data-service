@@ -22,13 +22,13 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+@Setter
+@Getter
 @Configuration
 @ConfigurationProperties(prefix = "swagger.documentation")
 @EnableConfigurationProperties({SwaggerConfig.class, SwaggerConfig.SwaggerServices.class})
 public class SwaggerConfig {
 
-    @Getter
-    @Setter
     public List<SwaggerServices> services;
 
     @Bean
@@ -64,5 +64,4 @@ public class SwaggerConfig {
         private String url;
         private String version;
     }
-
 }
