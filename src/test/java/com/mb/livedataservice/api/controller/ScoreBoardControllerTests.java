@@ -112,7 +112,7 @@ class ScoreBoardControllerTests extends BaseUnitTest {
 
         mockMvc.perform(get("/score-boards/{id}", id))
                 .andExpect(status().isNotFound())
-                .andExpect(result -> Assertions.assertTrue(result.getResolvedException() instanceof BaseException))
+                .andExpect(result -> Assertions.assertInstanceOf(BaseException.class, result.getResolvedException()))
                 .andDo(print());
     }
 
@@ -154,7 +154,7 @@ class ScoreBoardControllerTests extends BaseUnitTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(apiScoreBoardUpdateRequest)))
                 .andExpect(status().isNotFound())
-                .andExpect(result -> Assertions.assertTrue(result.getResolvedException() instanceof BaseException))
+                .andExpect(result -> Assertions.assertInstanceOf(BaseException.class, result.getResolvedException()))
                 .andDo(print());
     }
 

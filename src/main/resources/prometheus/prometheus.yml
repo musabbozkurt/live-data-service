@@ -1,10 +1,12 @@
-#Global configurations
+# Global configurations
 global:
-  scrape_interval: 5s # Set the scrape interval to every 5 seconds.
-  evaluation_interval: 5s # Evaluate rules every 5 seconds.
+  scrape_interval: 5s # Set the scrape interval to every 5 seconds. Default is every 1 minute.
+  evaluation_interval: 5s # Evaluate rules every 5 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
 scrape_configs:
-  - job_name: 'live-data-app'
+  - job_name: 'live-data-service'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'live-data-service:8080' ]
+      - targets: [ 'host.docker.internal:8080' ] # 8080 is live-data-service port.

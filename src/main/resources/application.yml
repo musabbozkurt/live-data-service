@@ -36,17 +36,6 @@ spring:
       settings:
         web-allow-others: true
 
-  zipkin:
-    base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
-    enabled: false
-  sleuth:
-    sampler:
-      probability: 1.0
-    scheduled:
-      enabled: false
-    async:
-      enabled: false
-
   kafka:
     consumer:
       bootstrap-servers: localhost:9092
@@ -63,13 +52,16 @@ spring:
 
   docker:
     compose:
-      enabled: false
+      enabled: true
 
 management:
   endpoints:
     web:
       exposure:
         include: health, info, metrics, loggers, prometheus
+  tracing:
+    sampling:
+      probability: 1.0
 
 swagger:
   documentation:
