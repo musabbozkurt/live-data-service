@@ -45,7 +45,7 @@
 - `Micrometer` dependencies were added to track the logs easily
 - `docker-compose.yml` contains `Grafana`, `Prometheus` and `Zipkin` to track metrics, `Kafka` for event-driven
   architecture
-    - `Actuator`: http://localhost:8080/actuator/
+    - `Actuator`: http://localhost:8080/actuator
     - `Kafka UI`: http://localhost:9091/
     - `Grafana`
         - Login Credentials
