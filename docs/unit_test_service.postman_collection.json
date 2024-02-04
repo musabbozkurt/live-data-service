@@ -1,0 +1,170 @@
+{
+  "info": {
+    "_postman_id": "ebe84f96-4ce4-4dcf-98b5-ebc2a6120236",
+    "name": "Unit Test Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "31512047"
+  },
+  "item": [
+    {
+      "name": "Create Tutorial",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var response = JSON.parse(responseBody);",
+              "",
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "    postman.setEnvironmentVariable(\"tutorialId\", response.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"title\",\n    \"description\": \"description\",\n    \"published\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/tutorials",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "tutorials"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Tutorial by Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var response = JSON.parse(responseBody);",
+              "",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    postman.setEnvironmentVariable(\"tutorialId\", response.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/tutorials/:tutorialId",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "tutorials",
+            ":tutorialId"
+          ],
+          "variable": [
+            {
+              "key": "tutorialId",
+              "value": "{{tutorialId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Tutorial by Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var response = JSON.parse(responseBody);",
+              "",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    postman.setEnvironmentVariable(\"tutorialId\", response.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"updatedTitle\",\n    \"description\": \"updateddescription\",\n    \"published\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/tutorials/:tutorialId",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "tutorials",
+            ":tutorialId"
+          ],
+          "variable": [
+            {
+              "key": "tutorialId",
+              "value": "{{tutorialId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Tutorials",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/tutorials",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "tutorials"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

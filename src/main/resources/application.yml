@@ -54,6 +54,10 @@ spring:
     compose:
       enabled: true
 
+  threads:
+    virtual:
+      enabled: true
+
 management:
   endpoints:
     web:

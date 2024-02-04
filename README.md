@@ -43,6 +43,7 @@
 - Centralize exception handling by `ControllerAdvice`
 - `Mapstruct` to map different type of objects to each other
 - `Micrometer` dependencies were added to track the logs easily
+- `Testcontainers` dependencies were added for integration tests
 - `docker-compose.yml` contains `Grafana`, `Prometheus` and `Zipkin` to track metrics, `Kafka` for event-driven
   architecture
     - `Actuator`: http://localhost:8080/actuator
@@ -61,6 +62,12 @@
         - `Actuator`: http://localhost:8080/actuator/prometheus
         - `Prometheus`: http://localhost:9090/graph
     - `Zipkin UI`: http://localhost:9411
+
+- Test via `Postman` (OPTIONAL):
+    1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)
+    2. Right-click the imported Postman Collection and click _**Run Collection**_ section.
+    3. On the right panel choose _**Functional**_ or _**Performance**_ section, edit _**Run configuration**_ and click
+       _**run**_ to test the application.
 
 -------
 

@@ -1,0 +1,30 @@
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: ${SHOW_SQL_ENABLED:true}
+    hibernate:
+      ddl-auto: update
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: mb_group_id
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    kafka-topics:
+      test-topic: test_topic
+
+swagger:
+  documentation:
+    services:
+      - name: live-data-service
+        url: /v2/api-docs
+        version: 2.0
+      - name: live-data-service-2
+        url: /v2/api-docs
+        version: 2.0

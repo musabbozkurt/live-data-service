@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 @ContextConfiguration(classes = {ScoreBoardController.class, RestResponseExceptionHandler.class})
 class ScoreBoardControllerTests extends BaseUnitTest {
+
     @MockBean
     private ScoreBoardService scoreBoardService;
 
