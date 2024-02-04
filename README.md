@@ -8,6 +8,8 @@
     <li><a href="#How_To_Run_And_Test_Application">How To Run And Test Application</a></li>
     <li><a href="#How_To_Run_And_Test_Dockerfile">How To Run And Test Application with Dockerfile (OPTIONAL)</a></li>
     <li><a href="#How_To_Run_And_Test_Docker_Compose">How To Run And Test Application with docker-compose.yml (OPTIONAL)</a></li>
+    <li><a href="#Redis">Redis Commands</a></li>
+    <li><a href="#References">References</a></li>
   </ol>
 </details>
 
@@ -45,7 +47,7 @@
 - `Micrometer` dependencies were added to track the logs easily
 - `Testcontainers` dependencies were added for integration tests
 - `docker-compose.yml` contains `Grafana`, `Prometheus` and `Zipkin` to track metrics, `Kafka` for event-driven
-  architecture
+  architecture, `Redis` for caching
     - `Actuator`: http://localhost:8080/actuator
     - `Kafka UI`: http://localhost:9091/
     - `Grafana`
@@ -117,8 +119,31 @@
 
 -------
 
+### Redis
+
+* The following command returns all matched data by `'keyPattern:*'` pattern
+    * `redis-cli --scan --pattern 'keyPattern:*'`
+
+* The following command deletes all matched data by `'keyPattern:*'` pattern
+    * `redis-cli KEYS 'keyPattern:*' | xargs redis-cli DEL`
+
+* The following command finds `TYPE` in redis with `KEY`
+    * `TYPE key` -> `TYPE xxx:hashedIdOrSomethingElse`
+
+* The following commands search by `TYPE`
+
+    * for `"string" TYPE`: `get key`
+    * for `"hash" TYPE`: `hgetall key`
+    * for `"list" TYPE`: `lrange key 0 -1`
+    * for `"set" TYPE`: `smembers key`
+    * for `"zset" TYPE`: `zrange key 0 -1 withScores`
+
+* RedisInsight: 
+
 ### References
 
 - [Metrics Made Easy Via Spring Actuator, Docker, Prometheus, and Grafana](https://www.youtube.com/watch?v=Utv7MWgNTvI)
 - https://prometheus.io/docs/prometheus/latest/installation/#volumes-bind-mount
 - [Spring Boot Rest Controller Unit Test with @WebMvcTest](https://www.bezkoder.com/spring-boot-webmvctest/)
+- [Redis Commands](https://auth0.com/blog/introduction-to-redis-install-cli-commands-and-data-types/)
+- [Running RedisInsight using Docker Compose](https://collabnix.com/running-redisinsight-using-docker-compose/)

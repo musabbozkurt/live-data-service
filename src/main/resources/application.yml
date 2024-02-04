@@ -1,3 +1,6 @@
+REDIS_HOST: ${REDIS_HOST_ENV:localhost}
+REDIS_PORT: ${REDIS_PORT_ENV:6378}
+
 server:
   port: 8080
 
@@ -14,6 +17,17 @@ spring:
     password: sa
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:${DB_NAME:MB_TEST};DB_CLOSE_DELAY=-1
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      jedis:
+        pool:
+          max-active: 7
+          max-idle: 7
+          min-idle: 2
+          max-wait: -1ms
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -76,3 +90,11 @@ swagger:
       - name: live-data-service-2
         url: /v2/api-docs
         version: 2.0
+
+redisson:
+  enabled: true
+  url: redis://${REDIS_HOST}:${REDIS_PORT}
+
+services:
+  token:
+    store: redis

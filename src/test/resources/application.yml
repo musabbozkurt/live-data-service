@@ -1,9 +1,23 @@
+REDIS_HOST: ${REDIS_HOST_ENV:localhost}
+REDIS_PORT: ${REDIS_PORT_ENV:6378}
+
 spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: ${SHOW_SQL_ENABLED:true}
     hibernate:
       ddl-auto: update
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      jedis:
+        pool:
+          max-active: 7
+          max-idle: 7
+          min-idle: 2
+          max-wait: -1ms
 
   kafka:
     consumer:
@@ -28,3 +42,11 @@ swagger:
       - name: live-data-service-2
         url: /v2/api-docs
         version: 2.0
+
+redisson:
+  enabled: false
+  url: redis://${REDIS_HOST}:${REDIS_PORT}
+
+services:
+  token:
+    store: redis

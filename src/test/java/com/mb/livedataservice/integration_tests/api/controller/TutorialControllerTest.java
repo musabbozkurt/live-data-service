@@ -18,9 +18,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.Objects;
 
@@ -34,6 +37,14 @@ class TutorialControllerTest extends BaseUnitTest {
     @Container
     @ServiceConnection
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.1");
+
+    @Container
+    @ServiceConnection
+    public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:7.2.4")).withExposedPorts(6379);
+
+    @Container
+    @ServiceConnection
+    public static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"));
 
     @Autowired
     private TestRestTemplate restTemplate;
