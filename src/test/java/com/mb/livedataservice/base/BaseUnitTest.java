@@ -1,5 +1,6 @@
 package com.mb.livedataservice.base;
 
+import com.mb.livedataservice.api.filter.ApiTutorialFilter;
 import com.mb.livedataservice.api.request.ApiScoreBoardRequest;
 import com.mb.livedataservice.api.request.ApiScoreBoardUpdateRequest;
 import com.mb.livedataservice.api.request.ApiTutorialRequest;
@@ -138,5 +139,9 @@ public abstract class BaseUnitTest {
 
     public ApiTutorialResponse getUpdatedApiTutorialResponse() {
         return new ApiTutorialResponse(1, "Updated", "Updated", true);
+    }
+
+    public ApiTutorialFilter getApiTutorialFilter() {
+        return new ApiTutorialFilter("Updated", "Updated", true);
     }
 }

@@ -1,11 +1,14 @@
 package com.mb.livedataservice.api.controller;
 
+import com.mb.livedataservice.api.filter.ApiTutorialFilter;
 import com.mb.livedataservice.api.request.ApiTutorialRequest;
 import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.mapper.TutorialMapper;
 import com.mb.livedataservice.service.TutorialService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,5 +59,10 @@ public class TutorialController {
     @GetMapping("/tutorials/published")
     public ResponseEntity<List<ApiTutorialResponse>> findByPublished() {
         return new ResponseEntity<>(tutorialMapper.map(tutorialService.findByPublished(true)), HttpStatus.OK);
+    }
+
+    @GetMapping("/tutorials/filter")
+    public ResponseEntity<Page<ApiTutorialResponse>> findAll(ApiTutorialFilter apiTutorialFilter, Pageable pageable) {
+        return new ResponseEntity<>(tutorialService.findAll(tutorialMapper.map(apiTutorialFilter), pageable).map(tutorialMapper::map), HttpStatus.OK);
     }
 }

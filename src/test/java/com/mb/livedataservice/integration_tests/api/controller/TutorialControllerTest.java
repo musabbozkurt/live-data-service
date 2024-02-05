@@ -5,6 +5,7 @@ import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.base.BaseUnitTest;
 import com.mb.livedataservice.data.model.Tutorial;
+import com.mb.livedataservice.helper.RestResponsePage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -12,12 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -148,5 +152,25 @@ class TutorialControllerTest extends BaseUnitTest {
         Tutorial[] tutorials = restTemplate.getForObject("/api/tutorials/published", Tutorial[].class);
 
         assertThat(tutorials.length).isGreaterThan(100);
+    }
+
+    @Test
+    void shouldGetAllTutorialsByFilter() {
+        ParameterizedTypeReference<RestResponsePage<ApiTutorialResponse>> responseType = new ParameterizedTypeReference<>() {
+        };
+
+        UriComponents uriComponents = UriComponentsBuilder.fromPath("/api/tutorials/filter")
+                .queryParam("pageSize", "2")
+                .queryParam("page", "0")
+                .queryParam("description", "Description1")
+                .queryParam("published", true)
+                .build();
+
+        ResponseEntity<RestResponsePage<ApiTutorialResponse>> tutorials = restTemplate.exchange(uriComponents.toString(), HttpMethod.GET, null, responseType);
+        RestResponsePage<ApiTutorialResponse> tutorialsBody = tutorials.getBody();
+
+        assertThat(tutorials.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(tutorialsBody).isNotNull();
+        assertThat(tutorialsBody.getNumberOfElements()).isGreaterThanOrEqualTo(1);
     }
 }

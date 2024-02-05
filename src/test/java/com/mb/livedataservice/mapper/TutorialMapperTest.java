@@ -1,9 +1,11 @@
 package com.mb.livedataservice.mapper;
 
+import com.mb.livedataservice.api.filter.ApiTutorialFilter;
 import com.mb.livedataservice.api.request.ApiTutorialRequest;
 import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.base.BaseUnitTest;
+import com.mb.livedataservice.data.filter.TutorialFilter;
 import com.mb.livedataservice.data.model.Tutorial;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -72,5 +74,19 @@ class TutorialMapperTest extends BaseUnitTest {
         assertEquals(tutorials.getFirst().getTitle(), result.getFirst().getTitle());
         assertEquals(tutorials.getFirst().getDescription(), result.getFirst().getDescription());
         assertEquals(tutorials.getFirst().isPublished(), result.getFirst().isPublished());
+    }
+
+    @Test
+    void map_ApiTutorialFilterToTutorialFilter_ShouldSucceed() {
+        // arrange
+        ApiTutorialFilter apiTutorialFilter = getApiTutorialFilter();
+
+        // act
+        TutorialFilter result = tutorialMapper.map(apiTutorialFilter);
+
+        // assertion
+        assertEquals(apiTutorialFilter.getTitle(), result.getTitle());
+        assertEquals(apiTutorialFilter.getDescription(), result.getDescription());
+        assertEquals(apiTutorialFilter.isPublished(), result.isPublished());
     }
 }

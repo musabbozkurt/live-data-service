@@ -1,6 +1,9 @@
 package com.mb.livedataservice.service;
 
+import com.mb.livedataservice.data.filter.TutorialFilter;
 import com.mb.livedataservice.data.model.Tutorial;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -19,4 +22,6 @@ public interface TutorialService {
     void deleteAll();
 
     List<Tutorial> findByPublished(boolean b);
+
+    Page<Tutorial> findAll(TutorialFilter filter, Pageable pageable);
 }

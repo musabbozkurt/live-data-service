@@ -1,8 +1,10 @@
 package com.mb.livedataservice.mapper;
 
+import com.mb.livedataservice.api.filter.ApiTutorialFilter;
 import com.mb.livedataservice.api.request.ApiTutorialRequest;
 import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
+import com.mb.livedataservice.data.filter.TutorialFilter;
 import com.mb.livedataservice.data.model.Tutorial;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,4 +23,6 @@ public interface TutorialMapper {
     ApiTutorialResponse map(Tutorial tutorial);
 
     List<ApiTutorialResponse> map(List<Tutorial> tutorial);
+
+    TutorialFilter map(ApiTutorialFilter apiTutorialFilter);
 }

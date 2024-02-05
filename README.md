@@ -162,3 +162,4 @@
 - [Redis Commands](https://auth0.com/blog/introduction-to-redis-install-cli-commands-and-data-types/)
 - [Running RedisInsight using Docker Compose](https://collabnix.com/running-redisinsight-using-docker-compose/)
 - [Google Play Integrity API](https://developer.android.com/google/play/integrity)
+- [A Guide to Querydsl with JPA](https://www.baeldung.com/querydsl-with-jpa-tutorial)
