@@ -6,6 +6,7 @@ import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.base.BaseUnitTest;
 import com.mb.livedataservice.data.model.Tutorial;
 import com.mb.livedataservice.helper.RestResponsePage;
+import com.mb.livedataservice.integration_tests.containers.DefaultElasticsearchContainer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -49,6 +51,9 @@ class TutorialControllerTest extends BaseUnitTest {
     @Container
     @ServiceConnection
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.1");
+
+    @Container
+    private static final ElasticsearchContainer elasticsearchContainer = new DefaultElasticsearchContainer();
 
     @Autowired
     private TestRestTemplate restTemplate;

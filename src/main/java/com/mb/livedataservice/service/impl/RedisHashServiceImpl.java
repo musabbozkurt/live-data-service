@@ -1,6 +1,6 @@
 package com.mb.livedataservice.service.impl;
 
-import com.mb.livedataservice.data.redis.model.RedisHashData;
+import com.mb.livedataservice.data.model.redis.RedisHashData;
 import com.mb.livedataservice.data.repository.RedisHashDataRepository;
 import com.mb.livedataservice.service.RedisHashService;
 import lombok.RequiredArgsConstructor;

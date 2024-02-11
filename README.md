@@ -48,7 +48,7 @@
 - `Micrometer` dependencies were added to track the logs easily
 - `Testcontainers` dependencies were added for integration tests
 - `docker-compose.yml` contains `Grafana`, `Prometheus` and `Zipkin` to track metrics, `Kafka` for event-driven
-  architecture, `Redis` for caching
+  architecture, `Redis` for caching, `Elasticsearch` for search and analytics engine
     - `Actuator`: http://localhost:8080/actuator
     - `Kafka UI`: http://localhost:9091/
     - `Grafana`
@@ -65,6 +65,8 @@
         - `Actuator`: http://localhost:8080/actuator/prometheus
         - `Prometheus`: http://localhost:9090/graph
     - `Zipkin UI`: http://localhost:9411
+    - `Elasticsearch`: http://localhost:9200/
+    - `Kibana`: http://localhost:5601/
 
 - Test via `Postman` (OPTIONAL):
     1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)

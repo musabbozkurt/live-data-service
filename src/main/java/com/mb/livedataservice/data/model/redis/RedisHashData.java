@@ -1,4 +1,4 @@
-package com.mb.livedataservice.data.redis.model;
+package com.mb.livedataservice.data.model.redis;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;

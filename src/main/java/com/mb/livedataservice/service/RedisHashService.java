@@ -1,6 +1,6 @@
 package com.mb.livedataservice.service;
 
-import com.mb.livedataservice.data.redis.model.RedisHashData;
+import com.mb.livedataservice.data.model.redis.RedisHashData;
 
 import java.util.Optional;
 
