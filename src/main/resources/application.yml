@@ -104,7 +104,14 @@ services:
   token:
     store: redis
 
-# https://developer.android.com/google/play/integrity/overview
-play-integrity-api:
-  credentials-file: ${PLAY_INTEGRITY_API_CREDENTIALS_JSON:play-integrity-credentials.json}
-  application-name: project_id # project_id in play-integrity-credentials.json file
+clients:
+  # https://developer.android.com/google/play/integrity/overview
+  play-integrity-api:
+    credentials-file: ${PLAY_INTEGRITY_API_CREDENTIALS_JSON:play-integrity-credentials.json}
+    application-name: project_id # project_id in play-integrity-credentials.json file
+
+  json-placeholder:
+    url: ${JSON_PLACEHOLDER_BASE_URL:https://jsonplaceholder.typicode.com}
+    # client-id and client-secret are dummy values for this integration and were added to demonstrate the usage of BasicAuthenticationInterceptor
+    client-id: ${JSON_PLACEHOLDER_CLIENT_ID:client-id}
+    client-secret: ${JSON_PLACEHOLDER_CLIENT_SECRET:client-secret}

@@ -22,7 +22,7 @@ import java.security.GeneralSecurityException;
 @Slf4j
 @Setter
 @Configuration
-@ConfigurationProperties("play-integrity-api")
+@ConfigurationProperties("clients.play-integrity-api")
 public class PlayIntegrityConfiguration {
 
     private String credentialsFile;

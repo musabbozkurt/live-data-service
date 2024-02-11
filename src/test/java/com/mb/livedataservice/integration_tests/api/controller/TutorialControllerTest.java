@@ -4,6 +4,9 @@ import com.mb.livedataservice.api.request.ApiTutorialRequest;
 import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.base.BaseUnitTest;
+import com.mb.livedataservice.client.jsonplaceholder.JSONPlaceholderRestClient;
+import com.mb.livedataservice.client.jsonplaceholder.request.PostRequest;
+import com.mb.livedataservice.client.jsonplaceholder.response.PostResponse;
 import com.mb.livedataservice.data.model.Tutorial;
 import com.mb.livedataservice.helper.RestResponsePage;
 import com.mb.livedataservice.integration_tests.containers.DefaultElasticsearchContainer;
@@ -31,9 +34,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Transactional
 @Testcontainers
@@ -57,6 +62,9 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    private JSONPlaceholderRestClient JSONPlaceholderRestClient;
 
     @BeforeAll
     static void setup(@Autowired TestRestTemplate restTemplate) {
@@ -177,5 +185,34 @@ class TutorialControllerTest extends BaseUnitTest {
         assertThat(tutorials.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(tutorialsBody).isNotNull();
         assertThat(tutorialsBody.getNumberOfElements()).isGreaterThanOrEqualTo(1);
+    }
+
+    @Test
+    void shouldFindAllTodos() {
+        String todos = JSONPlaceholderRestClient.findAllTodos();
+        assertNotNull(todos);
+    }
+
+    @Test
+    void shouldFindAllPosts() {
+        List<PostResponse> posts = JSONPlaceholderRestClient.findAllPosts();
+        assertNotNull(posts);
+        assertThat(posts).hasSizeGreaterThanOrEqualTo(1);
+    }
+
+    @Test
+    void shouldCreatePost() {
+        PostRequest newPost = new PostRequest(5, null, "The Lord of the Rings", null);
+
+        PostResponse post = JSONPlaceholderRestClient.createPost(newPost);
+        assertNotNull(post);
+        assertThat(post.userId()).isEqualTo(newPost.userId());
+        assertThat(post.title()).isEqualTo(newPost.title());
+    }
+
+    @Test
+    void shouldGetPostById() {
+        PostResponse post = JSONPlaceholderRestClient.getPostById(5);
+        assertNotNull(post);
     }
 }
