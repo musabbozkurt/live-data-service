@@ -4,6 +4,7 @@ import com.mb.livedataservice.api.request.ApiTutorialRequest;
 import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.base.BaseUnitTest;
+import com.mb.livedataservice.client.jsonplaceholder.DeclarativeJSONPlaceholderRestClient;
 import com.mb.livedataservice.client.jsonplaceholder.JSONPlaceholderRestClient;
 import com.mb.livedataservice.client.jsonplaceholder.request.PostRequest;
 import com.mb.livedataservice.client.jsonplaceholder.response.PostResponse;
@@ -65,6 +66,9 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Autowired
     private JSONPlaceholderRestClient JSONPlaceholderRestClient;
+
+    @Autowired
+    private DeclarativeJSONPlaceholderRestClient declarativeJSONPlaceholderRestClient;
 
     @BeforeAll
     static void setup(@Autowired TestRestTemplate restTemplate) {
@@ -214,5 +218,29 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldGetPostById() {
         PostResponse post = JSONPlaceholderRestClient.getPostById(5);
         assertNotNull(post);
+    }
+
+    @Test
+    public void shouldGetAllPosts() {
+        List<PostResponse> posts = declarativeJSONPlaceholderRestClient.getAllPosts();
+        assertThat(posts.size()).isEqualTo(100);
+    }
+
+    @Test
+    public void shouldGetSinglePost() {
+        PostResponse post = declarativeJSONPlaceholderRestClient.getPost(5);
+        assertThat(post.id()).isEqualTo(5);
+    }
+
+    @Test
+    public void shouldDeleteSinglePost() {
+        declarativeJSONPlaceholderRestClient.deletePost(5);
+    }
+
+    @Test
+    public void shouldCreateNewPost() {
+        PostRequest newPost = new PostRequest(1, null, "new title", "new body");
+        PostResponse post = declarativeJSONPlaceholderRestClient.createPost(newPost);
+        assertThat("new title").isEqualTo(post.title());
     }
 }
