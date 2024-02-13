@@ -29,7 +29,7 @@ import java.util.List;
 @EnableConfigurationProperties({SwaggerConfig.class, SwaggerConfig.SwaggerServices.class})
 public class SwaggerConfig {
 
-    public List<SwaggerServices> services;
+    private List<SwaggerServices> services;
 
     @Bean
     public OpenAPI springShopOpenAPI() {

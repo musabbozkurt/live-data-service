@@ -65,7 +65,7 @@ class TutorialControllerTest extends BaseUnitTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private JSONPlaceholderRestClient JSONPlaceholderRestClient;
+    private JSONPlaceholderRestClient placeholderRestClient;
 
     @Autowired
     private DeclarativeJSONPlaceholderRestClient declarativeJSONPlaceholderRestClient;
@@ -122,7 +122,7 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldGetAllTutorials() {
         Tutorial[] tutorials = restTemplate.getForObject("/api/tutorials", Tutorial[].class);
 
-        assertThat(tutorials.length).isGreaterThan(100);
+        assertThat(tutorials).hasSizeGreaterThan(100);
     }
 
     @Test
@@ -168,7 +168,7 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldGetAllTutorialsByPublishedTrue() {
         Tutorial[] tutorials = restTemplate.getForObject("/api/tutorials/published", Tutorial[].class);
 
-        assertThat(tutorials.length).isGreaterThan(100);
+        assertThat(tutorials).hasSizeGreaterThan(100);
     }
 
     @Test
@@ -188,18 +188,18 @@ class TutorialControllerTest extends BaseUnitTest {
 
         assertThat(tutorials.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(tutorialsBody).isNotNull();
-        assertThat(tutorialsBody.getNumberOfElements()).isGreaterThanOrEqualTo(1);
+        assertThat(tutorialsBody.getNumberOfElements()).isPositive();
     }
 
     @Test
     void shouldFindAllTodos() {
-        String todos = JSONPlaceholderRestClient.findAllTodos();
+        String todos = placeholderRestClient.findAllTodos();
         assertNotNull(todos);
     }
 
     @Test
     void shouldFindAllPosts() {
-        List<PostResponse> posts = JSONPlaceholderRestClient.findAllPosts();
+        List<PostResponse> posts = placeholderRestClient.findAllPosts();
         assertNotNull(posts);
         assertThat(posts).hasSizeGreaterThanOrEqualTo(1);
     }
@@ -208,7 +208,7 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldCreatePost() {
         PostRequest newPost = new PostRequest(5, null, "The Lord of the Rings", null);
 
-        PostResponse post = JSONPlaceholderRestClient.createPost(newPost);
+        PostResponse post = placeholderRestClient.createPost(newPost);
         assertNotNull(post);
         assertThat(post.userId()).isEqualTo(newPost.userId());
         assertThat(post.title()).isEqualTo(newPost.title());
@@ -216,31 +216,32 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Test
     void shouldGetPostById() {
-        PostResponse post = JSONPlaceholderRestClient.getPostById(5);
+        PostResponse post = placeholderRestClient.getPostById(5);
         assertNotNull(post);
     }
 
     @Test
-    public void shouldGetAllPosts() {
+    void shouldGetAllPosts() {
         List<PostResponse> posts = declarativeJSONPlaceholderRestClient.getAllPosts();
-        assertThat(posts.size()).isEqualTo(100);
+        assertThat(posts).hasSize(100);
     }
 
     @Test
-    public void shouldGetSinglePost() {
+    void shouldGetSinglePost() {
         PostResponse post = declarativeJSONPlaceholderRestClient.getPost(5);
         assertThat(post.id()).isEqualTo(5);
     }
 
     @Test
-    public void shouldDeleteSinglePost() {
-        declarativeJSONPlaceholderRestClient.deletePost(5);
+    void shouldDeleteSinglePost() {
+        ResponseEntity<Void> response = declarativeJSONPlaceholderRestClient.deletePost(5);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void shouldCreateNewPost() {
+    void shouldCreateNewPost() {
         PostRequest newPost = new PostRequest(1, null, "new title", "new body");
         PostResponse post = declarativeJSONPlaceholderRestClient.createPost(newPost);
-        assertThat("new title").isEqualTo(post.title());
+        assertThat(post.title()).isEqualTo("new title");
     }
 }

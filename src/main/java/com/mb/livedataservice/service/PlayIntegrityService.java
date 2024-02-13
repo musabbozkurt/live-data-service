@@ -48,8 +48,8 @@ public class PlayIntegrityService {
             map.put(SUCCEEDED, true);
         } catch (Exception e) {
             log.error("Exception occurred while verifying play integrity token. Exception: {}", ExceptionUtils.getStackTrace(e));
-            if (e instanceof GoogleJsonResponseException) {
-                map.put(RESULT, ((GoogleJsonResponseException) e).getDetails());
+            if (e instanceof GoogleJsonResponseException googleJsonResponseException) {
+                map.put(RESULT, googleJsonResponseException.getDetails());
             } else {
                 map.put(RESULT, e.getMessage());
             }

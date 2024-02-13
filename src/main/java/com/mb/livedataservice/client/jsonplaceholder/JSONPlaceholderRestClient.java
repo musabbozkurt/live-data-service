@@ -25,14 +25,14 @@ public class JSONPlaceholderRestClient {
 
     private final RestClient restClient;
 
-    public JSONPlaceholderRestClient(RestClient.Builder builder, JSONPlaceholderClientProperties JSONPlaceholderClientProperties) {
+    public JSONPlaceholderRestClient(RestClient.Builder builder, JSONPlaceholderClientProperties placeholderClientProperties) {
         JdkClientHttpRequestFactory jdkClientHttpRequestFactory = new JdkClientHttpRequestFactory();
         jdkClientHttpRequestFactory.setReadTimeout(Duration.ofSeconds(15));
 
         this.restClient = builder
-                .baseUrl(JSONPlaceholderClientProperties.getUrl())
+                .baseUrl(placeholderClientProperties.getUrl())
                 .requestFactory(jdkClientHttpRequestFactory)
-                .requestInterceptor(new BasicAuthenticationInterceptor(JSONPlaceholderClientProperties.getClientId(), JSONPlaceholderClientProperties.getClientSecret()))
+                .requestInterceptor(new BasicAuthenticationInterceptor(placeholderClientProperties.getClientId(), placeholderClientProperties.getClientSecret()))
                 .defaultStatusHandler(HttpStatusCode::isError, (request, response) -> {
                     throw new BaseException(new ErrorCode() {
 

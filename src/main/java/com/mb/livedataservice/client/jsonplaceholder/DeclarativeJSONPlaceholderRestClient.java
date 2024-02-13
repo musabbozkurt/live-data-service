@@ -2,6 +2,7 @@ package com.mb.livedataservice.client.jsonplaceholder;
 
 import com.mb.livedataservice.client.jsonplaceholder.request.PostRequest;
 import com.mb.livedataservice.client.jsonplaceholder.response.PostResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.DeleteExchange;
@@ -19,7 +20,7 @@ public interface DeclarativeJSONPlaceholderRestClient {
     PostResponse getPost(@PathVariable Integer id);
 
     @DeleteExchange("/posts/{id}")
-    void deletePost(@PathVariable Integer id);
+    ResponseEntity<Void> deletePost(@PathVariable Integer id);
 
     @PostExchange("/posts")
     PostResponse createPost(@RequestBody PostRequest post);
