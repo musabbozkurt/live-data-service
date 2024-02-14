@@ -11,7 +11,8 @@ import java.util.List;
 public record Car(@Id
                   String id,
 
-                  @Field(type = FieldType.Text, name = "model") String model,
+                  @Field(type = FieldType.Text, name = "model")
+                  String model,
 
                   @Field(type = FieldType.Integer, name = "year")
                   Integer yearOfManufacture,

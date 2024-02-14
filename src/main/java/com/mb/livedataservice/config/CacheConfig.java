@@ -1,6 +1,6 @@
 package com.mb.livedataservice.config;
 
-import com.mb.livedataservice.utils.RedisConstants;
+import com.mb.livedataservice.util.RedisConstants;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

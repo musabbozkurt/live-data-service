@@ -1,4 +1,4 @@
-package com.mb.livedataservice.utils;
+package com.mb.livedataservice.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

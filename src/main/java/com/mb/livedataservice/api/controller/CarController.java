@@ -1,5 +1,6 @@
 package com.mb.livedataservice.api.controller;
 
+import com.mb.livedataservice.api.filter.ApiCarFilter;
 import com.mb.livedataservice.api.request.ApiCarRequest;
 import com.mb.livedataservice.api.response.ApiCarResponse;
 import com.mb.livedataservice.mapper.CarMapper;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -41,5 +44,11 @@ public class CarController {
     public void delete(@PathVariable String id) {
         log.info("Received a request to delete. delete - id: {}", id);
         carService.deleteCarById(id);
+    }
+
+    @GetMapping("/fuzzy-search")
+    public List<ApiCarResponse> fuzzySearch(ApiCarFilter apiCarFilter) {
+        log.info("Received a request to do fuzzy search. fuzzySearch - ApiCarFilter: {}", apiCarFilter);
+        return carMapper.map(carService.fuzzySearch(carMapper.map(apiCarFilter)));
     }
 }

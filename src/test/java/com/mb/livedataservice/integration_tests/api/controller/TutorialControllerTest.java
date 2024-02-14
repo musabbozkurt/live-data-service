@@ -2,6 +2,7 @@ package com.mb.livedataservice.integration_tests.api.controller;
 
 import com.mb.livedataservice.api.request.ApiTutorialRequest;
 import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
+import com.mb.livedataservice.api.response.ApiCarResponse;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.base.BaseUnitTest;
 import com.mb.livedataservice.client.jsonplaceholder.DeclarativeJSONPlaceholderRestClient;
@@ -35,7 +36,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -243,5 +246,17 @@ class TutorialControllerTest extends BaseUnitTest {
         PostRequest newPost = new PostRequest(1, null, "new title", "new body");
         PostResponse post = declarativeJSONPlaceholderRestClient.createPost(newPost);
         assertThat(post.title()).isEqualTo("new title");
+    }
+
+    @Test
+    void shouldDoFuzzySearchByFilter() {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("model", "model");
+        queryParams.put("yearOfManufacture", "2000");
+        queryParams.put("brand", "brand");
+
+        ApiCarResponse[] tutorials = restTemplate.getForObject("/cars/fuzzy-search?model={model}&yearOfManufacture={yearOfManufacture}&brand={brand}", ApiCarResponse[].class, queryParams);
+
+        assertThat(tutorials.length).isNotNegative();
     }
 }

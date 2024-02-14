@@ -1,15 +1,23 @@
 package com.mb.livedataservice.service.impl;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import com.mb.livedataservice.data.filter.CarFilter;
 import com.mb.livedataservice.data.model.elastic.Car;
 import com.mb.livedataservice.data.repository.CarRepository;
 import com.mb.livedataservice.exception.BaseException;
 import com.mb.livedataservice.exception.LiveDataErrorCode;
 import com.mb.livedataservice.service.CarService;
+import com.mb.livedataservice.util.ElasticSearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.function.Supplier;
 
 @Slf4j
 @Service
@@ -17,6 +25,7 @@ import org.springframework.stereotype.Service;
 public class CarServiceImpl implements CarService {
 
     private final CarRepository carRepository;
+    private final ElasticsearchClient elasticsearchClient;
 
     @Override
     public Car save(Car car) {
@@ -36,5 +45,15 @@ public class CarServiceImpl implements CarService {
     @Override
     public void deleteCarById(String id) {
         carRepository.deleteById(id);
+    }
+
+    @Override
+    public SearchResponse<Car> fuzzySearch(CarFilter carFilter) {
+        Supplier<Query> supplier = ElasticSearchUtil.createSupplierQuery(carFilter);
+        try {
+            return elasticsearchClient.search(s -> s.index("car_index").query(supplier.get()), Car.class);
+        } catch (IOException e) {
+            throw new BaseException(LiveDataErrorCode.UNEXPECTED_ERROR);
+        }
     }
 }
