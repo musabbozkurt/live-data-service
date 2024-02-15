@@ -5,7 +5,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.mb.livedataservice.api.filter.ApiCarFilter;
 import com.mb.livedataservice.api.request.ApiCarRequest;
 import com.mb.livedataservice.api.response.ApiCarResponse;
-import com.mb.livedataservice.data.filter.CarFilter;
+import com.mb.livedataservice.data.filter.elastic.CarFilter;
 import com.mb.livedataservice.data.model.elastic.Car;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

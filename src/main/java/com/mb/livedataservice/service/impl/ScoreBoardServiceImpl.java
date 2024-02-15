@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,6 +66,6 @@ public class ScoreBoardServiceImpl implements ScoreBoardService {
         return scoreBoardRepository.findAllByDeletedIsTrue(Sort.by("modifiedDateTime").ascending())
                 .stream()
                 .map(scoreBoard -> String.format("%d. %s - %s : %d - %d", scoreBoard.getId(), scoreBoard.getHomeTeamName(), scoreBoard.getAwayTeamName(), scoreBoard.getHomeTeamScore(), scoreBoard.getAwayTeamScore()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
