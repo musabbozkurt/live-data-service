@@ -30,7 +30,6 @@ spring:
           max-wait: -1ms
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     show-sql: ${SHOW_SQL_ENABLED:true}
     hibernate:
       ddl-auto: update

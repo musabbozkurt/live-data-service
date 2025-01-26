@@ -15,13 +15,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestcontainersConfiguration {
 
     @Bean
-    PostgreSQLContainer<?> postgresContainer() {
-        return new PostgreSQLContainer<>(DockerImageName.parse("postgres:17.0"));
-    }
-
-    @Bean
     public PostgreSQLContainer<?> postgres() {
-        PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16.1");
+        PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:17.2")
+                .withReuse(true);
+
         postgreSQLContainer.start();
 
         assertThat(postgreSQLContainer.isCreated()).isTrue();
@@ -32,7 +29,9 @@ public class TestcontainersConfiguration {
 
     @Bean
     public GenericContainer<?> redis() {
-        GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.2.4")).withExposedPorts(6379);
+        GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.4.2"))
+                .withExposedPorts(6379)
+                .withReuse(true);
 
         redisContainer.start();
 
@@ -44,28 +43,34 @@ public class TestcontainersConfiguration {
 
     @Bean
     public KafkaContainer kafka() {
-        KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"));
+        KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.8.0"))
+                .withReuse(true);
 
         kafkaContainer.start();
 
         System.setProperty("spring.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
+        System.setProperty("spring.kafka.consumer.bootstrap-servers", kafkaContainer.getBootstrapServers());
+        System.setProperty("spring.kafka.producer.bootstrap-servers", kafkaContainer.getBootstrapServers());
 
         return kafkaContainer;
     }
 
     @Bean
     public ElasticsearchContainer defaultElasticsearchContainer() {
-        return new DefaultElasticsearchContainer();
+        return new DefaultElasticsearchContainer()
+                .withReuse(true);
     }
 
     @Bean
     public ElasticsearchContainer elasticsearchContainer() {
-        ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.12.1"))
-                .withEnv("xpack.security.enabled", "false");
+        ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.17.1"))
+                .withEnv("xpack.security.enabled", "false")
+                .withExposedPorts(9201)
+                .withReuse(true);
 
         elasticsearchContainer.start();
 
-        System.setProperty("spring.data.elasticsearch.cluster-nodes", elasticsearchContainer.getHost() + ":" + elasticsearchContainer.getMappedPort(9200));
+        System.setProperty("spring.data.elasticsearch.cluster-nodes", elasticsearchContainer.getHost() + ":" + elasticsearchContainer.getMappedPort(9201));
         System.setProperty("spring.data.elasticsearch.repositories.enabled", "true");
 
         return elasticsearchContainer;
