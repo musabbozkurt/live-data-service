@@ -14,7 +14,7 @@ public class DefaultElasticsearchContainer extends ElasticsearchContainer {
 
     public DefaultElasticsearchContainer() {
         super(DockerImageName.parse(ELASTIC_SEARCH_DOCKER).asCompatibleSubstituteFor("docker.elastic.co/elasticsearch"));
-        addFixedExposedPort(9200, 9200);
+        addFixedExposedPort(9202, 9202);
         addEnv(DISCOVERY_TYPE, DISCOVERY_TYPE_SINGLE_NODE);
         addEnv(XPACK_SECURITY_ENABLED, Boolean.FALSE.toString());
         addEnv(CLUSTER_NAME, ELASTIC_SEARCH);
