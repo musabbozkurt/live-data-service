@@ -85,7 +85,7 @@
 
 1 - cd live-data-service
 2 - docker-compose up -d
-3 - mvn clean install or mvn clean package 
+3 - ./mvnw clean install or mvn clean install or mvn clean package 
 4 - mvn spring-boot:run
 ```
 
@@ -98,7 +98,7 @@
 ```
 1 - cd live-data-service
 2 - docker-compose up -d
-3 - mvn clean install or mvn clean package --------THIS IS MUST---------
+3 - ./mvnw clean install or mvn clean install or mvn clean package --------THIS IS MUST---------
 4 - docker build -t mb/live-data-service .
 5 - docker run -p 8080:8080 mb/live-data-service
 ```
@@ -115,7 +115,7 @@
 
 ```
 1 - cd live-data-service
-2 - mvn clean install or mvn clean package --------THIS IS MUST---------
+2 - ./mvnw clean install or mvn clean install or mvn clean package --------THIS IS MUST---------
 3 - docker build -t mb/live-data-service .
 4 - docker-compose up -d
 ```
