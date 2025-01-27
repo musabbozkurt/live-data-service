@@ -1,6 +1,5 @@
 package com.mb.livedataservice.integration_tests.config;
 
-import com.mb.livedataservice.integration_tests.containers.DefaultElasticsearchContainer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.testcontainers.containers.GenericContainer;
@@ -13,6 +12,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
+
+    @Bean
+    public ElasticsearchContainer elasticsearch() {
+        ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("elasticsearch:8.17.1"))
+                .withEnv("discovery.type", "single-node")
+                .withEnv("xpack.security.enabled", "false")
+                .withEnv("cluster.name", "elasticsearch")
+                .withReuse(true);
+
+        elasticsearchContainer.start();
+
+        System.setProperty("spring.elasticsearch.uris", elasticsearchContainer.getHttpHostAddress());
+
+        return elasticsearchContainer;
+    }
 
     @Bean
     public PostgreSQLContainer<?> postgres() {
@@ -53,26 +67,5 @@ public class TestcontainersConfiguration {
         System.setProperty("spring.kafka.producer.bootstrap-servers", kafkaContainer.getBootstrapServers());
 
         return kafkaContainer;
-    }
-
-    @Bean
-    public ElasticsearchContainer defaultElasticsearchContainer() {
-        return new DefaultElasticsearchContainer()
-                .withReuse(true);
-    }
-
-    @Bean
-    public ElasticsearchContainer elasticsearchContainer() {
-        ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.17.1"))
-                .withEnv("xpack.security.enabled", "false")
-                .withExposedPorts(9201)
-                .withReuse(true);
-
-        elasticsearchContainer.start();
-
-        System.setProperty("spring.data.elasticsearch.cluster-nodes", elasticsearchContainer.getHost() + ":" + elasticsearchContainer.getMappedPort(9201));
-        System.setProperty("spring.data.elasticsearch.repositories.enabled", "true");
-
-        return elasticsearchContainer;
     }
 }
