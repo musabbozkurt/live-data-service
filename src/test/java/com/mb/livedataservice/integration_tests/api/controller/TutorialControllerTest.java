@@ -11,14 +11,13 @@ import com.mb.livedataservice.client.jsonplaceholder.request.PostRequest;
 import com.mb.livedataservice.client.jsonplaceholder.response.PostResponse;
 import com.mb.livedataservice.data.model.Tutorial;
 import com.mb.livedataservice.helper.RestResponsePage;
-import com.mb.livedataservice.integration_tests.containers.DefaultElasticsearchContainer;
+import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -28,13 +27,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,23 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Transactional
 @Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestcontainersConfiguration.class)
 class TutorialControllerTest extends BaseUnitTest {
-
-    @Container
-    @ServiceConnection
-    public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:7.2.4")).withExposedPorts(6379);
-
-    @Container
-    @ServiceConnection
-    public static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3"));
-
-    @Container
-    @ServiceConnection
-    private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.1");
-
-    @Container
-    private static final ElasticsearchContainer elasticsearchContainer = new DefaultElasticsearchContainer();
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -80,12 +58,6 @@ class TutorialControllerTest extends BaseUnitTest {
             ApiTutorialRequest apiTutorialRequest = new ApiTutorialRequest("Spring Boot @WebMvcTest%d".formatted(i), "Description%d".formatted(i), true);
             restTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ApiTutorialResponse.class);
         }
-    }
-
-    @Test
-    void connectionEstablished() {
-        assertThat(postgres.isCreated()).isTrue();
-        assertThat(postgres.isRunning()).isTrue();
     }
 
     @Test
