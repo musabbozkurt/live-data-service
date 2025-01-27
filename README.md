@@ -48,9 +48,13 @@
 - `Micrometer` dependencies were added to track the logs easily
 - `Testcontainers` dependencies were added for integration tests
 - `docker-compose.yml` contains `Grafana`, `Prometheus` and `Zipkin` to track metrics, `Kafka` for event-driven
-  architecture, `Redis` for caching, `Elasticsearch` for search and analytics engine
+  architecture, `Redis` for caching, `Elasticsearch`, `Kibana`, and `Logstash` for search, analytics engine and logs,
+  `PostgreSQL` and `MongoDB` for data storage.
+    - Kafka and its UI are included for message streaming, while the Elastic Stack (Elasticsearch, Logstash, Kibana) is
+      set up for log management and visualization.
+    - All services are connected through `bridge` networks, ensuring communication between containers.
     - `Actuator`: http://localhost:8080/actuator
-    - `Kafka UI`: http://localhost:9091/
+    - `Kafka UI`: http://localhost:9999/
     - `Grafana`
         - Login Credentials
             - Url: http://localhost:3000/
@@ -66,7 +70,21 @@
         - `Prometheus`: http://localhost:9090/graph
     - `Zipkin UI`: http://localhost:9411
     - `Elasticsearch`: http://localhost:9200/
-    - `Kibana`: http://localhost:5601/
+    - `Kibana`: http://localhost:5601/app/home#/
+        - Connect Spring Boot to `Elasticsearch` `(TESTED FOR SPRING BOOT 3)`
+        - Run Spring Boot project
+        - Open http://localhost:5601/app/home#/ --> `Discover` --> `Create data view` -> `Name should be Index name` -->
+          `Save date view to Kibana`
+            - ![img.png](src/main/resources/logstash/img.png)
+    - `Database credentials`
+        - `PostgreSQL`
+            - `url`: `jdbc:postgresql://localhost:5432/localdb`
+            - `username`: `test`
+            - `password`: `test`
+        - `MongoDB`
+            - `url`: `mongodb://localhost:27017/testdb?authSource=admin`
+            - `username`: `root`
+            - `password`: `example`
 
 - Test via `Postman` (OPTIONAL):
     1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)
@@ -86,7 +104,7 @@
 1 - cd live-data-service
 2 - docker-compose up -d
 3 - ./mvnw clean install or mvn clean install or mvn clean package 
-4 - mvn spring-boot:run
+4 - ./mvnw spring-boot:run or mvn spring-boot:run
 ```
 
 -------
