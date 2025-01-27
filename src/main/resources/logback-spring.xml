@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <springProperty scope="context" name="logstash-url" source="logstash.destination.url"/>
+    <springProperty scope="context" name="logstash-port" source="logstash.destination.port"/>
+    <springProperty scope="context" name="active-profile" source="spring.profiles.active"/>
+    <springProperty scope="context" name="service-name" source="spring.application.name"/>
+    <springProperty scope="context" name="namespace" source="kubernetes.namespace"/>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) %logger{36} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>${logstash-url:-}:${logstash-port:-}</destination>
+        <keepAliveDuration>5 minutes</keepAliveDuration>
+        <reconnectionDelay>1 second</reconnectionDelay>
+        <connectionTimeout>5 seconds</connectionTimeout>
+        <writeBufferSize>16384</writeBufferSize>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <mdc/>
+                <context/>
+                <logLevel/>
+                <loggerName/>
+                <customFields>
+                    {
+                    "service-name": "${service-name:-}",
+                    "environment": "${active-profile:-}",
+                    "host": "${hostname}"
+                    }
+                </customFields>
+                <pattern>
+                    <pattern>
+                        {
+                        "PID": "${PID:-}",
+                        "traceId": "%X{traceId:-}",
+                        "spanId": "%X{spanId:-}",
+                        "parentId": "%X{parentId:-}",
+                        "user": "%X{username:-}",
+                        "namespace": "#{namespace}#"
+                        }
+                    </pattern>
+                </pattern>
+                <threadName/>
+                <message/>
+                <logstashMarkers/>
+                <stackTrace/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <springProfile name="(dev | prod)">
+        <root level="INFO">
+            <appender-ref ref="logstash"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="! (dev | prod)">
+        <root level="INFO">
+            <appender-ref ref="consoleAppender"/>
+        </root>
+    </springProfile>
+
+</configuration>

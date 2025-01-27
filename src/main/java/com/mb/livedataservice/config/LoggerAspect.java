@@ -31,12 +31,12 @@ public class LoggerAspect {
         String methodName = getMethodName(joinPoint);
         String className = getClassName(joinPoint);
 
-        log.info("returned {} method of class {} with value {}", methodName, className, returnValue);
+        log.info("returned {} method of class {}", methodName, className);
     }
 
     @AfterThrowing(pointcut = "anyController() || anyService()", throwing = "e")
     public void loggingException(JoinPoint joinPoint, Exception e) {
-        log.error(getClassName(joinPoint) + " has thrown an error: ", e);
+        log.error("{} has thrown an error: ", getClassName(joinPoint), e);
     }
 
     @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
