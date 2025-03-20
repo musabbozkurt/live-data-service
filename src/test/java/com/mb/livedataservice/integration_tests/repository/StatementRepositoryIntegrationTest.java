@@ -22,15 +22,20 @@ import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.join.JoinField;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.Criteria;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.data.elasticsearch.client.elc.Queries.matchAllQueryAsQuery;
@@ -49,7 +54,7 @@ class StatementRepositoryIntegrationTest {
     private static Statement savedWeather;
 
     @BeforeAll
-    public void setUp() {
+    void setUp() {
         savedWeather = statementRepository.save(
                 Statement.builder()
                         .id("1")
@@ -88,9 +93,9 @@ class StatementRepositoryIntegrationTest {
     }
 
     @AfterAll
-    public void tearDown() {
+    void tearDown() {
         long countBefore = statementRepository.count();
-        assertEquals(7, countBefore, "There should be 7 documents after the init");
+        assertEquals(9, countBefore, "There should be 9 documents after the init");
 
         statementRepository.deleteAll();
 
@@ -245,6 +250,95 @@ class StatementRepositoryIntegrationTest {
         assertEquals(1, count, "There should be 1 vote");
     }
 
+    @Test
+    void testSaveXyzDocument() {
+        // Save parent statement
+        Statement parentStatement = Statement.builder()
+                .id("customChildIndex-parent")
+                .text("Parent Statement")
+                .relation(new JoinField<>("question"))
+                .build();
+        statementRepository.save(parentStatement);
+
+        // Create approval info objects
+        ApprovalInfo quality = ApprovalInfo.builder()
+                .departmentName("Quality")
+                .description("Quality Department")
+                .isActive(true)
+                .build();
+
+        ApprovalInfo supply = ApprovalInfo.builder()
+                .departmentName("Supply")
+                .description("Supply Department")
+                .isActive(false)
+                .build();
+
+        ApprovalInfo merchandising = ApprovalInfo.builder()
+                .departmentName("Merchandising")
+                .description("Merchandising Department")
+                .isActive(false)
+                .build();
+
+        // Save custom child index document with approval departments
+        CustomChildIndex customChildIndex = CustomChildIndex.builder()
+                .id("customChildIndex-child")
+                .customChildData("Custom Child Data")
+                .routing(parentStatement.getId())
+                .relation(new JoinField<>("customChildIndex", parentStatement.getId()))
+                .approvalInfos(List.of(quality, supply))
+                .approvalInfoList(List.of(supply, merchandising))
+                .build();
+
+        IndexQuery indexQuery = new IndexQueryBuilder()
+                .withId(customChildIndex.getId())
+                .withRouting(parentStatement.getId())
+                .withObject(customChildIndex)
+                .build();
+
+        elasticsearchOperations.index(indexQuery, IndexCoordinates.of("statements"));
+        elasticsearchOperations.indexOps(Statement.class).refresh();
+
+        // Verify parent-child relationship
+        SearchHits<CustomChildIndex> childResults = findChildDocument(parentStatement.getId());
+        CustomChildIndex foundChild = childResults.getSearchHit(0).getContent();
+
+        // Test approval departments
+        assertEquals(2, foundChild.getApprovalInfos().size());
+
+        ApprovalInfo foundQuality = foundChild.getApprovalInfos().getFirst();
+        assertEquals("Quality", foundQuality.getDepartmentName());
+        assertEquals("Quality Department", foundQuality.getDescription());
+        assertTrue(foundQuality.isActive());
+
+        // Test waiting departments
+        assertEquals(2, foundChild.getApprovalInfoList().size());
+
+        ApprovalInfo foundSupply = foundChild.getApprovalInfoList().getFirst();
+        assertEquals("Supply", foundSupply.getDepartmentName());
+        assertFalse(foundSupply.isActive());
+
+        ApprovalInfo foundMerchandising = foundChild.getApprovalInfoList().get(1);
+        assertEquals("Merchandising", foundMerchandising.getDepartmentName());
+        assertFalse(foundMerchandising.isActive());
+    }
+
+    private SearchHits<CustomChildIndex> findChildDocument(String parentId) {
+        Query childQuery = NativeQuery.builder()
+                .withQuery(q -> q
+                        .parentId(p -> p
+                                .type("customChildIndex")
+                                .id(parentId)
+                        ))
+                .withRoute(parentId)
+                .build();
+
+        return elasticsearchOperations.search(
+                childQuery,
+                CustomChildIndex.class,
+                IndexCoordinates.of("statements")
+        );
+    }
+
     SearchHits<Statement> hasVotes() {
         Query query = NativeQuery.builder()
                 .withQuery(co.elastic.clients.elasticsearch._types.query_dsl.Query.of(qb -> qb
@@ -279,11 +373,51 @@ class Statement {
     @JoinTypeRelations(
             relations =
                     {
-                            @JoinTypeRelation(parent = "question", children = {"answer", "comment"}),
+                            @JoinTypeRelation(parent = "question", children = {"answer", "comment", "customChildIndex"}),
                             @JoinTypeRelation(parent = "answer", children = "vote")
                     }
     )
     private JoinField<String> relation;
+}
+
+@Setter
+@Getter
+@Builder
+@Document(indexName = "statements")
+class CustomChildIndex {
+
+    @Id
+    private String id;
+
+    @Field(type = FieldType.Text)
+    private String customChildData;
+
+    @Field(type = FieldType.Keyword)
+    private String routing;
+
+    @Field(type = FieldType.Keyword)
+    private List<ApprovalInfo> approvalInfos;
+
+    @Field(type = FieldType.Keyword)
+    private List<ApprovalInfo> approvalInfoList;
+
+    @JoinTypeRelations(relations = @JoinTypeRelation(parent = "question", children = {}))
+    private JoinField<String> relation;
+}
+
+@Getter
+@Setter
+@Builder
+class ApprovalInfo {
+
+    @Field(type = FieldType.Keyword)
+    private String departmentName;
+
+    @Field(type = FieldType.Keyword)
+    private String description;
+
+    @Field(type = FieldType.Boolean)
+    private boolean isActive;
 }
 
 interface StatementRepository extends ElasticsearchRepository<Statement, String> {
