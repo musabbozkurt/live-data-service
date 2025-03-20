@@ -24,7 +24,7 @@
 
 ### Prerequisites
 
-- `Java 21+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`
+- `Java 23+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 23)`
 - `Maven` needs to be installed
 - `Docker` needs to be installed
 - Install any Java IDE (`Eclipse`, `STS`, `Intellij` etc..) and ensure you are able to launch
@@ -34,7 +34,7 @@
 
 ### Tech_Stack
 
-- `Java 21`
+- `Java 23`
 - `Spring Boot 3`
 - `H2 Database` (Default values are provided below)
     - `Default H2 Database Url`: http://localhost:8080/h2-console
