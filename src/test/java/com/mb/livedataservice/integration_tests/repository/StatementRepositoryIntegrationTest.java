@@ -2,8 +2,10 @@ package com.mb.livedataservice.integration_tests.repository;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +22,9 @@ import org.springframework.data.elasticsearch.annotations.JoinTypeRelations;
 import org.springframework.data.elasticsearch.annotations.Routing;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.cluster.ClusterHealth;
 import org.springframework.data.elasticsearch.core.join.JoinField;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.Criteria;
@@ -32,6 +36,7 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,21 +50,47 @@ import static org.springframework.data.elasticsearch.client.elc.Queries.matchAll
 @SpringBootTest(classes = TestcontainersConfiguration.class)
 class StatementRepositoryIntegrationTest {
 
+    private static final String STATEMENTS_INDEX = "statements";
+    private static final String PARENT_QUESTION = "question";
+    private static final String CUSTOM_CHILD_INDEX = "customChildIndex";
+    private static Statement savedWeather;
+    private static List<ApprovalInfo> approvalInfos;
+    private static List<ApprovalInfo> approvalInfoList;
+
     @Autowired
     private StatementRepository statementRepository;
 
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
-    private static Statement savedWeather;
-
     @BeforeAll
     void setUp() {
+        ApprovalInfo quality = ApprovalInfo.builder()
+                .departmentName("Quality")
+                .description("Quality Department")
+                .isActive(true)
+                .build();
+
+        ApprovalInfo supply = ApprovalInfo.builder()
+                .departmentName("Supply")
+                .description("Supply Department")
+                .isActive(false)
+                .build();
+
+        ApprovalInfo merchandising = ApprovalInfo.builder()
+                .departmentName("Merchandising")
+                .description("Merchandising Department")
+                .isActive(false)
+                .build();
+
+        approvalInfos = List.of(quality, supply);
+        approvalInfoList = List.of(supply, merchandising);
+
         savedWeather = statementRepository.save(
                 Statement.builder()
                         .id("1")
                         .text("How is the weather?")
-                        .relation(new JoinField<>("question"))
+                        .relation(new JoinField<>(PARENT_QUESTION))
                         .build());
 
         Statement sunnyAnswer = statementRepository.save(
@@ -95,7 +126,7 @@ class StatementRepositoryIntegrationTest {
     @AfterAll
     void tearDown() {
         long countBefore = statementRepository.count();
-        assertEquals(9, countBefore, "There should be 9 documents after the init");
+        assertEquals(17, countBefore, "There should be 17 documents after the init");
 
         statementRepository.deleteAll();
 
@@ -108,7 +139,7 @@ class StatementRepositoryIntegrationTest {
         Statement statement = Statement.builder()
                 .id("1")
                 .text("How is the weather?")
-                .relation(new JoinField<>("question"))
+                .relation(new JoinField<>(PARENT_QUESTION))
                 .routing("testRouting")
                 .build();
 
@@ -159,7 +190,7 @@ class StatementRepositoryIntegrationTest {
         Statement weather = statementRepository.findById("1").orElse(null);
         assertNotNull(weather, "The 'How is the weather?' question should be saved");
         assertEquals("How is the weather?", weather.getText());
-        assertEquals("question", weather.getRelation().getName());
+        assertEquals(PARENT_QUESTION, weather.getRelation().getName());
 
         Statement sunnyAnswer = statementRepository.findById("2").orElse(null);
         assertNotNull(sunnyAnswer, "The 'sunny' answer should be saved");
@@ -227,8 +258,8 @@ class StatementRepositoryIntegrationTest {
 
     @Test
     void testSearchStatementsByRelation() {
-        long count = elasticsearchOperations.count(CriteriaQuery.builder(Criteria.where("relation").is("question")).build(), Statement.class);
-        assertEquals(1, count, "There should be 1 statement with relation 'question'");
+        long count = elasticsearchOperations.count(CriteriaQuery.builder(Criteria.where("relation").is(PARENT_QUESTION)).build(), Statement.class);
+        assertEquals(2, count, "There should be 2 statement with relation 'question'");
 
         count = elasticsearchOperations.count(CriteriaQuery.builder(Criteria.where("relation").is("answer")).build(), Statement.class);
         assertEquals(2, count, "There should be 2 statements with relation 'answer'");
@@ -256,7 +287,7 @@ class StatementRepositoryIntegrationTest {
         Statement parentStatement = Statement.builder()
                 .id("customChildIndex-parent")
                 .text("Parent Statement")
-                .relation(new JoinField<>("question"))
+                .relation(new JoinField<>(PARENT_QUESTION))
                 .build();
         statementRepository.save(parentStatement);
 
@@ -284,7 +315,7 @@ class StatementRepositoryIntegrationTest {
                 .id("customChildIndex-child")
                 .customChildData("Custom Child Data")
                 .routing(parentStatement.getId())
-                .relation(new JoinField<>("customChildIndex", parentStatement.getId()))
+                .relation(new JoinField<>(CUSTOM_CHILD_INDEX, parentStatement.getId()))
                 .approvalInfos(List.of(quality, supply))
                 .approvalInfoList(List.of(supply, merchandising))
                 .build();
@@ -295,7 +326,7 @@ class StatementRepositoryIntegrationTest {
                 .withObject(customChildIndex)
                 .build();
 
-        elasticsearchOperations.index(indexQuery, IndexCoordinates.of("statements"));
+        elasticsearchOperations.index(indexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
         elasticsearchOperations.indexOps(Statement.class).refresh();
 
         // Verify parent-child relationship
@@ -322,21 +353,212 @@ class StatementRepositoryIntegrationTest {
         assertFalse(foundMerchandising.isActive());
     }
 
+    @Test
+    void clusterHealth_ShouldBeHealthy_WhenElasticsearchIsRunning() {
+        // Arrange
+        // Act
+        ClusterHealth health = elasticsearchOperations.cluster().health();
+
+        // Assertions
+        assertTrue(health.getStatus().equals("green") || health.getStatus().equalsIgnoreCase("yellow"), "Cluster health should be green or yellow, but was: " + health.getStatus());
+        assertNotNull(health.getClusterName(), "Cluster name should not be null");
+        assertTrue(health.getNumberOfNodes() > 0, "Cluster should have at least one node");
+        assertTrue(health.getActiveShards() > 0, "Cluster should have active shards");
+    }
+
+    @Test
+    void saveAndFind_ShouldReturnStatement_WhenStatementExists() {
+        // Arrange
+        Statement statement = Statement.builder()
+                .id("15")
+                .text("Another Statement")
+                .routing("15")
+                .relation(new JoinField<>(PARENT_QUESTION))
+                .build();
+
+        IndexQuery indexQuery = new IndexQueryBuilder()
+                .withId(statement.getId())
+                .withRouting(statement.getRouting())
+                .withObject(statement)
+                .build();
+
+        elasticsearchOperations.index(indexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+        elasticsearchOperations.indexOps(Statement.class).refresh();
+
+        // Act
+        Query query = NativeQuery.builder()
+                .withIds(statement.getId())
+                .build();
+        SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
+
+        // Assertions
+        assertNotNull(searchHits.getSearchHits());
+        assertFalse(searchHits.getSearchHits().isEmpty());
+        assertTrue(searchHits.get().anyMatch(statementSearchHit -> "15".equals(statementSearchHit.getContent().getId())));
+        assertTrue(searchHits.get().anyMatch(statementSearchHit -> "Another Statement".equals(statementSearchHit.getContent().getText())));
+    }
+
+    @Test
+    void findAll_ShouldReturnAllStatements_WhenMultipleStatementsExist() {
+        // Arrange
+        Statement firstParent = prepareStatement("16", "Statement 1");
+        Statement secondParent = prepareStatement("17", "Statement 2");
+
+        IndexQuery firstParentIndexQuery = new IndexQueryBuilder()
+                .withId(firstParent.getId())
+                .withRouting(firstParent.getId())
+                .withObject(firstParent)
+                .build();
+
+        elasticsearchOperations.index(firstParentIndexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+
+        IndexQuery secondParentIndexQuery = new IndexQueryBuilder()
+                .withId(secondParent.getId())
+                .withRouting(secondParent.getId())
+                .withObject(secondParent)
+                .build();
+
+        elasticsearchOperations.index(secondParentIndexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+
+        CustomChildIndex firstChild = prepareCustomChildIndex("18", firstParent, approvalInfos, approvalInfoList);
+        CustomChildIndex secondChild = prepareCustomChildIndex("19", secondParent, approvalInfos, approvalInfoList);
+
+        IndexQuery firstChildIndexQuery = new IndexQueryBuilder()
+                .withId(firstChild.getId())
+                .withRouting(firstParent.getRouting())
+                .withObject(firstChild)
+                .build();
+
+        elasticsearchOperations.index(firstChildIndexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+
+        IndexQuery secondChildIndexQuery = new IndexQueryBuilder()
+                .withId(secondChild.getId())
+                .withRouting(secondParent.getRouting())
+                .withObject(secondChild)
+                .build();
+
+        elasticsearchOperations.index(secondChildIndexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+        elasticsearchOperations.indexOps(Statement.class).refresh();
+
+        // Act
+        Query query = NativeQuery.builder()
+                .withQuery(q -> q.matchAll(m -> m))
+                .build();
+        SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
+
+        // Assertions
+        assertTrue(searchHits.getTotalHits() >= 2);
+        List<Statement> statements = searchHits.getSearchHits()
+                .stream()
+                .map(SearchHit::getContent)
+                .toList();
+
+        // Verify first statement
+        assertTrue(statements.stream().anyMatch(p -> p.getId().equals("16") && "Statement 1".equals(p.getText())));
+
+        // Verify second statement
+        SearchHits<Statement> secondParentResults = findParentDocument(secondParent.getId());
+
+        assertEquals(1, secondParentResults.getTotalHits());
+        assertTrue(secondParentResults.getSearchHits().stream().anyMatch(hit -> hit.getContent().getId().equals("17")));
+        assertEquals("Statement 2", secondParentResults.getSearchHit(0).getContent().getText());
+
+        // Verify join fields
+        assertTrue(statements.stream()
+                .map(Statement::getRelation)
+                .filter(Objects::nonNull)
+                .anyMatch(relation -> PARENT_QUESTION.equals(relation.getName()) || CUSTOM_CHILD_INDEX.equals(relation.getName())));
+    }
+
+    @Test
+    void saveChildDocument_ShouldCreateParentChildRelationship_WhenSavingApprovalStatus() {
+        // Arrange
+        Statement parent = prepareStatement("20", "Statement 3");
+
+        IndexQuery parentIndexQuery = new IndexQueryBuilder()
+                .withId(parent.getId())
+                .withRouting(parent.getId())
+                .withObject(parent)
+                .build();
+
+        elasticsearchOperations.index(parentIndexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+
+        CustomChildIndex firstChild = prepareCustomChildIndex("21", parent, approvalInfos, approvalInfoList);
+        CustomChildIndex secondChild = prepareCustomChildIndex("22", parent, approvalInfos, approvalInfoList);
+
+        List.of(firstChild, secondChild)
+                .forEach(child -> {
+                    IndexQuery indexQuery = new IndexQueryBuilder()
+                            .withId(child.getId())
+                            .withRouting(parent.getId())
+                            .withObject(child)
+                            .build();
+
+                    elasticsearchOperations.index(indexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+                });
+        elasticsearchOperations.indexOps(Statement.class).refresh();
+
+        // Act
+        SearchHits<CustomChildIndex> childResults = findChildDocument(parent.getId());
+
+        // Assertions
+        assertEquals(2, childResults.getTotalHits());
+        assertTrue(childResults.getSearchHits().stream().anyMatch(hit -> hit.getContent().getId().equals("21")));
+        assertTrue(childResults.getSearchHits().stream().anyMatch(hit -> hit.getContent().getId().equals("22")));
+
+        CustomChildIndex foundFirstChild = childResults.getSearchHit(0).getContent();
+        CustomChildIndex foundSecondChild = childResults.getSearchHit(1).getContent();
+
+        assertEquals(2, foundFirstChild.getApprovalInfos().size());
+        assertEquals(2, foundFirstChild.getApprovalInfoList().size());
+
+        assertEquals(2, foundSecondChild.getApprovalInfos().size());
+        assertEquals(2, foundSecondChild.getApprovalInfoList().size());
+    }
+
+    private Statement prepareStatement(String id, String text) {
+        return Statement.builder()
+                .id(id)
+                .text(text)
+                .routing(id)
+                .relation(new JoinField<>(PARENT_QUESTION))
+                .build();
+    }
+
+    private CustomChildIndex prepareCustomChildIndex(String id, Statement parent, List<ApprovalInfo> approvalInfos, List<ApprovalInfo> approvalInfoList) {
+        return CustomChildIndex.builder()
+                .id(id)
+                .routing(parent.getId())
+                .approvalInfos(approvalInfos)
+                .approvalInfoList(approvalInfoList)
+                .relation(new JoinField<>(CUSTOM_CHILD_INDEX, parent.getId()))
+                .build();
+    }
+
     private SearchHits<CustomChildIndex> findChildDocument(String parentId) {
         Query childQuery = NativeQuery.builder()
                 .withQuery(q -> q
                         .parentId(p -> p
-                                .type("customChildIndex")
+                                .type(CUSTOM_CHILD_INDEX)
                                 .id(parentId)
                         ))
                 .withRoute(parentId)
                 .build();
 
-        return elasticsearchOperations.search(
-                childQuery,
-                CustomChildIndex.class,
-                IndexCoordinates.of("statements")
-        );
+        return elasticsearchOperations.search(childQuery, CustomChildIndex.class, IndexCoordinates.of(STATEMENTS_INDEX));
+    }
+
+    private SearchHits<Statement> findParentDocument(String parentId) {
+        Query parentQuery = NativeQuery.builder()
+                .withQuery(q -> q
+                        .term(t -> t
+                                .field("_id")
+                                .value(parentId)
+                        ))
+                .withRoute(parentId)
+                .build();
+
+        return elasticsearchOperations.search(parentQuery, Statement.class, IndexCoordinates.of(STATEMENTS_INDEX));
     }
 
     SearchHits<Statement> hasVotes() {
@@ -357,6 +579,8 @@ class StatementRepositoryIntegrationTest {
 @Setter
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Routing("routing")
 @Document(indexName = "statements")
 class Statement {
@@ -383,6 +607,8 @@ class Statement {
 @Setter
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(indexName = "statements")
 class CustomChildIndex {
 
