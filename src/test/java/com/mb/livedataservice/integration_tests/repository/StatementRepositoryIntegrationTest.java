@@ -121,12 +121,19 @@ class StatementRepositoryIntegrationTest {
                         .routing(savedWeather.getId())
                         .relation(new JoinField<>("vote", sunnyAnswer.getId()))
                         .build());
+
+        statementRepository.save(
+                Statement.builder()
+                        .id("8")
+                        .text("I don't like the rain")
+                        .routing("searchRouting")
+                        .build());
     }
 
     @AfterAll
     void tearDown() {
         long countBefore = statementRepository.count();
-        assertEquals(17, countBefore, "There should be 17 documents after the init");
+        assertEquals(20, countBefore, "There should be 20 documents after the init");
 
         statementRepository.deleteAll();
 
@@ -135,7 +142,7 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void testSaveAndFindStatement() {
+    void saveAndFind_ShouldFindStatement_WhenStatementExists() {
         Statement statement = Statement.builder()
                 .id("1")
                 .text("How is the weather?")
@@ -152,7 +159,7 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void testSaveMultipleStatements() {
+    void saveMultiple_ShouldSaveAllStatements_WhenGivenMultipleStatements() {
         Statement statement1 = Statement.builder()
                 .id("6")
                 .text("First test statement")
@@ -173,20 +180,12 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void testSearchStatements() {
-        Statement statement = Statement.builder()
-                .id("8")
-                .text("I don't like the rain")
-                .routing("searchRouting")
-                .build();
-
-        statementRepository.save(statement);
-
-        assertEquals(2, elasticsearchOperations.count(new CriteriaQuery(Criteria.where("text").is("I don't like the rain")), Statement.class));
+    void search_ShouldFindMatchingStatements_WhenSearchingByText() {
+        assertEquals(1, elasticsearchOperations.count(new CriteriaQuery(Criteria.where("text").is("I don't like the rain")), Statement.class));
     }
 
     @Test
-    void testSaveStatements() {
+    void saveStatements_ShouldPersistAllFields_WhenSavingMultipleTypes() {
         Statement weather = statementRepository.findById("1").orElse(null);
         assertNotNull(weather, "The 'How is the weather?' question should be saved");
         assertEquals("How is the weather?", weather.getText());
@@ -214,7 +213,7 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void testStatementRelations() {
+    void verifyRelations_ShouldHaveCorrectRelationships_WhenDocumentsAreSaved() {
         savedWeather = statementRepository.findById("1").orElse(null);
         assertNotNull(savedWeather, "The 'How is the weather?' question should be saved");
 
@@ -241,14 +240,14 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void testFindStatementsByRouting() {
+    void findByRouting_ShouldReturnStatement_WhenRoutingExists() {
         Statement vote = statementRepository.findById("5").orElse(null);
         assertNotNull(vote, "The vote statement should be found using routing");
         assertEquals("+1 for the sun", vote.getText());
     }
 
     @Test
-    void testSearchStatementsByText() {
+    void searchByText_ShouldReturnMatches_WhenTextExists() {
         long count = elasticsearchOperations.count(CriteriaQuery.builder(Criteria.where("text").is("sunny")).build(), Statement.class);
         assertEquals(1, count, "There should be 1 statement with the text 'sunny'");
 
@@ -257,16 +256,16 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void testSearchStatementsByRelation() {
+    void searchByRelation_ShouldReturnMatches_WhenRelationExists() {
         long count = elasticsearchOperations.count(CriteriaQuery.builder(Criteria.where("relation").is(PARENT_QUESTION)).build(), Statement.class);
-        assertEquals(2, count, "There should be 2 statement with relation 'question'");
+        assertEquals(7, count, "There should be 7 statement with relation 'question'");
 
         count = elasticsearchOperations.count(CriteriaQuery.builder(Criteria.where("relation").is("answer")).build(), Statement.class);
         assertEquals(2, count, "There should be 2 statements with relation 'answer'");
     }
 
     @Test
-    void testDeleteStatements() {
+    void delete_ShouldRemoveStatement_WhenStatementExists() {
         Statement statementToDelete = statementRepository.findById("8").orElse(null);
         assertNotNull(statementToDelete, "The statement to delete should exist");
 
@@ -276,13 +275,13 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void testHasVotes_ShouldReturnTrue() {
+    void hasVotes_ShouldReturnTrue_WhenVotesExist() {
         long count = hasVotes().stream().count();
         assertEquals(1, count, "There should be 1 vote");
     }
 
     @Test
-    void testSaveXyzDocument() {
+    void saveCustomChildIndexWithApprovalInfo_ShouldCreateRelationship_WhenSavingChild() {
         // Save parent statement
         Statement parentStatement = Statement.builder()
                 .id("customChildIndex-parent")
@@ -354,7 +353,7 @@ class StatementRepositoryIntegrationTest {
     }
 
     @Test
-    void clusterHealth_ShouldBeHealthy_WhenElasticsearchIsRunning() {
+    void checkClusterHealth_ShouldBeHealthy_WhenElasticsearchIsRunning() {
         // Arrange
         // Act
         ClusterHealth health = elasticsearchOperations.cluster().health();
@@ -443,6 +442,7 @@ class StatementRepositoryIntegrationTest {
         // Act
         Query query = NativeQuery.builder()
                 .withQuery(q -> q.matchAll(m -> m))
+                .withMaxResults(20) // Default result size is 10
                 .build();
         SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
 
@@ -516,6 +516,112 @@ class StatementRepositoryIntegrationTest {
         assertEquals(2, foundSecondChild.getApprovalInfoList().size());
     }
 
+    @Test
+    void findCustomChildIndexByParentWithFuzzyMatch_ShouldReturnMatchingIndexes_WhenSearchingWithFuzzy() {
+        // Arrange
+        Statement parent = prepareStatement("23", "Parent Statement");
+        IndexQuery parentIndexQuery = new IndexQueryBuilder()
+                .withId(parent.getId())
+                .withRouting(parent.getId())
+                .withObject(parent)
+                .build();
+        elasticsearchOperations.index(parentIndexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+
+        // Create children with approval departments
+        CustomChildIndex firstChild = prepareCustomChildIndex("24", parent,
+                List.of(
+                        ApprovalInfo.builder()
+                                .departmentName("Quality")
+                                .description("Quality Department")
+                                .isActive(true)
+                                .build()
+                ),
+                List.of(
+                        ApprovalInfo.builder()
+                                .departmentName("Merchandising")
+                                .description("Merchandising Department")
+                                .isActive(false)
+                                .build()
+                ));
+
+        CustomChildIndex secondChild = prepareCustomChildIndex("25", parent,
+                List.of(
+                        ApprovalInfo.builder()
+                                .departmentName("Supply")
+                                .description("Supply Department")
+                                .isActive(true)
+                                .build()
+                ),
+                List.of(
+                        ApprovalInfo.builder()
+                                .departmentName("IT")
+                                .description("IT Department")
+                                .isActive(false)
+                                .build()
+                ));
+
+        List.of(firstChild, secondChild)
+                .forEach(child -> {
+                            IndexQuery childIndexQuery = new IndexQueryBuilder()
+                                    .withId(child.getId())
+                                    .withRouting(parent.getId())
+                                    .withObject(child)
+                                    .build();
+                            elasticsearchOperations.index(childIndexQuery, IndexCoordinates.of(STATEMENTS_INDEX));
+                        }
+                );
+
+        elasticsearchOperations.indexOps(Statement.class).refresh();
+
+        // Act
+        SearchHits<CustomChildIndex> results = findCustomChildIndexByParentWithFuzzyMatch(parent.getId());
+
+        // Assertions
+        assertNotNull(results);
+        assertEquals(2, results.getTotalHits());
+
+        List<CustomChildIndex> foundChildren = results.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .toList();
+
+        // Verify first child
+        assertTrue(foundChildren.stream()
+                .anyMatch(child -> child.getId().equals("24")
+                        && child.getApprovalInfos().stream().anyMatch(info -> info.getDepartmentName().equals("Quality"))
+                        && child.getApprovalInfoList().stream().anyMatch(info -> info.getDepartmentName().equals("Merchandising"))));
+
+        // Verify second child
+        assertTrue(foundChildren.stream()
+                .anyMatch(child -> child.getId().equals("25")
+                        && child.getApprovalInfos().stream().anyMatch(info -> info.getDepartmentName().equals("Supply"))
+                        && child.getApprovalInfoList().stream().anyMatch(info -> info.getDepartmentName().equals("IT"))));
+    }
+
+    private SearchHits<CustomChildIndex> findCustomChildIndexByParentWithFuzzyMatch(String parentId) {
+        Query childQuery = NativeQuery.builder()
+                .withQuery(q -> q
+                        .bool(b -> b
+                                .must(m -> m
+                                        .parentId(p -> p
+                                                .type(CUSTOM_CHILD_INDEX)
+                                                .id(parentId)
+                                        )
+                                )
+                                .should(s -> s
+                                        .fuzzy(f -> f
+                                                .field("approvalInfos.departmentName")
+                                                .value("*")
+                                                .fuzziness("AUTO")
+                                        )
+                                )
+                        )
+                )
+                .withRoute(parentId)
+                .build();
+
+        return elasticsearchOperations.search(childQuery, CustomChildIndex.class, IndexCoordinates.of(STATEMENTS_INDEX));
+    }
+
     private Statement prepareStatement(String id, String text) {
         return Statement.builder()
                 .id(id)
@@ -561,7 +667,7 @@ class StatementRepositoryIntegrationTest {
         return elasticsearchOperations.search(parentQuery, Statement.class, IndexCoordinates.of(STATEMENTS_INDEX));
     }
 
-    SearchHits<Statement> hasVotes() {
+    private SearchHits<Statement> hasVotes() {
         Query query = NativeQuery.builder()
                 .withQuery(co.elastic.clients.elasticsearch._types.query_dsl.Query.of(qb -> qb
                         .hasChild(hc -> hc
