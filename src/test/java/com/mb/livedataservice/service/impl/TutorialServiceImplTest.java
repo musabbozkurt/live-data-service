@@ -6,19 +6,24 @@ import com.mb.livedataservice.data.repository.TutorialRepository;
 import com.mb.livedataservice.exception.BaseException;
 import com.mb.livedataservice.exception.LiveDataErrorCode;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class TutorialServiceImplTest extends BaseUnitTest {
 
     @Mock
@@ -26,11 +31,6 @@ class TutorialServiceImplTest extends BaseUnitTest {
 
     @InjectMocks
     private TutorialServiceImpl tutorialService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void shouldFindByTitleContaining_WhenTitleIsNotBlank() {

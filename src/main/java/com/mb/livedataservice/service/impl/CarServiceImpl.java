@@ -48,7 +48,7 @@ public class CarServiceImpl implements CarService {
     public SearchResponse<Car> fuzzySearch(CarFilter carFilter) {
         try {
             return elasticsearchClient.search(builder -> builder.index("car_index").query(carFilter.toSupplierQuery().get()), Car.class);
-        } catch (IOException e) {
+        } catch (IOException _) {
             throw new BaseException(LiveDataErrorCode.UNEXPECTED_ERROR);
         }
     }

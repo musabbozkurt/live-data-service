@@ -2,7 +2,9 @@ package com.mb.livedataservice.exception;
 
 import org.springframework.http.HttpStatus;
 
-public interface ErrorCode {
+import java.io.Serializable;
+
+public interface ErrorCode extends Serializable {
     HttpStatus getHttpStatus();
 
     String getCode();

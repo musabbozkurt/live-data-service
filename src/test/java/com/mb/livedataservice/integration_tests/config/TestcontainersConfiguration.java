@@ -1,11 +1,12 @@
 package com.mb.livedataservice.integration_tests.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestcontainersConfiguration {
 
     @Bean
+    @ServiceConnection
     public ElasticsearchContainer elasticsearch() {
         ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("elasticsearch:8.17.1"))
                 .withEnv("discovery.type", "single-node")
@@ -29,16 +31,17 @@ public class TestcontainersConfiguration {
     }
 
     @Bean
+    @ServiceConnection
     public PostgreSQLContainer<?> postgres() {
-        PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:17.2")
-                .withReuse(true);
+        try (var postgreSQLContainer = new PostgreSQLContainer<>("postgres:17.2")) {
+            postgreSQLContainer.withReuse(true);
+            postgreSQLContainer.start();
 
-        postgreSQLContainer.start();
+            assertThat(postgreSQLContainer.isCreated()).isTrue();
+            assertThat(postgreSQLContainer.isRunning()).isTrue();
 
-        assertThat(postgreSQLContainer.isCreated()).isTrue();
-        assertThat(postgreSQLContainer.isRunning()).isTrue();
-
-        return postgreSQLContainer;
+            return postgreSQLContainer;
+        }
     }
 
     @Bean
@@ -56,8 +59,9 @@ public class TestcontainersConfiguration {
     }
 
     @Bean
+    @ServiceConnection
     public KafkaContainer kafka() {
-        KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.8.0"))
+        KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.0.0"))
                 .withReuse(true);
 
         kafkaContainer.start();

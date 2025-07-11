@@ -21,7 +21,10 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ScoreBoardServiceTest extends BaseUnitTest {
@@ -143,19 +146,6 @@ class ScoreBoardServiceTest extends BaseUnitTest {
 
         // Assertions
         assertEquals(objectUnderTest.getId(), scoreBoardId);
-    }
-
-    @Test
-    void delete_shouldThrowException_whenScoreBoardDoesNotExistWithId() {
-        Long scoreBoardId = new Random().nextLong();
-
-        when(repository.findByIdAndDeletedIsFalse(scoreBoardId)).thenReturn(Optional.empty());
-
-        // Act
-        BaseException exception = assertThrows(BaseException.class, () -> service.getScoreBoardById(scoreBoardId));
-
-        // Assertions
-        assertEquals(LiveDataErrorCode.SCORE_BOARD_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test

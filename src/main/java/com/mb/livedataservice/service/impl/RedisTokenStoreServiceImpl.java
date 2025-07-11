@@ -35,7 +35,7 @@ public class RedisTokenStoreServiceImpl implements RedisTokenStoreService {
                 try {
                     TimeUnit.MILLISECONDS.sleep(1000);
                     control = true;
-                } catch (InterruptedException ex) {
+                } catch (InterruptedException _) {
                     Thread.currentThread().interrupt();
                 }
             }
@@ -71,7 +71,7 @@ public class RedisTokenStoreServiceImpl implements RedisTokenStoreService {
             try {
                 TimeUnit.MILLISECONDS.sleep(1000);
                 control = false;
-            } catch (InterruptedException ex) {
+            } catch (InterruptedException _) {
                 Thread.currentThread().interrupt();
             }
         }

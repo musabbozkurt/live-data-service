@@ -2,7 +2,11 @@ package com.mb.livedataservice.data.filter.elastic;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.FuzzyQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
