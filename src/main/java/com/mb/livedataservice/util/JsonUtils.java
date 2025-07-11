@@ -21,7 +21,7 @@ public class JsonUtils {
     public static String serialize(Object object) {
         try {
             return mapper.writeValueAsString(object);
-        } catch (JsonProcessingException exception) {
+        } catch (JsonProcessingException _) {
             throw new BaseException(LiveDataErrorCode.CANNOT_MAP_RESPONSE);
         }
     }
@@ -35,7 +35,7 @@ public class JsonUtils {
         }
         try {
             return mapper.readValue(content, clazz);
-        } catch (Exception exception) {
+        } catch (Exception _) {
             throw new BaseException(LiveDataErrorCode.CANNOT_MAP_RESPONSE);
         }
     }
@@ -49,7 +49,7 @@ public class JsonUtils {
         }
         try {
             return mapper.readValue(content, typeReference);
-        } catch (Exception exception) {
+        } catch (Exception _) {
             throw new BaseException(LiveDataErrorCode.CANNOT_MAP_RESPONSE);
         }
     }
@@ -57,7 +57,7 @@ public class JsonUtils {
     public static <T> T deserialize(JsonNode node, Class<T> clazz) {
         try {
             return mapper.treeToValue(node, clazz);
-        } catch (Exception exception) {
+        } catch (Exception _) {
             throw new BaseException(LiveDataErrorCode.CANNOT_MAP_RESPONSE);
         }
     }
@@ -65,7 +65,7 @@ public class JsonUtils {
     public static <T> T deserialize(String content, Type type) {
         try {
             return mapper.readValue(content, mapper.getTypeFactory().constructType(type));
-        } catch (Exception exception) {
+        } catch (Exception _) {
             throw new BaseException(LiveDataErrorCode.CANNOT_MAP_RESPONSE);
         }
     }
@@ -73,7 +73,7 @@ public class JsonUtils {
     public static JsonNode deserialize(String content) {
         try {
             return mapper.readTree(content);
-        } catch (Exception exception) {
+        } catch (Exception _) {
             throw new BaseException(LiveDataErrorCode.CANNOT_MAP_RESPONSE);
         }
     }

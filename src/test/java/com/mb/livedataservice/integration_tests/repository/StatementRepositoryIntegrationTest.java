@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -44,6 +45,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.data.elasticsearch.client.elc.Queries.matchAllQueryAsQuery;
+
+interface StatementRepository extends ElasticsearchRepository<Statement, String> {
+
+}
 
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -442,7 +447,7 @@ class StatementRepositoryIntegrationTest {
         // Act
         Query query = NativeQuery.builder()
                 .withQuery(q -> q.matchAll(m -> m))
-                .withMaxResults(20) // Default result size is 10
+                .withPageable(PageRequest.of(0, 20)) // Use Pageable to control size
                 .build();
         SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
 
@@ -750,8 +755,4 @@ class ApprovalInfo {
 
     @Field(type = FieldType.Boolean)
     private boolean isActive;
-}
-
-interface StatementRepository extends ElasticsearchRepository<Statement, String> {
-
 }
