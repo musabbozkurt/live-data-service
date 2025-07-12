@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 @ContextConfiguration(classes = {TutorialController.class, RestResponseExceptionHandler.class})
-class TutorialControllerTests extends BaseUnitTest {
+class TutorialControllerTest extends BaseUnitTest {
 
     @MockitoBean
     private TutorialService tutorialService;

@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
 
 @Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class JsonUtils {
+public final class JsonUtils {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 

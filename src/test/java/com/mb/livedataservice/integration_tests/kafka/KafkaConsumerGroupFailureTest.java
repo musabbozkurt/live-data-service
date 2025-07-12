@@ -1,4 +1,4 @@
-package com.mb.livedataservice.integration_tests;
+package com.mb.livedataservice.integration_tests.kafka;
 
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -10,15 +10,12 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 import java.util.List;
@@ -32,18 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest(classes = TestcontainersConfiguration.class)
 class KafkaConsumerGroupFailureTest {
 
-    @Container
-    private static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("apache/kafka:4.0.0"));
-
-    @DynamicPropertySource
-    private static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-        registry.add("spring.kafka.consumer.group-id", () -> "test-group");
-        registry.add("spring.kafka.consumer.auto-offset-reset", () -> "earliest");
-        registry.add("spring.kafka.consumer.enable-auto-commit", () -> "true");
-        registry.add("spring.kafka.consumer.session-timeout-ms", () -> "6000");
-        registry.add("spring.kafka.consumer.heartbeat-interval-ms", () -> "2000");
-    }
+    @Autowired
+    private KafkaContainer kafka;
 
     @Test
     void autoCommit_ShouldFailWithNonRetriableError_WhenConsumerIsKickedOutOfGroup() throws Exception {

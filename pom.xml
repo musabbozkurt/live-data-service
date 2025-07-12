@@ -200,6 +200,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-playintegrity</artifactId>
             <version>${google-api-services-playintegrity.version}</version>
