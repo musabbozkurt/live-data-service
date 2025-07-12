@@ -62,6 +62,10 @@ spring:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all # Wait for all replicas to acknowledge. Default is 'all' for v3.0 and later
+      properties:
+        enable.idempotence: 'true' # Enable idempotence to avoid duplicate messages. Default is 'true' for v3.0 and later
+        max.in.flight.requests.per.connection: 1 # To avoid reordering of messages.
     dlt:
       backoff:
         max-interval: 2s
