@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -52,6 +53,33 @@ class KafkaDeadLetterPublishingTest {
     static void close() {
         // Close the consumer before shutting down Testcontainers Kafka instance
         kafkaConsumer.close();
+    }
+
+    @Test
+    void kafkaProducer_ShouldHaveAllAcksConfiguration() {
+        // Verify producer is configured with acks=all for durability
+        var producerFactory = operations.getProducerFactory();
+        var configs = producerFactory.getConfigurationProperties();
+
+        assertThat(configs).containsEntry(ProducerConfig.ACKS_CONFIG, "all");
+    }
+
+    @Test
+    void kafkaProducer_ShouldHaveMaxInFlightRequestsSetToOne() {
+        // Verify producer maintains message ordering with max in flight requests = 1
+        var producerFactory = operations.getProducerFactory();
+        var configs = producerFactory.getConfigurationProperties();
+
+        assertThat(configs).containsEntry(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1");
+    }
+
+    @Test
+    void kafkaProducer_ShouldHaveIdempotenceEnabled() {
+        // Verify producer has idempotence enabled to prevent duplicate messages
+        var producerFactory = operations.getProducerFactory();
+        var configs = producerFactory.getConfigurationProperties();
+
+        assertThat(configs).containsEntry(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
     }
 
     @Test
