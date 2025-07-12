@@ -24,13 +24,24 @@ spring:
       group-id: mb_group_id
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
     producer:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    kafka-topics:
-      test-topic: test_topic
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    dlt:
+      backoff:
+        max-interval: 2s
+        max-retries: '4'
+        multiplier: '1.5'
+        initial-interval: 500ms
+      deadletter:
+        retention: 28d
+        suffix: -dlt
+      topic:
+        retention: 7d
 
 swagger:
   documentation:

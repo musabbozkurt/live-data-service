@@ -4,7 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class LiveDataConstants {
+public final class KafkaTopics {
 
-    public static final String DEFAULT_ID_GENERATOR_NAME = "default_sequence_generator";
+    public static final String TEST_TOPIC = "test-topic";
+    public static final String ORDERS = "orders";
 }
