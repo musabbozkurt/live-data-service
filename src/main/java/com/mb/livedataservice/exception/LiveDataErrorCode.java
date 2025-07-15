@@ -14,7 +14,11 @@ public enum LiveDataErrorCode implements Serializable, ErrorCode {
     SCORE_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND),
     SCORE_BOARD_HAS_NOT_ENDED(HttpStatus.BAD_REQUEST),
     CANNOT_MAP_RESPONSE(HttpStatus.BAD_REQUEST),
-    NOT_FOUND(HttpStatus.NOT_FOUND);
+    NOT_FOUND(HttpStatus.NOT_FOUND),
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS),
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE),
+    CIRCUIT_BREAKER_OPEN(HttpStatus.SERVICE_UNAVAILABLE),
+    RETRY_EXHAUSTED(HttpStatus.SERVICE_UNAVAILABLE);
 
     private final HttpStatus httpStatus;
 
