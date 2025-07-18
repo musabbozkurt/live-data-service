@@ -1,8 +1,11 @@
 package com.mb.livedataservice.config.kafka;
 
 import com.mb.livedataservice.util.KafkaTopics;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.TopicConfig;
 import org.springframework.context.annotation.Bean;
@@ -12,11 +15,19 @@ import org.springframework.kafka.annotation.KafkaListenerConfigurer;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistrar;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.retrytopic.DestinationTopic;
+import org.springframework.kafka.retrytopic.RetryTopicConfiguration;
+import org.springframework.kafka.retrytopic.RetryTopicConfigurationBuilder;
+import org.springframework.kafka.retrytopic.RetryTopicNamesProviderFactory;
+import org.springframework.kafka.retrytopic.SuffixingRetryTopicNamesProviderFactory;
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+@Slf4j
 @EnableKafka
 @Configuration
 @RequiredArgsConstructor
@@ -49,6 +60,7 @@ public class KafkaConfiguration implements KafkaListenerConfigurer {
                 .build();
     }
 
+    /// When customRetryTopic is used, the default error handler is not applied.
     @Bean
     public DefaultErrorHandler defaultErrorHandler(KafkaOperations<Object, Object> operations,
                                                    KafkaDeadLetterTopicProperties properties) {
@@ -67,8 +79,47 @@ public class KafkaConfiguration implements KafkaListenerConfigurer {
 
         // Do not try to recover from validation exceptions when validation of orders failed
         var errorHandler = new DefaultErrorHandler(recoverer, exponentialBackOff);
-        errorHandler.addNotRetryableExceptions(jakarta.validation.ValidationException.class);
+        errorHandler.addNotRetryableExceptions(ValidationException.class);
 
         return errorHandler;
+    }
+
+    // https://github.com/spring-projects/spring-kafka/discussions/2238
+    // This is used to customize the DLT topic name but not worked as expected.
+    @Bean
+    public RetryTopicNamesProviderFactory providerFactory() {
+        return new SuffixingRetryTopicNamesProviderFactory() {
+            @Override
+            public RetryTopicNamesProviderFactory.RetryTopicNamesProvider createRetryTopicNamesProvider(DestinationTopic.Properties properties) {
+                if (properties.isDltTopic()) {
+                    return new SuffixingRetryTopicNamesProvider(properties) {
+                        @Override
+                        public String getTopicName(String topic) {
+                            return "musab-custom-dlt";
+                        }
+                    };
+                }
+                return super.createRetryTopicNamesProvider(properties);
+            }
+        };
+    }
+
+    // https://docs.spring.io/spring-kafka/reference/retrytopic/dlt-strategies.html
+    // https://docs.spring.io/spring-kafka/reference/kafka/annotation-error-handling.html
+    @Bean
+    public RetryTopicConfiguration customRetryTopic(KafkaTemplate<?, ?> kafkaTemplate) {
+        return RetryTopicConfigurationBuilder
+                .newInstance()
+                .dltHandlerMethod("customDltProcessor", "processDltMessage")
+                .autoStartDltHandler(true)
+                .create(kafkaTemplate);
+    }
+
+    @Component("customDltProcessor")
+    public static class CustomDltProcessor {
+
+        public void processDltMessage(ConsumerRecord<?, ?> consumerRecord) {
+            log.error("DLT message consumed from topic: {}, offset: {}, message: {}", consumerRecord.topic(), consumerRecord.offset(), consumerRecord.value());
+        }
     }
 }
