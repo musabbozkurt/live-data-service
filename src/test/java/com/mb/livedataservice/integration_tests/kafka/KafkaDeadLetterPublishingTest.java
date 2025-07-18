@@ -121,22 +121,27 @@ class KafkaDeadLetterPublishingTest {
         // Verify headers present, and single header value
         Headers headers = consumerRecord.headers();
         assertThat(headers).map(Header::key).containsAll(List.of(
-                "kafka_dlt-exception-fqcn",
-                "kafka_dlt-exception-cause-fqcn",
-                "kafka_dlt-exception-message",
-                "kafka_dlt-exception-stacktrace",
-                "kafka_dlt-original-topic",
-                "kafka_dlt-original-partition",
-                "kafka_dlt-original-offset",
-                "kafka_dlt-original-timestamp",
-                "kafka_dlt-original-timestamp-type",
+                "kafka_exception-fqcn",
+                "kafka_exception-cause-fqcn",
+                "kafka_exception-message",
+                "kafka_exception-stacktrace",
+                "kafka_original-topic",
+                "kafka_original-partition",
+                "kafka_original-offset",
+                "kafka_original-timestamp",
+                "kafka_original-timestamp-type",
                 "kafka_dlt-original-consumer-group"));
-        assertThat(new String(headers.lastHeader("kafka_dlt-exception-fqcn").value()))
+        assertThat(new String(headers.lastHeader("kafka_exception-fqcn").value()))
                 .isEqualTo("org.springframework.kafka.listener.ListenerExecutionFailedException");
-        assertThat(new String(headers.lastHeader("kafka_dlt-exception-cause-fqcn").value()))
+        assertThat(new String(headers.lastHeader("kafka_exception-cause-fqcn").value()))
                 .isEqualTo("org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException");
-        assertThat(new String(headers.lastHeader("kafka_dlt-exception-message").value()))
-                .contains("Listener method could not be invoked with the incoming message");
+        assertThat(new String(headers.lastHeader("kafka_exception-message").value()))
+                .containsAnyOf(
+                        "Listener failed; Could not resolve method parameter at index 0",
+                        "Validation failed for argument at index 0 in method: public void com.mb.livedataservice.queue.OrderQueueListener.processOrder(com.mb.livedataservice.queue.dto.Order)"
+                );
+        assertThat(new String(headers.lastHeader("kafka_exception-message").value()))
+                .contains("must be greater than 0");
 
         // Verify payload value matches sent in order
         assertThat(consumerRecord.value()).isEqualToIgnoringWhitespace("""
