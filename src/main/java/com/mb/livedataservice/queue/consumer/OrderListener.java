@@ -68,7 +68,8 @@ public class OrderListener {
     /// It logs the message and its metadata, and attempts to receive the original consumer record.
     ///
     /// KafkaTemplate is set to use the consumerFactory to ensure it can consume from the DLT manually.
-    @DltHandler
+    ///
+    /// @DltHandler is disabled to allow manual handling of DLT messages.
     public void listenDLT(Order message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic, @Header(KafkaHeaders.OFFSET) long offset) {
         log.error("DLT message consumed from topic: {}, offset: {}, message: {}", topic, offset, message);
         kafkaTemplate.setConsumerFactory(consumerFactory);
