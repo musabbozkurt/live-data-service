@@ -8,4 +8,5 @@ public final class KafkaTopics {
 
     public static final String TEST_TOPIC = "test-topic";
     public static final String ORDERS = "orders";
+    public static final String CUSTOM_ORDERS = "custom-orders";
 }

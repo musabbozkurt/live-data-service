@@ -48,6 +48,16 @@ public class OrderListener {
     @KafkaListener(topics = KafkaTopics.ORDERS)
     void listen(@Payload @Validated Order order) {
         log.info("Received: {}", order);
+    }
+
+    @RetryableTopic(
+            attempts = "5",
+            backoff = @Backoff(delay = 3000),
+            include = RuntimeException.class
+    )
+    @KafkaListener(topics = KafkaTopics.CUSTOM_ORDERS)
+    void listenCustomOrders(@Payload @Validated Order order) {
+        log.info("Received custom order: {}", order);
         throw new BaseException(LiveDataErrorCode.UNEXPECTED_ERROR);
     }
 

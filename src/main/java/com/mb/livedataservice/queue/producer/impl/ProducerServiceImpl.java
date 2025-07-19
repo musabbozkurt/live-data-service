@@ -21,7 +21,7 @@ public class ProducerServiceImpl implements ProducerService {
 
     public void publishMessage(String message) {
         kafkaTemplate.send(KafkaTopics.TEST_TOPIC, message);
-        kafkaTemplate.send(KafkaTopics.ORDERS, new Order(UUID.randomUUID(), UUID.randomUUID(), 100));
+        kafkaTemplate.send(KafkaTopics.CUSTOM_ORDERS, new Order(UUID.randomUUID(), UUID.randomUUID(), 100));
     }
 
     @Bean
