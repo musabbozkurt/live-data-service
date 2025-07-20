@@ -42,7 +42,7 @@ public class CustomOrderListener {
 
     @RetryableTopic(
             attempts = "5",
-            backoff = @Backoff(delay = 3000),
+            backoff = @Backoff(delay = 30),
             include = RuntimeException.class
     )
     @KafkaListener(topics = KafkaTopics.CUSTOM_ORDERS)
