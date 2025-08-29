@@ -22,6 +22,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.KafkaContainer;
 
 import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 
 import static java.util.UUID.randomUUID;
@@ -37,7 +38,7 @@ class KafkaDeadLetterPublishingTest {
     private static KafkaConsumer<String, String> kafkaConsumer;
 
     @Autowired
-    private KafkaOperations<String, Order> operations;
+    private KafkaOperations<String, Object> kafkaOperations;
 
     @BeforeAll
     static void setup(@Autowired KafkaContainer kafka) {
@@ -56,37 +57,22 @@ class KafkaDeadLetterPublishingTest {
     }
 
     @Test
-    void kafkaProducer_ShouldHaveAllAcksConfiguration() {
+    void kafkaProducer_ShouldHaveCorrectConfiguration_WhenConfigured() {
+        var configs = kafkaOperations.getProducerFactory().getConfigurationProperties();
+
         // Verify producer is configured with acks=all for durability
-        var producerFactory = operations.getProducerFactory();
-        var configs = producerFactory.getConfigurationProperties();
-
-        assertThat(configs).containsEntry(ProducerConfig.ACKS_CONFIG, "all");
-    }
-
-    @Test
-    void kafkaProducer_ShouldHaveMaxInFlightRequestsSetToOne() {
-        // Verify producer maintains message ordering with max in flight requests = 1
-        var producerFactory = operations.getProducerFactory();
-        var configs = producerFactory.getConfigurationProperties();
-
-        assertThat(configs).containsEntry(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1");
-    }
-
-    @Test
-    void kafkaProducer_ShouldHaveIdempotenceEnabled() {
-        // Verify producer has idempotence enabled to prevent duplicate messages
-        var producerFactory = operations.getProducerFactory();
-        var configs = producerFactory.getConfigurationProperties();
-
-        assertThat(configs).containsEntry(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
+        assertThat(configs).containsEntry(ProducerConfig.ACKS_CONFIG, "all")
+                // Verify producer maintains message ordering with max in flight requests = 1
+                .containsEntry(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1")
+                // Verify producer has idempotence enabled to prevent duplicate messages
+                .containsEntry(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
     }
 
     @Test
     void orderProcessing_ShouldNotProduceOntoDlt_WhenMessageIsValid() {
         // Send in valid order
         Order order = new Order(randomUUID(), randomUUID(), 1);
-        operations.send("orders", order.orderId().toString(), order)
+        kafkaOperations.send("orders", order.orderId().toString(), order)
                 .whenCompleteAsync((result, ex) -> {
                     if (ex == null) {
                         log.info("Success: {}", result);
@@ -106,7 +92,7 @@ class KafkaDeadLetterPublishingTest {
     void orderProcessing_ShouldProduceOntoDlt_WhenMessageIsInvalid() {
         // Amount can not be negative, validation will fail
         Order order = new Order(randomUUID(), randomUUID(), -2);
-        operations.send("orders", order.orderId().toString(), order)
+        kafkaOperations.send("orders", order.orderId().toString(), order)
                 .whenCompleteAsync((result, ex) -> {
                     if (ex == null) {
                         log.info("Success: {}", result);
@@ -143,8 +129,9 @@ class KafkaDeadLetterPublishingTest {
         assertThat(new String(headers.lastHeader("kafka_exception-message").value()))
                 .contains("must be greater than 0");
 
-        // Verify payload value matches sent in order
-        assertThat(consumerRecord.value()).isEqualToIgnoringWhitespace("""
+        // Decode Base64 value and verify payload matches sent order
+        String decodedValue = new String(Base64.getDecoder().decode(consumerRecord.value().replace("\"", "")));
+        assertThat(decodedValue).isEqualToIgnoringWhitespace("""
                 { "orderId": "%s", "articleId": "%s", "amount":-2 }""".formatted(order.orderId(), order.articleId()));
     }
 }
