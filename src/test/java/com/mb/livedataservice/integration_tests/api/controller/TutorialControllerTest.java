@@ -32,7 +32,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -69,7 +68,8 @@ class TutorialControllerTest extends BaseUnitTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(Objects.requireNonNull(response.getBody()).getId()).isEqualTo(102);
+        // ID can be changed based on the number of test data so just check if it's greater than 0
+        assertThat(response.getBody().getId()).isGreaterThan(0);
         assertThat(response.getBody().getTitle()).isEqualTo("Spring Boot @WebMvcTest");
         assertThat(response.getBody().getDescription()).isEqualTo("Description");
     }
