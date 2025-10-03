@@ -21,6 +21,31 @@ public class TestcontainersConfiguration {
                 .withEnv("discovery.type", "single-node")
                 .withEnv("xpack.security.enabled", "false")
                 .withEnv("cluster.name", "elasticsearch")
+                /**
+                 * Collations are used for sorting documents in a language-specific word order.
+                 * The icu_collation_keyword field type is available to all indices and will encode the terms directly as bytes in a doc values field and a single indexed token just like a standard Keyword Field.
+                 * Example usage in mapping:
+                 * {
+                 *   "mappings": {
+                 *     "properties": {
+                 *       "name": {
+                 *         "type": "text",
+                 *         "fields": {
+                 *           "sort": {
+                 *             "type": "icu_collation_keyword",
+                 *             "index": false,
+                 *             "language": "de",
+                 *             "country": "DE",
+                 *             "variant": "@collation=phonebook"
+                 *           }
+                 *         }
+                 *       }
+                 *     }
+                 *   }
+                 * }
+                 * To use the icu_collation_keyword field type, the analysis-icu plugin must be installed.
+                 */
+                .withCommand("sh", "-c", "bin/elasticsearch-plugin install analysis-icu && exec /usr/local/bin/docker-entrypoint.sh elasticsearch")
                 .withReuse(true);
 
         elasticsearchContainer.start();

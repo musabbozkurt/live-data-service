@@ -1,7 +1,9 @@
 package com.mb.livedataservice.integration_tests.repository;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
+import com.mb.livedataservice.util.ElasticQueryUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +13,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.annotation.Id;
@@ -39,6 +44,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -67,6 +73,43 @@ class StatementRepositoryIntegrationTest {
 
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
+
+    // Parameterized test data providers
+    private static Stream<Arguments> flexibleTextQueryProvider() {
+        return Stream.of(
+                Arguments.of("text", "weather", 1L, "Weather query should return 1 result"),
+                Arguments.of("text", "sunny", 1L, "Sunny query should return 1 result"),
+                Arguments.of("text", "rain", 3L, "Rain query should return 3 results"),
+                Arguments.of("text", "nonexistent", 0L, "Nonexistent text should return 0 results")
+        );
+    }
+
+    private static Stream<Arguments> rangeQueryProvider() {
+        return Stream.of(
+                Arguments.of("text", "a", "z", 13L, "Range query from 'a' to 'z' should return multiple results"),
+                Arguments.of("text", "sunny", null, 6L, "Range query from 'sunny' should return results"),
+                Arguments.of("text", null, "weather", 1L, "Range query up to 'weather' should return results"),
+                Arguments.of("text", "xyz", "xyz", 0L, "Range query with non-matching values should return 0 results")
+        );
+    }
+
+    private static Stream<Arguments> termQueryProvider() {
+        return Stream.of(
+                Arguments.of("relation", "question", 3L, "Term query for 'question' relation should return 3 result"),
+                Arguments.of("relation", "answer", 2L, "Term query for 'answer' relation should return 2 results"),
+                Arguments.of("relation", "comment", 1L, "Term query for 'comment' relation should return 1 result"),
+                Arguments.of("relation", "nonexistent", 0L, "Term query for nonexistent value should return 0 results")
+        );
+    }
+
+    private static Stream<Arguments> termsQueryProvider() {
+        return Stream.of(
+                Arguments.of("relation", List.of("question", "answer"), 9L, "Terms query for multiple relations should return combined results"),
+                Arguments.of("relation", List.of("comment", "vote"), 2L, "Terms query for comment and vote should return 2 results"),
+                Arguments.of("relation", List.of("nonexistent1", "nonexistent2"), 0L, "Terms query for nonexistent values should return 0 results"),
+                Arguments.of("text", List.of("sunny", "rainy"), 2L, "Terms query for multiple text values should return 2 results")
+        );
+    }
 
     @BeforeAll
     void setUp() {
@@ -600,6 +643,124 @@ class StatementRepositoryIntegrationTest {
                 .anyMatch(child -> child.getId().equals("25")
                         && child.getApprovalInfos().stream().anyMatch(info -> info.getDepartmentName().equals("Supply"))
                         && child.getApprovalInfoList().stream().anyMatch(info -> info.getDepartmentName().equals("IT"))));
+    }
+
+    @ParameterizedTest(name = "{3}")
+    @MethodSource("flexibleTextQueryProvider")
+    void flexibleTextQuery_ShouldReturnMatchingDocuments_WhenUsingBoolQueryBuilder(String field, String value, long expectedCount, String description) {
+        // Create flexible text query using ElasticQueryUtils
+        co.elastic.clients.elasticsearch._types.query_dsl.Query flexibleQuery = ElasticQueryUtils.flexibleTextQuery(field, value);
+
+        // Combine with BoolQuery.Builder for additional filtering
+        co.elastic.clients.elasticsearch._types.query_dsl.Query boolQuery = new co.elastic.clients.elasticsearch._types.query_dsl.Query.Builder()
+                .bool(new BoolQuery.Builder()
+                        .must(flexibleQuery)
+                        .build())
+                .build();
+
+        Query query = NativeQuery.builder()
+                .withQuery(boolQuery)
+                .build();
+
+        SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
+        assertEquals(expectedCount, searchHits.getTotalHits(), description);
+    }
+
+    @ParameterizedTest(name = "{4}")
+    @MethodSource("rangeQueryProvider")
+    void rangeQuery_ShouldReturnDocumentsInRange_WhenUsingBoolQueryBuilder(String field, String firstValue, String lastValue, long expectedCount, String description) {
+        // Create range query using ElasticQueryUtils
+        co.elastic.clients.elasticsearch._types.query_dsl.Query rangeQuery = ElasticQueryUtils.rangeQuery(field, firstValue, lastValue);
+
+        // Combine with BoolQuery.Builder
+        co.elastic.clients.elasticsearch._types.query_dsl.Query boolQuery = new co.elastic.clients.elasticsearch._types.query_dsl.Query.Builder()
+                .bool(new BoolQuery.Builder()
+                        .must(rangeQuery)
+                        .mustNot(mn -> mn.term(t -> t.field("_id").value("nonexistent")))
+                        .build())
+                .build();
+
+        Query query = NativeQuery.builder()
+                .withQuery(boolQuery)
+                .build();
+
+        SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
+        assertEquals(expectedCount, searchHits.getTotalHits(), description);
+    }
+
+    @ParameterizedTest(name = "{3}")
+    @MethodSource("termQueryProvider")
+    void termQuery_ShouldReturnExactMatches_WhenUsingBoolQueryBuilder(String field, String value, long expectedCount, String description) {
+        // Create term query using ElasticQueryUtils
+        co.elastic.clients.elasticsearch._types.query_dsl.Query termQuery = ElasticQueryUtils.termQuery(field, value);
+
+        // Combine with BoolQuery.Builder for complex filtering
+        co.elastic.clients.elasticsearch._types.query_dsl.Query boolQuery = new co.elastic.clients.elasticsearch._types.query_dsl.Query.Builder()
+                .bool(new BoolQuery.Builder()
+                        .must(termQuery)
+                        .should(s -> s.exists(e -> e.field("text")))
+                        .build())
+                .build();
+
+        Query query = NativeQuery.builder()
+                .withQuery(boolQuery)
+                .build();
+
+        SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
+        assertEquals(expectedCount, searchHits.getTotalHits(), description);
+    }
+
+    @ParameterizedTest(name = "{3}")
+    @MethodSource("termsQueryProvider")
+    void termsQuery_ShouldReturnMultipleMatches_WhenUsingBoolQueryBuilder(String field, List<String> values, long expectedCount, String description) {
+        // Create terms query using ElasticQueryUtils
+        co.elastic.clients.elasticsearch._types.query_dsl.Query termsQuery = ElasticQueryUtils.termsQuery(field, values);
+
+        // Combine with BoolQuery.Builder for advanced filtering
+        co.elastic.clients.elasticsearch._types.query_dsl.Query boolQuery = new co.elastic.clients.elasticsearch._types.query_dsl.Query.Builder()
+                .bool(new BoolQuery.Builder()
+                        .must(termsQuery)
+                        .filter(f -> f.exists(e -> e.field("text")))
+                        .build())
+                .build();
+
+        Query query = NativeQuery.builder()
+                .withQuery(boolQuery)
+                .build();
+
+        SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
+        assertEquals(expectedCount, searchHits.getTotalHits(), description);
+    }
+
+    @Test
+    void combinedElasticQueryUtils_ShouldReturnFilteredResults_WhenUsingComplexBoolQuery() {
+        // Create multiple queries using ElasticQueryUtils
+        co.elastic.clients.elasticsearch._types.query_dsl.Query flexibleTextQuery = ElasticQueryUtils.flexibleTextQuery("text", "weather");
+        co.elastic.clients.elasticsearch._types.query_dsl.Query termQuery = ElasticQueryUtils.termQuery("relation", "question");
+
+        // Combine all queries using BoolQuery.Builder
+        co.elastic.clients.elasticsearch._types.query_dsl.Query complexBoolQuery = new co.elastic.clients.elasticsearch._types.query_dsl.Query.Builder()
+                .bool(new BoolQuery.Builder()
+                        .should(flexibleTextQuery)
+                        .must(termQuery)
+                        .mustNot(mn -> mn.term(t -> t.field("_id").value("999")))
+                        .minimumShouldMatch("1")
+                        .build())
+                .build();
+
+        Query query = NativeQuery.builder()
+                .withQuery(complexBoolQuery)
+                .build();
+
+        SearchHits<Statement> searchHits = elasticsearchOperations.search(query, Statement.class);
+        assertTrue(searchHits.getTotalHits() >= 1, "Complex bool query should return at least 1 result");
+
+        // Verify that all returned documents match the criteria
+        searchHits.getSearchHits().forEach(hit -> {
+            Statement statement = hit.getContent();
+            assertNotNull(statement.getText());
+            assertEquals("question", statement.getRelation().getName());
+        });
     }
 
     private SearchHits<CustomChildIndex> findCustomChildIndexByParentWithFuzzyMatch(String parentId) {

@@ -38,7 +38,9 @@ class KafkaConsumerGroupFailureTest {
 
         // Create topic first
         try (AdminClient adminClient = AdminClient.create(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
-            adminClient.createTopics(List.of(new NewTopic(topicName, 1, (short) 1))).all().get();
+            if (!adminClient.listTopics().names().get().contains(topicName)) {
+                adminClient.createTopics(List.of(new NewTopic(topicName, 1, (short) 1))).all().get();
+            }
         }
 
         // Create KafkaTemplate manually
