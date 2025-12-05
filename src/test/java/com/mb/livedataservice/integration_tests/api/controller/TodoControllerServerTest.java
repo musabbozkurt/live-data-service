@@ -2,7 +2,6 @@ package com.mb.livedataservice.integration_tests.api.controller;
 
 import com.mb.livedataservice.client.jsonplaceholder.request.Todo;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,7 +54,7 @@ class TodoControllerServerTest {
                 .uri("/api/todos")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<@NonNull List<Todo>>() {
+                .expectBody(new ParameterizedTypeReference<List<Todo>>() {
                 })
                 .returnResult()
                 .getResponseBody();

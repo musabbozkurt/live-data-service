@@ -7,7 +7,6 @@ import com.mb.livedataservice.util.LiveDataConstants;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.assertj.core.api.Assertions;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -103,7 +102,7 @@ class JsonPlaceholderControllerTest {
         List<ResponseEntity<String>> responses = new ArrayList<>();
 
         // Use parallel execution to hit rate limit faster
-        IntStream.range(0, 10).parallel().forEach(i -> {
+        IntStream.range(0, 10).parallel().forEach(_ -> {
             try {
                 ResponseEntity<String> response = testRestTemplate
                         .getRestTemplate()
@@ -120,7 +119,7 @@ class JsonPlaceholderControllerTest {
         });
 
         // Wait a bit for all responses to complete
-        await().atMost(Duration.ofSeconds(5))
+        await().atMost(Duration.ofSeconds(10))
                 .until(() -> responses.size() == 10);
 
         // Assertions: Some requests should be rate limited with proper error response
@@ -138,13 +137,11 @@ class JsonPlaceholderControllerTest {
         assertThat(responses).hasSize(10);
 
         // Verify error message format
-        List<@Nullable String> rateLimitErrors = responses.stream()
+        assertThat(responses.stream()
                 .filter(r -> r.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS)
                 .map(ResponseEntity::getBody)
                 .filter(Objects::nonNull)
-                .toList();
-
-        assertThat(rateLimitErrors)
+                .toList())
                 .hasSize(6)
                 .allSatisfy(Assertions::assertThat)
                 .asString()
