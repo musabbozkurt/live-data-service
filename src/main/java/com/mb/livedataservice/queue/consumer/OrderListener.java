@@ -12,8 +12,8 @@ import org.springframework.validation.annotation.Validated;
 @Component
 public class OrderListener {
 
-    @KafkaListener(topics = KafkaTopics.ORDERS)
+    @KafkaListener(topics = KafkaTopics.ORDERS, groupId = "${spring.kafka.consumer.group-id}")
     void listen(@Payload @Validated Order order) {
-        log.info("Received an order message: {}", order);
+        log.info("Received an order message. listen - order: {}.", order);
     }
 }

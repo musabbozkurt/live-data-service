@@ -39,7 +39,6 @@ import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +55,6 @@ interface StatementRepository extends ElasticsearchRepository<Statement, String>
 
 }
 
-@Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = TestcontainersConfiguration.class)
 class StatementRepositoryIntegrationTest {

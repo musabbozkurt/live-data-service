@@ -90,13 +90,16 @@ services:
       - '8001:8001'
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
     container_name: elasticsearch
     environment:
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "discovery.type=single-node"
       - xpack.security.enabled=false
+      - cluster.routing.allocation.disk.watermark.low=95%
+      - cluster.routing.allocation.disk.watermark.high=97%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
     ports:
       - "9200:9200"
     volumes:
@@ -105,31 +108,29 @@ services:
       - elastic
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.17.1
+    image: docker.elastic.co/kibana/kibana:9.2.2
     container_name: kibana
     ports:
       - "5601:5601"
     environment:
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
       - elasticsearch
     networks:
       - elastic
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.17.1
+    image: docker.elastic.co/logstash/logstash:9.2.2
     container_name: logstash
     volumes:
-      - ./src/main/resources/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./src/main/resources/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./src/main/resources/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./src/main/resources/logstash/pipeline:/usr/share/logstash/pipeline
     ports:
-      - "5044:5044"
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
+      - "5000:5000"
       - "9600:9600"
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+      - "ELASTICSEARCH_HOSTS=http://elasticsearch:9200"
     networks:
       - elastic
     depends_on:
