@@ -1,6 +1,5 @@
 package com.mb.livedataservice.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.livedataservice.api.request.ApiScoreBoardRequest;
 import com.mb.livedataservice.api.request.ApiScoreBoardUpdateRequest;
 import com.mb.livedataservice.api.response.ApiScoreBoardResponse;
@@ -15,13 +14,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

@@ -1,14 +1,13 @@
 package com.mb.livedataservice.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.livedataservice.exception.BaseException;
 import com.mb.livedataservice.exception.LiveDataErrorCode;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Type;
 
@@ -19,11 +18,7 @@ public final class JsonUtils {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public static String serialize(Object object) {
-        try {
-            return mapper.writeValueAsString(object);
-        } catch (JsonProcessingException _) {
-            throw new BaseException(LiveDataErrorCode.CANNOT_MAP_RESPONSE);
-        }
+        return mapper.writeValueAsString(object);
     }
 
     public static <T> T deserialize(String content, Class<T> clazz) {

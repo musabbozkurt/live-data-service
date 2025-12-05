@@ -59,7 +59,7 @@ swagger:
         version: 2.0
 
 redisson:
-  enabled: false
+  enabled: true
   url: redis://${REDIS_HOST}:${REDIS_PORT}
 
 services:

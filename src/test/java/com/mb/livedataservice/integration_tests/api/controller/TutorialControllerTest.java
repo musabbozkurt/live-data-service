@@ -10,14 +10,16 @@ import com.mb.livedataservice.client.jsonplaceholder.JSONPlaceholderRestClient;
 import com.mb.livedataservice.client.jsonplaceholder.request.PostRequest;
 import com.mb.livedataservice.client.jsonplaceholder.response.PostResponse;
 import com.mb.livedataservice.data.model.Tutorial;
+import com.mb.livedataservice.exception.ErrorResponse;
 import com.mb.livedataservice.helper.RestResponsePage;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -27,7 +29,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Transactional
-@Testcontainers
+@AutoConfigureTestRestTemplate
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestcontainersConfiguration.class)
 class TutorialControllerTest extends BaseUnitTest {
 
@@ -78,7 +79,7 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldNotCreateNewTutorialWhenValidationFails() {
         ApiTutorialRequest apiTutorialRequest = new ApiTutorialRequest("Spring Boot @WebMvcTest", null, true);
 
-        ResponseEntity<ApiTutorialResponse> response = restTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ApiTutorialResponse.class);
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ErrorResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -102,7 +103,7 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Test
     void shouldThrowNotFoundWhenInvalidTutorialId() {
-        ResponseEntity<Tutorial> response = restTemplate.exchange("/api/tutorials/999", HttpMethod.GET, null, Tutorial.class);
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange("/api/tutorials/999", HttpMethod.GET, null, ErrorResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }

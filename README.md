@@ -24,7 +24,7 @@
 
 ### Prerequisites
 
-- `Java 24+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 24)`
+- `Java 25+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 25)`
 - `Maven` needs to be installed
 - `Docker` needs to be installed
 - Install any Java IDE (`Eclipse`, `STS`, `Intellij` etc..) and ensure you are able to launch
@@ -34,8 +34,8 @@
 
 ### Tech_Stack
 
-- `Java 24`
-- `Spring Boot 3`
+- `Java 25`
+- `Spring Boot 4`
 - `H2 Database` (Default values are provided below)
     - `Default H2 Database Url`: http://localhost:8080/h2-console
     - `username`: `sa`
@@ -71,7 +71,7 @@
     - `Zipkin UI`: http://localhost:9411
     - `Elasticsearch`: http://localhost:9200/
     - `Kibana`: http://localhost:5601/app/home#/
-        - Connect Spring Boot to `Elasticsearch` `(TESTED FOR SPRING BOOT 3)`
+        - Connect Spring Boot to `Elasticsearch` `(TESTED FOR SPRING BOOT 4)`
         - Run Spring Boot project
         - Open http://localhost:5601/app/home#/ --> `Discover` --> `Create data view` -> `Name should be Index name` -->
           `Save date view to Kibana`
