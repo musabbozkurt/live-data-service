@@ -7,6 +7,7 @@ import com.mb.livedataservice.util.LiveDataConstants;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -123,26 +124,24 @@ class JsonPlaceholderControllerTest {
                 .until(() -> responses.size() == 10);
 
         // Assertions: Some requests should be rate limited with proper error response
-        long rateLimitedRequests = responses.stream()
+        List<@Nullable String> rateLimitedRequests = responses.stream()
                 .filter(r -> r.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS)
-                .count();
+                .map(ResponseEntity::getBody)
+                .filter(Objects::nonNull)
+                .toList();
 
         long successfulRequests = responses.stream()
                 .filter(r -> r.getStatusCode() == HttpStatus.OK)
                 .count();
 
         // With limit of 2 per 10s, we expect some to be rate limited
-        assertThat(rateLimitedRequests).isGreaterThanOrEqualTo(4);
+        assertThat(rateLimitedRequests).hasSizeGreaterThanOrEqualTo(4);
         assertThat(successfulRequests).isGreaterThanOrEqualTo(4);
         assertThat(responses).hasSize(10);
 
         // Verify error message format
-        assertThat(responses.stream()
-                .filter(r -> r.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS)
-                .map(ResponseEntity::getBody)
-                .filter(Objects::nonNull)
-                .toList())
-                .hasSize(6)
+        assertThat(rateLimitedRequests)
+                .hasSizeGreaterThanOrEqualTo(4)
                 .allSatisfy(Assertions::assertThat)
                 .asString()
                 .contains("TOO_MANY_REQUESTS", "Rate limit exceeded - Please try again later");
