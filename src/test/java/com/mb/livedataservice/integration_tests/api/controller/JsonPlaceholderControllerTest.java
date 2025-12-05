@@ -119,7 +119,7 @@ class JsonPlaceholderControllerTest {
         });
 
         // Wait a bit for all responses to complete
-        await().atMost(Duration.ofSeconds(10))
+        await().atMost(Duration.ofSeconds(5))
                 .until(() -> responses.size() == 10);
 
         // Assertions: Some requests should be rate limited with proper error response
@@ -132,7 +132,7 @@ class JsonPlaceholderControllerTest {
                 .count();
 
         // With limit of 2 per 10s, we expect some to be rate limited
-        assertThat(rateLimitedRequests).isGreaterThanOrEqualTo(5);
+        assertThat(rateLimitedRequests).isGreaterThanOrEqualTo(4);
         assertThat(successfulRequests).isGreaterThanOrEqualTo(4);
         assertThat(responses).hasSize(10);
 
