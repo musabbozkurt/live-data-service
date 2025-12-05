@@ -4,7 +4,7 @@ import com.mb.livedataservice.util.RedisConstants;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 @Configuration
 @EnableCaching
-@AutoConfigureAfter(RedisAutoConfiguration.class)
+@AutoConfigureAfter(DataRedisAutoConfiguration.class)
 @ConditionalOnClass({RedisOperations.class, RedisConnectionFactory.class, RedisCacheConfiguration.class})
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 public class CacheConfig {

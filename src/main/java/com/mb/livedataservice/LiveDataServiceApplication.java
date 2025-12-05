@@ -5,6 +5,7 @@ import com.mb.livedataservice.data.repository.ScoreBoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,12 +20,12 @@ public class LiveDataServiceApplication implements CommandLineRunner {
 
     private final ScoreBoardRepository repository;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(LiveDataServiceApplication.class, args);
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String @NonNull ... args) {
         try {
             ScoreBoard scoreBoard = new ScoreBoard("Uruguay", "Italy", 6, 6);
             scoreBoard.setModifiedDateTime(OffsetDateTime.now().minusHours(1));

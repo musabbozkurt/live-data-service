@@ -16,7 +16,7 @@ spring:
     username: sa
     password: ${DB_PASSWORD:}
     driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:${DB_NAME:MB_TEST};DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:${DB_NAME:MB_TEST};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;TRACE_LEVEL_FILE=0
 
   data:
     redis:
@@ -32,7 +32,10 @@ spring:
   jpa:
     show-sql: ${SHOW_SQL_ENABLED:true}
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: MB_TEST
 
   flyway:
     enabled: true
@@ -62,22 +65,11 @@ spring:
     producer:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
       acks: all # Wait for all replicas to acknowledge. Default is 'all' for v3.0 and later
       properties:
         enable.idempotence: 'true' # Enable idempotence to avoid duplicate messages. Default is 'true' for v3.0 and later
         max.in.flight.requests.per.connection: 1 # To avoid reordering of messages.
-    dlt:
-      backoff:
-        max-interval: 2s
-        max-retries: '4'
-        multiplier: '1.5'
-        initial-interval: 500ms
-      deadletter:
-        retention: 28d
-        suffix: -dlt
-      topic:
-        retention: 7d
 
   docker:
     compose:
@@ -91,6 +83,12 @@ spring:
     gcp:
       credentials:
         location: ${PLAY_INTEGRITY_API_CREDENTIALS_JSON:classpath:play-integrity-credentials.json}
+
+  # Don't have valid credentials and this is for local development, disable the GCP AutoConfiguration
+  autoconfigure:
+    exclude:
+      - com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
+      - com.google.cloud.spring.autoconfigure.pubsub.GcpPubSubAutoConfiguration
 
 management:
   health:

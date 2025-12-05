@@ -9,11 +9,11 @@
     <springProperty scope="context" name="namespace" source="kubernetes.namespace"/>
 
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
                 %green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) %logger{36} - %msg%n
-            </Pattern>
-        </layout>
+            </pattern>
+        </encoder>
     </appender>
 
     <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">

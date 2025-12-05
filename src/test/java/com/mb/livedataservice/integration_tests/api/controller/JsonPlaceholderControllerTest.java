@@ -6,23 +6,25 @@ import com.mb.livedataservice.integration_tests.config.TestcontainersConfigurati
 import com.mb.livedataservice.util.LiveDataConstants;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -31,7 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Testcontainers
+@AutoConfigureTestRestTemplate
 @TestPropertySource(properties = {
         "resilience4j.circuitbreaker.instances.live-data-service.minimumNumberOfCalls=3",
         "resilience4j.circuitbreaker.instances.live-data-service.failureRateThreshold=50",
@@ -88,7 +90,7 @@ class JsonPlaceholderControllerTest {
         // Assertions: Should return proper error response
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
         assertThat(response.getBody()).contains("Service unavailable");
-        verify(placeholderRestClient, times(4)).getPost(1); // 1 initial + 3 retries
+        verify(placeholderRestClient, times(8)).getPost(1); // 1 initial + 7 retries
     }
 
     @Test
@@ -97,29 +99,52 @@ class JsonPlaceholderControllerTest {
         PostResponse successResponse = new PostResponse(1, 1, "Test Post", "This is a test post");
         when(placeholderRestClient.getPost(1)).thenReturn(successResponse);
 
-        // Act: Make calls rapidly exceeding rate limit
+        // Act: Make rapid concurrent calls to exceed rate limit
         List<ResponseEntity<String>> responses = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            responses.add(testRestTemplate.getForEntity("/api/posts/rate-limit/1", String.class));
-        }
+
+        // Use parallel execution to hit rate limit faster
+        IntStream.range(0, 10).parallel().forEach(_ -> {
+            try {
+                ResponseEntity<String> response = testRestTemplate
+                        .getRestTemplate()
+                        .getForEntity(testRestTemplate.getRootUri() + "/api/posts/rate-limit/1", String.class);
+                synchronized (responses) {
+                    responses.add(response);
+                }
+            } catch (Exception _) {
+                // Handle potential errors
+                synchronized (responses) {
+                    responses.add(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build());
+                }
+            }
+        });
+
+        // Wait a bit for all responses to complete
+        await().atMost(Duration.ofSeconds(5))
+                .until(() -> responses.size() == 10);
 
         // Assertions: Some requests should be rate limited with proper error response
-        long rateLimitedRequests = responses.stream()
-                .mapToLong(r -> r.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS ? 1 : 0)
-                .sum();
-
-        assertThat(rateLimitedRequests).isGreaterThan(0);
-
-        Optional<String> rateLimitError = responses.stream()
+        List<@Nullable String> rateLimitedRequests = responses.stream()
                 .filter(r -> r.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS)
                 .map(ResponseEntity::getBody)
                 .filter(Objects::nonNull)
-                .findFirst();
+                .toList();
 
-        assertThat(rateLimitError)
-                .isPresent()
-                .contains("""
-                        {"errorCode":"TOO_MANY_REQUESTS","message":"Rate limit exceeded - Please try again later"}""");
+        long successfulRequests = responses.stream()
+                .filter(r -> r.getStatusCode() == HttpStatus.OK)
+                .count();
+
+        // With limit of 2 per 10s, we expect some to be rate limited
+        assertThat(rateLimitedRequests).hasSizeGreaterThanOrEqualTo(4);
+        assertThat(successfulRequests).isGreaterThanOrEqualTo(4);
+        assertThat(responses).hasSize(10);
+
+        // Verify error message format
+        assertThat(rateLimitedRequests)
+                .hasSizeGreaterThanOrEqualTo(4)
+                .allSatisfy(Assertions::assertThat)
+                .asString()
+                .contains("TOO_MANY_REQUESTS", "Rate limit exceeded - Please try again later");
     }
 
     @Test

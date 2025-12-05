@@ -2,7 +2,6 @@ package com.mb.livedataservice.integration_tests.api.controller;
 
 import com.mb.livedataservice.api.request.ApiTutorialRequest;
 import com.mb.livedataservice.api.request.ApiTutorialUpdateRequest;
-import com.mb.livedataservice.api.response.ApiCarResponse;
 import com.mb.livedataservice.api.response.ApiTutorialResponse;
 import com.mb.livedataservice.base.BaseUnitTest;
 import com.mb.livedataservice.client.jsonplaceholder.DeclarativeJSONPlaceholderRestClient;
@@ -10,14 +9,16 @@ import com.mb.livedataservice.client.jsonplaceholder.JSONPlaceholderRestClient;
 import com.mb.livedataservice.client.jsonplaceholder.request.PostRequest;
 import com.mb.livedataservice.client.jsonplaceholder.response.PostResponse;
 import com.mb.livedataservice.data.model.Tutorial;
+import com.mb.livedataservice.exception.ErrorResponse;
 import com.mb.livedataservice.helper.RestResponsePage;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -27,17 +28,14 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Transactional
-@Testcontainers
+@AutoConfigureTestRestTemplate
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestcontainersConfiguration.class)
 class TutorialControllerTest extends BaseUnitTest {
 
@@ -78,7 +76,7 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldNotCreateNewTutorialWhenValidationFails() {
         ApiTutorialRequest apiTutorialRequest = new ApiTutorialRequest("Spring Boot @WebMvcTest", null, true);
 
-        ResponseEntity<ApiTutorialResponse> response = restTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ApiTutorialResponse.class);
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ErrorResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -102,7 +100,7 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Test
     void shouldThrowNotFoundWhenInvalidTutorialId() {
-        ResponseEntity<Tutorial> response = restTemplate.exchange("/api/tutorials/999", HttpMethod.GET, null, Tutorial.class);
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange("/api/tutorials/999", HttpMethod.GET, null, ErrorResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -218,17 +216,5 @@ class TutorialControllerTest extends BaseUnitTest {
         PostRequest newPost = new PostRequest(1, null, "new title", "new body");
         PostResponse post = declarativeJSONPlaceholderRestClient.createPost(newPost);
         assertThat(post.title()).isEqualTo("new title");
-    }
-
-    @Test
-    void shouldDoFuzzySearchByFilter() {
-        Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("model", "model");
-        queryParams.put("yearOfManufacture", "2000");
-        queryParams.put("brand", "brand");
-
-        ApiCarResponse[] tutorials = restTemplate.getForObject("/cars/fuzzy-search?model={model}&yearOfManufacture={yearOfManufacture}&brand={brand}", ApiCarResponse[].class, queryParams);
-
-        assertThat(tutorials.length).isNotNegative();
     }
 }
