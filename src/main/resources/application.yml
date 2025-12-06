@@ -70,6 +70,11 @@ spring:
       properties:
         enable.idempotence: 'true' # Enable idempotence to avoid duplicate messages. Default is 'true' for v3.0 and later
         max.in.flight.requests.per.connection: 1 # To avoid reordering of messages.
+    # Enable observation for Kafka producer and consumer
+    listener:
+      observation-enabled: true
+    template:
+      observation-enabled: true
 
   docker:
     compose:
@@ -101,6 +106,20 @@ management:
   tracing:
     sampling:
       probability: 1.0
+    export:
+      zipkin:
+        endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+
+  # spring-boot-starter-opentelemetry and Jaeger can be used instead of spring-cloud-starter-zipkin and Zipkin for OpenTelemetry
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+  otlp:
+    metrics:
+      export:
+        enabled: false
 
 swagger:
   documentation:

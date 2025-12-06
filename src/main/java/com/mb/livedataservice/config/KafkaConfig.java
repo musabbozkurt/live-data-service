@@ -1,4 +1,4 @@
-package com.mb.livedataservice.config.kafka;
+package com.mb.livedataservice.config;
 
 import com.mb.livedataservice.util.KafkaTopics;
 import jakarta.validation.ValidationException;
@@ -35,7 +35,7 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 @RequiredArgsConstructor
-public class KafkaConfiguration implements KafkaListenerConfigurer {
+public class KafkaConfig implements KafkaListenerConfigurer {
 
     private final LocalValidatorFactoryBean validator;
 
@@ -54,12 +54,16 @@ public class KafkaConfiguration implements KafkaListenerConfigurer {
     @Bean
     @Primary
     public ConcurrentKafkaListenerContainerFactory<@NonNull Object, @NonNull Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<@NonNull Object, @NonNull Object> concurrentKafkaListenerContainerFactory = new ConcurrentKafkaListenerContainerFactory<>();
-        concurrentKafkaListenerContainerFactory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(consumerProps()));
-        concurrentKafkaListenerContainerFactory.setCommonErrorHandler(getDefaultErrorHandler());
-        concurrentKafkaListenerContainerFactory.setRecordMessageConverter(new ByteArrayJacksonJsonMessageConverter());
-        concurrentKafkaListenerContainerFactory.setBatchMessageConverter(new BatchMessagingMessageConverter());
-        return concurrentKafkaListenerContainerFactory;
+        ConcurrentKafkaListenerContainerFactory<@NonNull Object, @NonNull Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(consumerProps()));
+        factory.setCommonErrorHandler(getDefaultErrorHandler());
+        factory.setRecordMessageConverter(new ByteArrayJacksonJsonMessageConverter());
+        factory.setBatchMessageConverter(new BatchMessagingMessageConverter());
+
+        // Enable observation for tracing propagation
+        factory.getContainerProperties().setObservationEnabled(true);
+
+        return factory;
     }
 
     private Map<String, Object> consumerProps() {
