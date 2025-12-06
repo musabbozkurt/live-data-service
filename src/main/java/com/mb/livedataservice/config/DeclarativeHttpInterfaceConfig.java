@@ -17,7 +17,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import java.time.Duration;
 
 @Configuration
-public class DeclarativeHttpInterfaces {
+public class DeclarativeHttpInterfaceConfig {
 
     @Bean
     public DeclarativeJSONPlaceholderRestClient declarativeJSONPlaceholderRestClient(RestClient.Builder builder, JSONPlaceholderClientProperties placeholderClientProperties) {
@@ -28,7 +28,7 @@ public class DeclarativeHttpInterfaces {
                 .baseUrl(placeholderClientProperties.getUrl())
                 .requestFactory(jdkClientHttpRequestFactory)
                 .requestInterceptor(new BasicAuthenticationInterceptor(placeholderClientProperties.getClientId(), placeholderClientProperties.getClientSecret()))
-                .defaultStatusHandler(HttpStatusCode::isError, (request, response) -> {
+                .defaultStatusHandler(HttpStatusCode::isError, (_, response) -> {
                     throw new BaseException(new ErrorCode() {
 
                         @Override

@@ -8,11 +8,11 @@ import org.springframework.web.service.registry.ImportHttpServices;
 
 @Configuration
 @ImportHttpServices(types = {TodoService.class})
-public class SpringBoot4RestClient {
+public class SpringBoot4RestClientConfig {
 
     @Bean
     RestClientHttpServiceGroupConfigurer groupConfigurer() {
-        return groups -> groups.forEachClient((group, builder) -> builder
+        return groups -> groups.forEachClient((_, builder) -> builder
                 .baseUrl("https://jsonplaceholder.typicode.com/")
                 .build());
     }
@@ -30,17 +30,18 @@ public class SpringBoot4RestClient {
      *
      * @see ImportHttpServices
      */
+    @Bean
     RestClientHttpServiceGroupConfigurer multipleGroupConfigurer() {
         return groups -> {
             groups.filterByName("github")
-                    .forEachClient((group, b) -> b
+                    .forEachClient((_, b) -> b
                             .baseUrl("https://api.github.com")
                             .defaultHeader("Accept", "application/vnd.github.v3+json")
                             .build()
                     );
 
             groups.filterByName("jsonplaceholder")
-                    .forEachClient((group, b) -> b
+                    .forEachClient((_, b) -> b
                             .baseUrl("https://jsonplaceholder.typicode.com/")
                             .build()
                     );

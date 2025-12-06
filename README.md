@@ -158,7 +158,9 @@
     - for `"set" TYPE`: `smembers key`
     - for `"zset" TYPE`: `zrange key 0 -1 withScores`
 
-- `RedisInsight`: http://localhost:8001/
+- `RedisInsight`: http://localhost:5540/
+    - `Redis Host`: `redis`
+    - `Redis Port`: `6379`
 
 -------
 
@@ -180,6 +182,6 @@
 - https://prometheus.io/docs/prometheus/latest/installation/#volumes-bind-mount
 - [Spring Boot Rest Controller Unit Test with @WebMvcTest](https://www.bezkoder.com/spring-boot-webmvctest/)
 - [Redis Commands](https://auth0.com/blog/introduction-to-redis-install-cli-commands-and-data-types/)
-- [Running RedisInsight using Docker Compose](https://collabnix.com/running-redisinsight-using-docker-compose/)
+- [🚀 Set Up Redis with RedisInsight Using Docker for Local Development](https://medium.com/@mahmud.ibrahim021/set-up-redis-with-redisinsight-using-docker-for-local-development-64b0c2aad4a7)
 - [Google Play Integrity API](https://developer.android.com/google/play/integrity)
 - [A Guide to Querydsl with JPA](https://www.baeldung.com/querydsl-with-jpa-tutorial)

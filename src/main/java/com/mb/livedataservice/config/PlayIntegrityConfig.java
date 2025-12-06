@@ -23,7 +23,7 @@ import java.security.GeneralSecurityException;
 @Setter
 @Configuration
 @ConfigurationProperties("clients.play-integrity-api")
-public class PlayIntegrityConfiguration {
+public class PlayIntegrityConfig {
 
     private String credentialsFile;
     private String applicationName;

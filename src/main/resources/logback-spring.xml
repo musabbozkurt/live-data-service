@@ -1,71 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="service" source="spring.application.name"/>
+    <springProperty scope="context" name="logfilepath" source="logging.file:logs/console-${service}.log"/>
+    <property scope="context" name="host" value="${HOSTNAME}"/>
+    <property name="localConsoleLogPattern"
+              value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{client_id:-},%X{userId:-},%X{username:-},%X{sessionId:-}] %logger{36} %msg%n"/>
 
-    <springProperty scope="context" name="logstash-url" source="logstash.destination.url"/>
-    <springProperty scope="context" name="logstash-port" source="logstash.destination.port"/>
-    <springProperty scope="context" name="active-profile" source="spring.profiles.active"/>
-    <springProperty scope="context" name="service-name" source="spring.application.name"/>
-    <springProperty scope="context" name="namespace" source="kubernetes.namespace"/>
-
-    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>
-                %green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) %logger{36} - %msg%n
-            </pattern>
+            <pattern>${localConsoleLogPattern}</pattern>
         </encoder>
     </appender>
 
-    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>${logstash-url:-}:${logstash-port:-}</destination>
-        <keepAliveDuration>5 minutes</keepAliveDuration>
-        <reconnectionDelay>1 second</reconnectionDelay>
-        <connectionTimeout>5 seconds</connectionTimeout>
-        <writeBufferSize>16384</writeBufferSize>
-
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <mdc/>
-                <context/>
-                <logLevel/>
-                <loggerName/>
-                <customFields>
-                    {
-                    "service-name": "${service-name:-}",
-                    "environment": "${active-profile:-}",
-                    "host": "${hostname}"
-                    }
-                </customFields>
-                <pattern>
-                    <pattern>
-                        {
-                        "PID": "${PID:-}",
-                        "traceId": "%X{traceId:-}",
-                        "spanId": "%X{spanId:-}",
-                        "parentId": "%X{parentId:-}",
-                        "user": "%X{username:-}",
-                        "namespace": "#{namespace}#"
-                        }
-                    </pattern>
-                </pattern>
-                <threadName/>
-                <message/>
-                <logstashMarkers/>
-                <stackTrace/>
-            </providers>
+    <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <version>[ignore]</version>
+                <levelValue>[ignore]</levelValue>
+            </fieldNames>
+            <includeContext>true</includeContext>
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <maxDepthPerThrowable>100</maxDepthPerThrowable>
+                <rootCauseFirst>true</rootCauseFirst>
+            </throwableConverter>
         </encoder>
     </appender>
 
-    <springProfile name="(dev | prod)">
+    <springProfile name="! (dev | prod | stage)">
         <root level="INFO">
-            <appender-ref ref="logstash"/>
+            <appender-ref ref="LocalConsoleAppender"/>
         </root>
     </springProfile>
 
-    <springProfile name="! (dev | prod)">
+    <springProfile name="(dev | prod | stage)">
         <root level="INFO">
-            <appender-ref ref="consoleAppender"/>
+            <appender-ref ref="ConsoleAppender"/>
         </root>
     </springProfile>
-
 </configuration>
