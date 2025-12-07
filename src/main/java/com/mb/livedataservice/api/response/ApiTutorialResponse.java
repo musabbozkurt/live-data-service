@@ -11,7 +11,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ApiTutorialResponse {
 
-    private long id;
+    private Long id;
 
     private String title;
 

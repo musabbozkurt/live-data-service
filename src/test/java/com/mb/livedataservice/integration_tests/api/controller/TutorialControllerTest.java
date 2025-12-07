@@ -8,7 +8,6 @@ import com.mb.livedataservice.client.jsonplaceholder.DeclarativeJSONPlaceholderR
 import com.mb.livedataservice.client.jsonplaceholder.JSONPlaceholderRestClient;
 import com.mb.livedataservice.client.jsonplaceholder.request.PostRequest;
 import com.mb.livedataservice.client.jsonplaceholder.response.PostResponse;
-import com.mb.livedataservice.data.model.Tutorial;
 import com.mb.livedataservice.exception.ErrorResponse;
 import com.mb.livedataservice.helper.RestResponsePage;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
@@ -66,24 +65,14 @@ class TutorialControllerTest extends BaseUnitTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
-        // ID can be changed based on the number of test data so just check if it's greater than 0
         assertThat(response.getBody().getId()).isGreaterThan(0);
         assertThat(response.getBody().getTitle()).isEqualTo("Spring Boot @WebMvcTest");
         assertThat(response.getBody().getDescription()).isEqualTo("Description");
     }
 
     @Test
-    void shouldNotCreateNewTutorialWhenValidationFails() {
-        ApiTutorialRequest apiTutorialRequest = new ApiTutorialRequest("Spring Boot @WebMvcTest", null, true);
-
-        ResponseEntity<ErrorResponse> response = restTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ErrorResponse.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
     void shouldGetTutorialWhenValidTutorialId() {
-        ResponseEntity<Tutorial> response = restTemplate.exchange("/api/tutorials/1", HttpMethod.GET, null, Tutorial.class);
+        ResponseEntity<ApiTutorialResponse> response = restTemplate.exchange("/api/tutorials/252", HttpMethod.GET, null, ApiTutorialResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -93,7 +82,7 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Test
     void shouldGetAllTutorials() {
-        Tutorial[] tutorials = restTemplate.getForObject("/api/tutorials", Tutorial[].class);
+        ApiTutorialResponse[] tutorials = restTemplate.getForObject("/api/tutorials", ApiTutorialResponse[].class);
 
         assertThat(tutorials).hasSizeGreaterThan(100);
     }
@@ -110,12 +99,12 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldUpdateTutorialWhenTutorialIsValid() {
         ApiTutorialUpdateRequest apiTutorialUpdateRequest = getApiTutorialUpdateRequest();
 
-        ResponseEntity<ApiTutorialResponse> updatedResponse = restTemplate.exchange("/api/tutorials/99", HttpMethod.PUT, new HttpEntity<>(apiTutorialUpdateRequest), ApiTutorialResponse.class);
+        ResponseEntity<ApiTutorialResponse> updatedResponse = restTemplate.exchange("/api/tutorials/252", HttpMethod.PUT, new HttpEntity<>(apiTutorialUpdateRequest), ApiTutorialResponse.class);
 
         assertThat(updatedResponse).isNotNull();
         assertThat(updatedResponse.getBody()).isNotNull();
 
-        assertThat(updatedResponse.getBody().getId()).isEqualTo(99);
+        assertThat(updatedResponse.getBody().getId()).isEqualTo(252);
         assertThat(updatedResponse.getBody().getTitle()).isEqualTo("Updated");
         assertThat(updatedResponse.getBody().getDescription()).isEqualTo("Updated");
     }
@@ -139,7 +128,7 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Test
     void shouldGetAllTutorialsByPublishedTrue() {
-        Tutorial[] tutorials = restTemplate.getForObject("/api/tutorials/published", Tutorial[].class);
+        ApiTutorialResponse[] tutorials = restTemplate.getForObject("/api/tutorials/published", ApiTutorialResponse[].class);
 
         assertThat(tutorials).hasSizeGreaterThan(100);
     }

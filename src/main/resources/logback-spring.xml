@@ -9,6 +9,12 @@
     <property name="localConsoleLogPattern"
               value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{client_id:-},%X{userId:-},%X{username:-},%X{sessionId:-}] %logger{36} %msg%n"/>
 
+    <!-- Logging for AOT repository generation (useful to see what's being generated) -->
+    <logger name="org.springframework.data.repository.aot.generate.RepositoryContributor" level="TRACE"/>
+
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.springframework.kafka" level="WARN"/>
+
     <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>${localConsoleLogPattern}</pattern>

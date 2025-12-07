@@ -80,19 +80,23 @@ public abstract class BaseUnitTest {
     }
 
     public List<ApiScoreBoardResponse> getApiScoreBoardResponseList() {
-        return Arrays.asList(new ApiScoreBoardResponse(1L, OffsetDateTime.now(), OffsetDateTime.now(), "Uruguay", "Italy", 6, 6),
+        return Arrays.asList(
+                new ApiScoreBoardResponse(1L, OffsetDateTime.now(), OffsetDateTime.now(), "Uruguay", "Italy", 6, 6),
                 new ApiScoreBoardResponse(2L, OffsetDateTime.now(), OffsetDateTime.now(), "Spain", "Brazil", 10, 2),
                 new ApiScoreBoardResponse(3L, OffsetDateTime.now(), OffsetDateTime.now(), "Mexico", "Canada", 0, 5),
                 new ApiScoreBoardResponse(4L, OffsetDateTime.now(), OffsetDateTime.now(), "Argentina", "Australia", 3, 1),
-                new ApiScoreBoardResponse(5L, OffsetDateTime.now(), OffsetDateTime.now(), "Germany", "France", 2, 2));
+                new ApiScoreBoardResponse(5L, OffsetDateTime.now(), OffsetDateTime.now(), "Germany", "France", 2, 2)
+        );
     }
 
     public List<String> getScoreBoardsAsStringList() {
-        return Arrays.asList("1. Uruguay - Italy : 6 - 6",
+        return Arrays.asList(
+                "1. Uruguay - Italy : 6 - 6",
                 "2. Spain - Brazil : 10 - 2",
                 "3. Mexico - Canada : 0 - 5",
                 "4. Argentina - Australia : 3 - 1",
-                "5. Germany - France : 2 - 2");
+                "5. Germany - France : 2 - 2"
+        );
     }
 
     public ApiTutorialRequest getApiTutorialRequest() {
@@ -100,33 +104,41 @@ public abstract class BaseUnitTest {
     }
 
     public Tutorial getTutorial() {
-        return new Tutorial(1, "Spring Boot @WebMvcTest", "Description", true);
+        return new Tutorial("Spring Boot @WebMvcTest", "Description", true);
     }
 
     public ApiTutorialResponse getApiTutorialResponse() {
-        return new ApiTutorialResponse(1, "Spring Boot @WebMvcTest", "Description", true);
+        return new ApiTutorialResponse(1L, "Spring Boot @WebMvcTest", "Description", true);
     }
 
     public List<Tutorial> getTutorials() {
-        return Arrays.asList(new Tutorial(1, "Spring Boot @WebMvcTest 1", "Description 1", true),
-                new Tutorial(2, "Spring Boot @WebMvcTest 2", "Description 2", true),
-                new Tutorial(3, "Spring Boot @WebMvcTest 3", "Description 3", true));
+        return Arrays.asList(
+                new Tutorial("Spring Boot @WebMvcTest 1", "Description 1", true),
+                new Tutorial("Spring Boot @WebMvcTest 2", "Description 2", true),
+                new Tutorial("Spring Boot @WebMvcTest 3", "Description 3", true)
+        );
     }
 
     public List<ApiTutorialResponse> getApiTutorialResponses() {
-        return Arrays.asList(new ApiTutorialResponse(1, "Spring Boot @WebMvcTest 1", "Description 1", true),
-                new ApiTutorialResponse(2, "Spring Boot @WebMvcTest 2", "Description 2", true),
-                new ApiTutorialResponse(3, "Spring Boot @WebMvcTest 3", "Description 3", true));
+        return Arrays.asList(
+                new ApiTutorialResponse(1L, "Spring Boot @WebMvcTest 1", "Description 1", true),
+                new ApiTutorialResponse(2L, "Spring Boot @WebMvcTest 2", "Description 2", true),
+                new ApiTutorialResponse(3L, "Spring Boot @WebMvcTest 3", "Description 3", true)
+        );
     }
 
     public List<Tutorial> getTutorialList() {
-        return Arrays.asList(new Tutorial(1, "Spring Boot @WebMvcTest", "Description 1", true),
-                new Tutorial(3, "Spring Boot Web MVC", "Description 3", true));
+        return Arrays.asList(
+                new Tutorial("Spring Boot @WebMvcTest", "Description 1", true),
+                new Tutorial("Spring Boot Web MVC", "Description 3", true)
+        );
     }
 
     public List<ApiTutorialResponse> getApiTutorialResponseList() {
-        return Arrays.asList(new ApiTutorialResponse(1, "Spring Boot @WebMvcTest", "Description 1", true),
-                new ApiTutorialResponse(3, "Spring Boot Web MVC", "Description 3", true));
+        return Arrays.asList(
+                new ApiTutorialResponse(1L, "Spring Boot @WebMvcTest", "Description 1", true),
+                new ApiTutorialResponse(3L, "Spring Boot Web MVC", "Description 3", true)
+        );
     }
 
     public ApiTutorialUpdateRequest getApiTutorialUpdateRequest() {
@@ -134,11 +146,11 @@ public abstract class BaseUnitTest {
     }
 
     public Tutorial getUpdatedTutorial() {
-        return new Tutorial(1, "Updated", "Updated", true);
+        return new Tutorial("Updated", "Updated", true);
     }
 
     public ApiTutorialResponse getUpdatedApiTutorialResponse() {
-        return new ApiTutorialResponse(1, "Updated", "Updated", true);
+        return new ApiTutorialResponse(1L, "Updated", "Updated", true);
     }
 
     public ApiTutorialFilter getApiTutorialFilter() {
