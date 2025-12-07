@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class JMSOrderListener {
+public class JmsOrderListener {
 
     @JmsListener(destination = Topics.JMS_CUSTOM_ORDERS)
     public void receiveOrder(Order order) {
