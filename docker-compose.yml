@@ -76,6 +76,19 @@ services:
     networks:
       - my-network
 
+  activemq:
+    image: apache/activemq-artemis:latest-alpine
+    container_name: activemq
+    ports:
+      - "8161:8161"    # Web Console (http://localhost:8161)
+      - "61616:61616"  # JMS
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+      ANONYMOUS_LOGIN: false
+    networks:
+      - my-network
+
   zipkin:
     image: openzipkin/zipkin:3
     container_name: zipkin

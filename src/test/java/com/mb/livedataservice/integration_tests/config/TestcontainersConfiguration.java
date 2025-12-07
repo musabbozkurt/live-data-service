@@ -116,4 +116,18 @@ public class TestcontainersConfiguration {
 
         return kafkaContainer;
     }
+
+    @Bean
+    public GenericContainer<?> artemis() {
+        GenericContainer<?> artemis = new GenericContainer<>(DockerImageName.parse("apache/activemq-artemis:latest-alpine"))
+                .withEnv("ANONYMOUS_LOGIN", "true")
+                .withExposedPorts(61616)
+                .withReuse(true);
+
+        artemis.start();
+
+        System.setProperty("spring.artemis.broker-url", "tcp://%s:%d".formatted(artemis.getHost(), artemis.getMappedPort(61616)));
+
+        return artemis;
+    }
 }

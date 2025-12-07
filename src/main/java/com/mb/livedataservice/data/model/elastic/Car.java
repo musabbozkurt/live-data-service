@@ -22,4 +22,5 @@ public record Car(@Id
 
                   @Field(type = FieldType.Nested, name = "owners")
                   List<Owner> owners) {
+
 }

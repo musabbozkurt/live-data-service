@@ -2,7 +2,7 @@ package com.mb.livedataservice.integration_tests.kafka;
 
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import com.mb.livedataservice.queue.dto.Order;
-import com.mb.livedataservice.util.KafkaTopics;
+import com.mb.livedataservice.util.Topics;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 @SpringBootTest(classes = TestcontainersConfiguration.class)
 class KafkaDeadLetterPublishingTest {
 
-    private static final String ORDERS_DLT = KafkaTopics.ORDERS + "-dlt";
+    private static final String ORDERS_DLT = Topics.ORDERS + "-dlt";
     private static KafkaConsumer<String, String> kafkaConsumer;
 
     @Autowired

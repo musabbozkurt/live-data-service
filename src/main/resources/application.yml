@@ -92,6 +92,12 @@ spring:
       - com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
       - com.google.cloud.spring.autoconfigure.pubsub.GcpPubSubAutoConfiguration
 
+  artemis:
+    broker-url: tcp://${ACTIVEMQ_HOST:localhost}:${ACTIVEMQ_PORT:61616}
+    user: ${ACTIVEMQ_USER:admin}
+    password: ${ACTIVEMQ_PASSWORD:admin}
+    mode: native
+
 management:
   health:
     circuitbreakers:

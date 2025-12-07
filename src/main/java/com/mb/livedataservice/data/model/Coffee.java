@@ -7,11 +7,13 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
 
 @Table(name = "coffee")
-public record Coffee(@Id Long id,
+public record Coffee(@Id
+                     Long id,
                      String name,
                      String description,
                      BigDecimal price,
                      Size size) {
+
     public Coffee {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Coffee name cannot be blank");
