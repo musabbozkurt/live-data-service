@@ -3,6 +3,7 @@ package com.mb.livedataservice.api.controller;
 import com.mb.livedataservice.client.jsonplaceholder.TodoService;
 import com.mb.livedataservice.client.jsonplaceholder.request.Todo;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/todos")
 public class TodoController {
 
     private final TodoService todoService;
-
-    public TodoController(TodoService todoService) {
-        this.todoService = todoService;
-    }
 
     @GetMapping
     public List<Todo> findAll() {

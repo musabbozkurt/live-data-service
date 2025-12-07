@@ -40,7 +40,7 @@
     - `Default H2 Database Url`: http://localhost:8080/h2-console
     - `username`: `sa`
     - `password`: `sa`
-    - `url`: `jdbc:h2:mem:MB_TEST;DB_CLOSE_DELAY=-1`
+    - `url`: `jdbc:h2:mem:mb_test;DB_CLOSE_DELAY=-1`
 - `Swagger`: http://localhost:8080/swagger-ui/index.html
 - `Flyway` for database migration
 - Centralize exception handling by `ControllerAdvice`
@@ -185,3 +185,7 @@
 - [🚀 Set Up Redis with RedisInsight Using Docker for Local Development](https://medium.com/@mahmud.ibrahim021/set-up-redis-with-redisinsight-using-docker-for-local-development-64b0c2aad4a7)
 - [Google Play Integrity API](https://developer.android.com/google/play/integrity)
 - [A Guide to Querydsl with JPA](https://www.baeldung.com/querydsl-with-jpa-tutorial)
+- [Ahead of Time Optimizations](https://docs.spring.io/spring-framework/reference/core/aot.html)
+    - [Master Spring Data AOT in IntelliJ IDEA](https://blog.jetbrains.com/idea/2025/11/spring-data-aot/)
+    - [Spring Data AOT Repositories: Better Performance AND Developer Experience](https://www.youtube.com/watch?v=s_kmDbitE8s)
+    - [Spring Data AOT Coffee Shop Demo](https://github.com/danvega/spring-data-aot)

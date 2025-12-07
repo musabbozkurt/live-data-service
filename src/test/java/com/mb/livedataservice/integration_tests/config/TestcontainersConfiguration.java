@@ -77,6 +77,9 @@ public class TestcontainersConfiguration {
             postgreSQLContainer.withReuse(true);
             postgreSQLContainer.start();
 
+            // Set default schema for JDBC connections
+            System.setProperty("spring.datasource.hikari.schema", "mb_test");
+
             assertThat(postgreSQLContainer.isCreated()).isTrue();
             assertThat(postgreSQLContainer.isRunning()).isTrue();
 

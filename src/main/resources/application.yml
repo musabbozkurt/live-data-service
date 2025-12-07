@@ -16,7 +16,7 @@ spring:
     username: sa
     password: ${DB_PASSWORD:}
     driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:${DB_NAME:MB_TEST};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;TRACE_LEVEL_FILE=0
+    url: jdbc:h2:mem:${DB_NAME:mb_test};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;TRACE_LEVEL_FILE=0;DATABASE_TO_UPPER=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;INIT=CREATE SCHEMA IF NOT EXISTS mb_test\;SET SCHEMA mb_test
 
   data:
     redis:
@@ -33,17 +33,14 @@ spring:
     show-sql: ${SHOW_SQL_ENABLED:true}
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate:
-        default_schema: MB_TEST
+    open-in-view: false
 
   flyway:
     enabled: true
     baseline-version: 0
     baseline-on-migrate: true
-    schemas: LIVE_DATA
+    schemas: mb_test
     table: schema_version
-    validate-on-migrate: false
 
   h2:
     console:
@@ -150,11 +147,6 @@ clients:
     # client-id and client-secret are dummy values for this integration and were added to demonstrate the usage of BasicAuthenticationInterceptor
     client-id: ${JSON_PLACEHOLDER_CLIENT_ID:client-id}
     client-secret: ${JSON_PLACEHOLDER_CLIENT_SECRET:client-secret}
-
-logstash:
-  destination:
-    url: localhost
-    port: 5000
 
 resilience4j:
   circuitbreaker:

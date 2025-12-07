@@ -2,10 +2,8 @@ REDIS_HOST: ${REDIS_HOST_ENV:localhost}
 REDIS_PORT: ${REDIS_PORT_ENV:6378}
 
 spring:
-  jpa:
-    show-sql: ${SHOW_SQL_ENABLED:true}
-    hibernate:
-      ddl-auto: update
+  application:
+    name: live-data-service
 
   data:
     redis:
@@ -17,6 +15,18 @@ spring:
           max-idle: 7
           min-idle: 2
           max-wait: -1ms
+
+  jpa:
+    show-sql: ${SHOW_SQL_ENABLED:true}
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    baseline-version: 0
+    baseline-on-migrate: true
+    schemas: mb_test
+    table: schema_version
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -31,22 +41,11 @@ spring:
     producer:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
       acks: all # Wait for all replicas to acknowledge. Default is 'all' for v3.0 and later
       properties:
         enable.idempotence: 'true' # Enable idempotence to avoid duplicate messages. Default is 'true' for v3.0 and later
         max.in.flight.requests.per.connection: 1 # To avoid reordering of messages.
-    dlt:
-      backoff:
-        max-interval: 2s
-        max-retries: '4'
-        multiplier: '1.5'
-        initial-interval: 500ms
-      deadletter:
-        retention: 28d
-        suffix: -dlt
-      topic:
-        retention: 7d
 
 swagger:
   documentation:
