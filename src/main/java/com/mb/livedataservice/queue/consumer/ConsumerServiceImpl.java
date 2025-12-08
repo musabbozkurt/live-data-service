@@ -2,7 +2,7 @@ package com.mb.livedataservice.queue.consumer;
 
 import com.mb.livedataservice.queue.dto.QueueRequest;
 import com.mb.livedataservice.util.JsonUtils;
-import com.mb.livedataservice.util.KafkaTopics;
+import com.mb.livedataservice.util.Topics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ConsumerServiceImpl {
 
-    @KafkaListener(topics = KafkaTopics.TEST_TOPIC, groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = Topics.TEST_TOPIC, groupId = "${spring.kafka.consumer.group-id}")
     public void consumeMessage(String message) {
         log.info("Received a request to consume a message. consumeMessage - message: {}.", message);
         QueueRequest queueRequest = JsonUtils.deserialize(message, QueueRequest.class);

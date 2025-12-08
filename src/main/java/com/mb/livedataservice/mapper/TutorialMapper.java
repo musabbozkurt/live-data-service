@@ -15,9 +15,15 @@ import java.util.List;
 public interface TutorialMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "createdDateTime", ignore = true)
+    @Mapping(target = "modifiedDateTime", ignore = true)
     Tutorial map(ApiTutorialRequest apiTutorialRequest);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "createdDateTime", ignore = true)
+    @Mapping(target = "modifiedDateTime", ignore = true)
     Tutorial map(ApiTutorialUpdateRequest apiTutorialRequest);
 
     ApiTutorialResponse map(Tutorial tutorial);

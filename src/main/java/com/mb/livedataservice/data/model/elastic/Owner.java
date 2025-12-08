@@ -11,4 +11,5 @@ public record Owner(@Field(type = FieldType.Text)
 
                     @Field(type = FieldType.Boolean, name = "isActive")
                     Boolean isActive) {
+
 }

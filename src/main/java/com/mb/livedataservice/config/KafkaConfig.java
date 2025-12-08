@@ -1,6 +1,6 @@
 package com.mb.livedataservice.config;
 
-import com.mb.livedataservice.util.KafkaTopics;
+import com.mb.livedataservice.util.Topics;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,8 +52,8 @@ public class KafkaConfig implements KafkaListenerConfigurer {
 
     @Bean
     @Primary
-    public ConcurrentKafkaListenerContainerFactory<@NonNull Object, @NonNull Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<@NonNull Object, @NonNull Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<Object, Object> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(consumerProps()));
         factory.setCommonErrorHandler(getDefaultErrorHandler());
         factory.setRecordMessageConverter(new ByteArrayJacksonJsonMessageConverter());
@@ -91,7 +90,7 @@ public class KafkaConfig implements KafkaListenerConfigurer {
 
     @Bean
     public NewTopic ordersTopic() {
-        return TopicBuilder.name(KafkaTopics.ORDERS)
+        return TopicBuilder.name(Topics.ORDERS)
                 // Use more than one partition for frequently used input topic
                 .partitions(6)
                 .build();
@@ -99,6 +98,6 @@ public class KafkaConfig implements KafkaListenerConfigurer {
 
     @Bean
     public NewTopic testTopic() {
-        return new NewTopic(KafkaTopics.TEST_TOPIC, 3, (short) 1);
+        return new NewTopic(Topics.TEST_TOPIC, 3, (short) 1);
     }
 }

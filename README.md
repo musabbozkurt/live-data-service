@@ -55,6 +55,10 @@
     - All services are connected through `bridge` networks, ensuring communication between containers.
     - `Actuator`: http://localhost:8080/actuator
     - `Kafka UI`: http://localhost:9999/
+    - `RedisInsight`: http://localhost:5540/
+        - `Redis Host`: `redis`
+        - `Redis Port`: `6379`
+    - `activemq-artemis Web Console`: http://localhost:8161
     - `Grafana`
         - Login Credentials
             - Url: http://localhost:3000/
@@ -157,10 +161,6 @@
     - for `"list" TYPE`: `lrange key 0 -1`
     - for `"set" TYPE`: `smembers key`
     - for `"zset" TYPE`: `zrange key 0 -1 withScores`
-
-- `RedisInsight`: http://localhost:5540/
-    - `Redis Host`: `redis`
-    - `Redis Port`: `6379`
 
 -------
 

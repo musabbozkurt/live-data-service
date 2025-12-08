@@ -6,11 +6,13 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
 
 @Table("order_items")
-public record OrderItem(@Id Long id,
+public record OrderItem(@Id
+                        Long id,
                         Long orderId,
                         Long coffeeId,
                         Integer quantity,
                         BigDecimal price) {
+
     public OrderItem {
         if (orderId == null) {
             throw new IllegalArgumentException("Order ID cannot be null");

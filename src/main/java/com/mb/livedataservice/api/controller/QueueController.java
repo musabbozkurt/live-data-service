@@ -24,4 +24,11 @@ public class QueueController {
         log.info("Received a request to publish a message. publishMessage - ApiQueueRequest: {}.", apiQueueRequest);
         producerService.publishMessage(JsonUtils.serialize(apiQueueRequest));
     }
+
+    @PostMapping("/jms-messages")
+    @Operation(summary = "Publish a JMS message")
+    public void publishJmsMessage() {
+        log.info("Received a request to publish a JMS message. publishJmsMessage.");
+        producerService.publishJmsMessage();
+    }
 }

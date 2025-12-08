@@ -1,7 +1,7 @@
 package com.mb.livedataservice.queue.consumer;
 
 import com.mb.livedataservice.queue.dto.consumer.Order;
-import com.mb.livedataservice.util.KafkaTopics;
+import com.mb.livedataservice.util.Topics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
 @Component
 public class OrderListener {
 
-    @KafkaListener(topics = KafkaTopics.ORDERS, groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = Topics.ORDERS, groupId = "${spring.kafka.consumer.group-id}")
     void listen(@Payload @Validated Order order) {
         log.info("Received an order message. listen - order: {}.", order);
     }

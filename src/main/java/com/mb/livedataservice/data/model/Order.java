@@ -8,12 +8,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Table("orders")
-public record Order(@Id Long id,
+public record Order(@Id
+                    Long id,
                     Long customerId,
                     String customerName,
                     LocalDateTime orderDate,
                     BigDecimal totalAmount,
                     OrderStatus status) {
+
     public Order {
         if (customerName == null || customerName.isBlank()) {
             throw new IllegalArgumentException("Customer name cannot be blank");
