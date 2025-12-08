@@ -19,11 +19,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # https://github.com/actions/runner/issues/2468#issuecomment-2543395161
-    strategy:
-      matrix:
-        java: [ '25' ]
-      fail-fast: false
     env:
       TESTCONTAINERS_REUSE_ENABLE: true # https://java.testcontainers.org/features/reuse/
 
