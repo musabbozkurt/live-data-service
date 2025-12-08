@@ -51,43 +51,41 @@ public class TestcontainersConfiguration {
      * @return the configured Elasticsearch container with analysis-icu plugin
      * @see <a href="https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu.html">Elasticsearch ICU Analysis Plugin</a>
      */
-    @Bean
     @ServiceConnection
+    @Bean(destroyMethod = "stop") // Stop the container when all tests are done
     public ElasticsearchContainer elasticsearch() {
-        try (var elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:9.2.2"))) {
-            elasticsearchContainer.withEnv("discovery.type", "single-node")
-                    .withEnv("xpack.security.enabled", "false")
-                    .withEnv("xpack.security.http.ssl.enabled", "false")
-                    .withEnv("cluster.name", "elasticsearch")
-                    .withCommand("sh", "-c", "bin/elasticsearch-plugin install analysis-icu && exec /usr/local/bin/docker-entrypoint.sh elasticsearch")
-                    .withReuse(true);
-            elasticsearchContainer.start();
+        var elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:9.2.2"));
+        elasticsearchContainer.withEnv("discovery.type", "single-node")
+                .withEnv("xpack.security.enabled", "false")
+                .withEnv("xpack.security.http.ssl.enabled", "false")
+                .withEnv("cluster.name", "elasticsearch")
+                .withCommand("sh", "-c", "bin/elasticsearch-plugin install analysis-icu && exec /usr/local/bin/docker-entrypoint.sh elasticsearch")
+                .withReuse(true);
+        elasticsearchContainer.start();
 
-            assertThat(elasticsearchContainer.isCreated()).isTrue();
-            assertThat(elasticsearchContainer.isRunning()).isTrue();
+        assertThat(elasticsearchContainer.isCreated()).isTrue();
+        assertThat(elasticsearchContainer.isRunning()).isTrue();
 
-            return elasticsearchContainer;
-        }
+        return elasticsearchContainer;
     }
 
-    @Bean
     @ServiceConnection
+    @Bean(destroyMethod = "stop")
     public PostgreSQLContainer postgres() {
-        try (var postgreSQLContainer = new PostgreSQLContainer("postgres:17.2")) {
-            postgreSQLContainer.withReuse(true);
-            postgreSQLContainer.start();
+        var postgreSQLContainer = new PostgreSQLContainer("postgres:17.2");
+        postgreSQLContainer.withReuse(true);
+        postgreSQLContainer.start();
 
-            // Set default schema for JDBC connections
-            System.setProperty("spring.datasource.hikari.schema", "mb_test");
+        // Set default schema for JDBC connections
+        System.setProperty("spring.datasource.hikari.schema", "mb_test");
 
-            assertThat(postgreSQLContainer.isCreated()).isTrue();
-            assertThat(postgreSQLContainer.isRunning()).isTrue();
+        assertThat(postgreSQLContainer.isCreated()).isTrue();
+        assertThat(postgreSQLContainer.isRunning()).isTrue();
 
-            return postgreSQLContainer;
-        }
+        return postgreSQLContainer;
     }
 
-    @Bean
+    @Bean(destroyMethod = "stop")
     public GenericContainer<?> redis() {
         GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.4.2"))
                 .withExposedPorts(6379)
@@ -102,8 +100,8 @@ public class TestcontainersConfiguration {
         return redisContainer;
     }
 
-    @Bean
     @ServiceConnection
+    @Bean(destroyMethod = "stop")
     public KafkaContainer kafka() {
         KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.0.0"))
                 .withReuse(true);
@@ -117,7 +115,7 @@ public class TestcontainersConfiguration {
         return kafkaContainer;
     }
 
-    @Bean
+    @Bean(destroyMethod = "stop")
     public GenericContainer<?> artemis() {
         GenericContainer<?> artemis = new GenericContainer<>(DockerImageName.parse("apache/activemq-artemis:latest-alpine"))
                 .withEnv("ANONYMOUS_LOGIN", "true")
