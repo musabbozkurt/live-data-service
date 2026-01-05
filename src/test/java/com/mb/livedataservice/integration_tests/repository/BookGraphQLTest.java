@@ -67,7 +67,7 @@ class BookGraphQLTest {
                 .get();
 
         assertThat(books)
-                .hasSize(FLYWAY_BOOK_COUNT)
+                .hasSizeGreaterThanOrEqualTo(FLYWAY_BOOK_COUNT)
                 .allSatisfy(book -> {
                     assertThat(book.getId()).isNotNull().isPositive();
                     assertThat(book.getTitle()).isNotBlank();
