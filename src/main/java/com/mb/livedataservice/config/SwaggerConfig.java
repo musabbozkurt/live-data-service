@@ -1,6 +1,8 @@
 package com.mb.livedataservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,24 +35,50 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI springShopOpenAPI() {
-        return new OpenAPI();
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Live Data Service API")
+                        .description("""
+                                Live Data Service API Documentation.
+                                
+                                ## GraphQL API
+                                
+                                This service provides a GraphQL API for querying and mutating Author and Book entities.
+                                
+                                - **GraphQL Endpoint:** POST /graphql
+                                - **GraphiQL UI:** GET /graphiql (Interactive GraphQL IDE)
+                                
+                                See the "GraphQL API Documentation" section below for more details.
+                                """)
+                        .version("1.0.0")
+                        .contact(new Contact().name("Live Data Service Team")));
     }
 
-    @Bean()
-    MultipleOpenApiWebMvcResource multipleOpenApiResource(List<GroupedOpenApi> groupedOpenApis,
-                                                          ObjectFactory<OpenAPIService> defaultOpenAPIBuilder,
-                                                          AbstractRequestService requestBuilder,
-                                                          GenericResponseService responseBuilder,
-                                                          OperationService operationParser,
-                                                          SpringDocConfigProperties springDocConfigProperties,
-                                                          SpringDocProviders springDocProviders,
-                                                          SpringDocCustomizers springDocCustomizers) {
+    @Bean
+    public GroupedOpenApi graphqlApiGroup() {
+        return GroupedOpenApi.builder()
+                .group("graphql-api")
+                .displayName("GraphQL API")
+                .pathsToMatch("/api/graphql/**")
+                .build();
+    }
 
-        services.forEach(swaggerService -> groupedOpenApis.add(GroupedOpenApi.builder()
-                .group(swaggerService.getName())
-                .pathsToMatch("/**")
-                .pathsToExclude("/actuator/**")
-                .build()));
+    @Bean
+    public MultipleOpenApiWebMvcResource multipleOpenApiResource(List<GroupedOpenApi> groupedOpenApis,
+                                                                 ObjectFactory<OpenAPIService> defaultOpenAPIBuilder,
+                                                                 AbstractRequestService requestBuilder,
+                                                                 GenericResponseService responseBuilder,
+                                                                 OperationService operationParser,
+                                                                 SpringDocConfigProperties springDocConfigProperties,
+                                                                 SpringDocProviders springDocProviders,
+                                                                 SpringDocCustomizers springDocCustomizers) {
+        services.forEach(swaggerService ->
+                groupedOpenApis.add(GroupedOpenApi.builder()
+                        .group(swaggerService.getName())
+                        .pathsToMatch("/**")
+                        .pathsToExclude("/actuator/**", "/api/graphql/**")
+                        .build())
+        );
 
         return new MultipleOpenApiWebMvcResource(groupedOpenApis, defaultOpenAPIBuilder, requestBuilder, responseBuilder, operationParser, springDocConfigProperties, springDocProviders, springDocCustomizers);
     }
