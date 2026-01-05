@@ -194,3 +194,85 @@ VALUES (5, 4, 1, 4.50);
 INSERT INTO mb_test.order_items (order_id, coffee_id, quantity, price)
 VALUES (6, 7, 1, 5.25), -- Mocha
        (6, 2, 1, 3.00); -- Americano
+
+-- Author table and sequence
+CREATE SEQUENCE IF NOT EXISTS mb_test.author_seq START WITH 1 INCREMENT BY 50;
+
+CREATE TABLE IF NOT EXISTS mb_test.author
+(
+    id      BIGINT DEFAULT NEXTVAL('mb_test.author_seq') PRIMARY KEY,
+    name    VARCHAR(255),
+    country VARCHAR(255)
+);
+
+CREATE INDEX IF NOT EXISTS idx_author_name ON mb_test.author (name);
+CREATE INDEX IF NOT EXISTS idx_author_country ON mb_test.author (country);
+
+-- Insert sample authors
+INSERT INTO mb_test.author (id, name, country)
+VALUES (1, 'Mark Heckler', 'USA'),
+       (2, 'Thomas Vitale', 'Italy'),
+       (3, 'Laurentiu Spilca', 'Romania'),
+       (4, 'Somnath Musib', 'India'),
+       (5, 'Iuliana Cosmina', 'Netherlands'),
+       (6, 'Craig Walls', 'USA'),
+       (7, 'John Carnell', 'USA'),
+       (8, 'Herbert Schildt', 'USA'),
+       (9, 'Joshua Bloch', 'USA'),
+       (10, 'Brian Goetz', 'USA'),
+       (11, 'Kathy Sierra', 'USA'),
+       (12, 'Scott Oaks', 'USA'),
+       (13, 'Raoul-Gabriel Urma', 'UK'),
+       (14, 'Dinesh Rajput', 'India'),
+       (15, 'Paul Deck', 'USA'),
+       (16, 'Arnaud Cogoluegnes', 'France'),
+       (17, 'Mark Fisher', 'USA'),
+       (18, 'Mark Pollack', 'USA'),
+       (19, 'Gary Mak', 'Hong Kong'),
+       (20, 'Rajesh RV', 'India'),
+       (21, 'Alex Antonov', 'Russia');
+
+-- Update author sequence to avoid conflicts
+ALTER SEQUENCE mb_test.author_seq RESTART WITH 100;
+
+-- Book table and sequence
+CREATE SEQUENCE IF NOT EXISTS mb_test.book_seq START WITH 1 INCREMENT BY 50;
+
+CREATE TABLE IF NOT EXISTS mb_test.book
+(
+    id             BIGINT DEFAULT NEXTVAL('mb_test.book_seq') PRIMARY KEY,
+    title          VARCHAR(255),
+    author_id      BIGINT,
+    published_year INTEGER,
+    CONSTRAINT fk_book_author FOREIGN KEY (author_id) REFERENCES mb_test.author (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_book_title ON mb_test.book (title);
+CREATE INDEX IF NOT EXISTS idx_book_author_id ON mb_test.book (author_id);
+
+-- Insert sample books with author references
+INSERT INTO mb_test.book (title, author_id, published_year)
+VALUES ('Spring Boot Up & Running', 1, 2021),
+       ('Cloud Native Spring in Action', 2, 2022),
+       ('Spring Security in Action', 3, 2020),
+       ('Spring Boot in Practice', 4, 2022),
+       ('Pro Spring 5', 5, 2017),
+       ('Spring in Action', 6, 2018),
+       ('Spring Microservices in Action', 7, 2017),
+       ('Java: The Complete Reference', 8, 2018),
+       ('Effective Java', 9, 2018),
+       ('Java Concurrency in Practice', 10, 2006),
+       ('Head First Java', 11, 2005),
+       ('Java Performance: The Definitive Guide', 12, 2014),
+       ('Java Puzzlers: Traps, Pitfalls, and Corner Cases', 9, 2005),
+       ('Java 8 in Action', 13, 2014),
+       ('Modern Java in Action', 13, 2018),
+       ('Java: A Beginner''s Guide', 8, 2018),
+       ('Spring 5 Design Patterns', 14, 2017),
+       ('Spring MVC: A Tutorial', 15, 2014),
+       ('Spring Batch in Action', 16, 2011),
+       ('Spring Integration in Action', 17, 2012),
+       ('Spring Data', 18, 2012),
+       ('Spring Recipes: A Problem-Solution Approach', 19, 2010),
+       ('Spring Microservices', 20, 2016),
+       ('Spring Boot Cookbook', 21, 2015);
