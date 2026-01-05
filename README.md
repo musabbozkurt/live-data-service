@@ -90,7 +90,12 @@
             - `username`: `root`
             - `password`: `example`
     - GraphQL endpoint: http://localhost:8080/graphiql?path=/graphql
-        - Copy request body from `GraphQL Integration Tests` file to test GraphQL queries and mutations
+        - GraphQL API Documentation in Swagger UI:
+            - **Swagger UI**: http://localhost:8080/swagger-ui/index.html - Select `graphql-api` from the dropdown
+            - **GET /api/graphql/schema** - Returns the GraphQL schema (SDL)
+            - **GET /api/graphql/info** - Provides API documentation with available queries and mutations
+            - **GET /api/graphql/examples/queries** - Example query payloads
+            - **GET /api/graphql/examples/mutations** - Example mutation payloads
 
 - Test via `Postman` (OPTIONAL):
     1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)
