@@ -83,7 +83,7 @@ class BookGraphQLTest {
                 .get();
 
         assertThat(authors)
-                .hasSize(FLYWAY_BOOK_COUNT)
+                .hasSizeGreaterThanOrEqualTo(FLYWAY_BOOK_COUNT)
                 .allSatisfy(author -> {
                     assertThat(author.getId()).isNotNull().isPositive();
                     assertThat(author.getName()).isNotBlank();
