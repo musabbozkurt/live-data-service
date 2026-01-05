@@ -89,6 +89,8 @@
             - `url`: `mongodb://localhost:27017/testdb?authSource=admin`
             - `username`: `root`
             - `password`: `example`
+    - GraphQL endpoint: http://localhost:8080/graphiql?path=/graphql
+        - Copy request body from `GraphQL Integration Tests` file to test GraphQL queries and mutations
 
 - Test via `Postman` (OPTIONAL):
     1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)

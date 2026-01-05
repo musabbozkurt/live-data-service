@@ -4,6 +4,7 @@ import com.mb.livedataservice.client.jsonplaceholder.DeclarativeJSONPlaceholderR
 import com.mb.livedataservice.exception.BaseException;
 import com.mb.livedataservice.exception.ErrorCode;
 import lombok.SneakyThrows;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class DeclarativeHttpInterfaceConfig {
                 .defaultStatusHandler(HttpStatusCode::isError, (_, response) -> {
                     throw new BaseException(new ErrorCode() {
 
+                        @Nullable
                         @Override
                         @SneakyThrows
                         public HttpStatus getHttpStatus() {

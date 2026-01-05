@@ -1,0 +1,43 @@
+# Added custom scalar examples for Date and Url types
+scalar Date @specifiedBy(url:"https://tools.ietf.org/html/rfc3339")
+scalar Url @specifiedBy(url:"https://www.w3.org/Addressing/URL/url-spec.txt")
+
+type Author {
+    id: ID!
+    name: String
+    country: String
+    books: [Book!]
+}
+
+type Book {
+    id: ID!
+    title: String
+    author: Author
+    publishedYear: Int
+}
+
+input AuthorInput {
+    name: String
+    country: String
+}
+
+input BookInput {
+    title: String
+    publishedYear: Int
+}
+
+type Query {
+    authors(author: AuthorInput): [Author!]!
+    author(id: ID!): Author
+    books(book: BookInput): [Book!]!
+    book(id: ID!): Book
+}
+
+type Mutation {
+    createAuthor(name: String!, country: String!): Author!
+    updateAuthor(id: ID!, name: String!, country: String!): Author!
+    deleteAuthor(id: ID!): Boolean!
+    createBook(title: String!, authorId: ID!, publishedYear: Int!): Book!
+    updateBook(id: ID!, title: String!, authorId: ID!, publishedYear: Int!): Book!
+    deleteBook(id: ID!): Boolean!
+}
