@@ -46,6 +46,9 @@ spring:
       properties:
         enable.idempotence: 'true' # Enable idempotence to avoid duplicate messages. Default is 'true' for v3.0 and later
         max.in.flight.requests.per.connection: 1 # To avoid reordering of messages.
+  grpc:
+    server:
+      port: 0 # Disable gRPC server in tests
 
 swagger:
   documentation:

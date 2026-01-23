@@ -96,6 +96,8 @@
             - **GET /api/graphql/info** - Provides API documentation with available queries and mutations
             - **GET /api/graphql/examples/queries** - Example query payloads
             - **GET /api/graphql/examples/mutations** - Example mutation payloads
+    - gRPC API Documentation in Swagger UI:
+        - **Swagger UI**: http://localhost:8080/swagger-ui/index.html - Select `live-data-service` from the dropdown
 
 - Test via `Postman` (OPTIONAL):
     1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)
@@ -196,3 +198,4 @@
     - [Master Spring Data AOT in IntelliJ IDEA](https://blog.jetbrains.com/idea/2025/11/spring-data-aot/)
     - [Spring Data AOT Repositories: Better Performance AND Developer Experience](https://www.youtube.com/watch?v=s_kmDbitE8s)
     - [Spring Data AOT Coffee Shop Demo](https://github.com/danvega/spring-data-aot)
+- [Spring GRPC](https://docs.spring.io/spring-grpc/reference/getting-started.html)
