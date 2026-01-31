@@ -97,6 +97,23 @@ services:
     networks:
       - my-network
 
+  mailpit:
+    image: axllent/mailpit:v1.28.4
+    container_name: mailpit
+    restart: always
+    ports:
+      - "1025:1025"   # SMTP server
+      - "8025:8025"   # Web UI (http://localhost:8025)
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=false
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+      - MP_SMTP_REQUIRE_STARTTLS=false
+      - MP_SMTP_REQUIRE_TLS=false
+      - MP_UI_AUTH=admin:admin
+      - MP_SMTP_AUTH=admin:admin
+    networks:
+      - my-network
+
   jaeger:
     image: jaegertracing/all-in-one:1.76.0
     container_name: jaeger

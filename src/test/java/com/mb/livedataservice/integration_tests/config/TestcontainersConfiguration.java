@@ -3,6 +3,7 @@ package com.mb.livedataservice.integration_tests.config;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -11,10 +12,16 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Testcontainers(disabledWithoutDocker = true)
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
+
+    @Bean
+    public JavaMailSender javaMailSender() {
+        return mock(JavaMailSender.class);
+    }
 
     /**
      * Configures an Elasticsearch testcontainers with the analysis-icu plugin installed.

@@ -81,6 +81,18 @@ spring:
     virtual:
       enabled: true
 
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:admin}
+    password: ${MAIL_PASSWORD:admin}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}  # Enable SMTP authentication
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:false}  # Upgrade to TLS encryption (set true for production mail servers like Gmail)
+
   cloud:
     gcp:
       credentials:
@@ -166,6 +178,11 @@ clients:
     # client-id and client-secret are dummy values for this integration and were added to demonstrate the usage of BasicAuthenticationInterceptor
     client-id: ${JSON_PLACEHOLDER_CLIENT_ID:client-id}
     client-secret: ${JSON_PLACEHOLDER_CLIENT_SECRET:client-secret}
+
+email:
+  from: ${EMAIL_FROM:noreply@example.com}
+  subject:
+    prefix: ${EMAIL_SUBJECT_PREFIX:}
 
 resilience4j:
   circuitbreaker:

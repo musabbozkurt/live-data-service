@@ -193,7 +193,8 @@ VALUES (5, 4, 1, 4.50);
 -- Bob's recent pending order (10 minutes ago)
 INSERT INTO mb_test.order_items (order_id, coffee_id, quantity, price)
 VALUES (6, 7, 1, 5.25), -- Mocha
-       (6, 2, 1, 3.00); -- Americano
+       -- Americano
+       (6, 2, 1, 3.00);
 
 -- Author table and sequence
 CREATE SEQUENCE IF NOT EXISTS mb_test.author_seq START WITH 1 INCREMENT BY 50;
@@ -276,3 +277,41 @@ VALUES ('Spring Boot Up & Running', 1, 2021),
        ('Spring Recipes: A Problem-Solution Approach', 19, 2010),
        ('Spring Microservices', 20, 2016),
        ('Spring Boot Cookbook', 21, 2015);
+
+-- Email Template table and sequence
+CREATE SEQUENCE IF NOT EXISTS mb_test.email_template_seq START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE IF NOT EXISTS mb_test.email_template
+(
+    id          BIGINT                DEFAULT NEXTVAL('mb_test.email_template_seq') PRIMARY KEY,
+    code        VARCHAR(255) NOT NULL UNIQUE,
+    name        VARCHAR(255),
+    subject     VARCHAR(255),
+    body        TEXT,
+    description VARCHAR(255),
+    active      BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at  TIMESTAMP,
+    updated_at  TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_template_code ON mb_test.email_template (code);
+CREATE INDEX IF NOT EXISTS idx_email_template_active ON mb_test.email_template (active);
+
+-- Email Event table
+CREATE TABLE IF NOT EXISTS mb_test.email_event
+(
+    id            UUID PRIMARY KEY,
+    subject       VARCHAR(255),
+    body          TEXT,
+    to_addresses  VARCHAR(2000),
+    cc_addresses  VARCHAR(2000),
+    bcc_addresses VARCHAR(2000),
+    status        VARCHAR(20) NOT NULL DEFAULT 'SENT',
+    retry_count   INTEGER     NOT NULL DEFAULT 0,
+    created_at    TIMESTAMP,
+    updated_at    TIMESTAMP,
+    CONSTRAINT email_event_status_valid CHECK (status IN ('PENDING', 'SENT', 'FAILED', 'DELIVERED', 'BOUNCED'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_event_status ON mb_test.email_event (status);
+CREATE INDEX IF NOT EXISTS idx_email_event_created_at ON mb_test.email_event (created_at);

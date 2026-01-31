@@ -10,4 +10,5 @@ public final class Topics {
     public static final String ORDERS = "orders";
     public static final String CUSTOM_ORDERS = "custom-orders";
     public static final String JMS_CUSTOM_ORDERS = "jms-custom-orders";
+    public static final String EMAIL_TOPIC = "email-topic";
 }

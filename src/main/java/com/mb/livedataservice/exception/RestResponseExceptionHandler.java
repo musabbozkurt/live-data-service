@@ -6,14 +6,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.retry.RetryException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.stream.Collectors;
+
 @Slf4j
 @ControllerAdvice
 public class RestResponseExceptionHandler {
+
+    @ResponseBody
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<@NonNull ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        log.warn("Validation failed: {}", ex.getMessage());
+        String errorMessages = ex.getBindingResult().getFieldErrors().stream()
+            .map(error -> "%s: %s".formatted(error.getField(), error.getDefaultMessage()))
+            .collect(Collectors.joining(", "));
+        return new ResponseEntity<>(new ErrorResponse(LiveDataErrorCode.VALIDATION_ERROR.getCode(), errorMessages), HttpStatus.BAD_REQUEST);
+    }
 
     @ResponseBody
     @ExceptionHandler(BaseException.class)
