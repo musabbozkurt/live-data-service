@@ -89,11 +89,11 @@ class EmailEventControllerTest {
         requestWithLongTemplateCode.setTemplateCode("T".repeat(101));
 
         return Stream.of(
-            Arguments.of("Subject is empty", requestWithEmptySubject, subjectSize),
-            Arguments.of("Subject exceeds 100 characters", requestWithLongSubject, subjectSize),
-            Arguments.of("Body is empty", requestWithEmptyBody, bodyNotEmpty),
-            Arguments.of("To is empty", requestWithEmptyTo, toSize),
-            Arguments.of("Template code exceeds 100 characters", requestWithLongTemplateCode, templateCodeSize)
+                Arguments.of("Subject is empty", requestWithEmptySubject, subjectSize),
+                Arguments.of("Subject exceeds 100 characters", requestWithLongSubject, subjectSize),
+                Arguments.of("Body is empty", requestWithEmptyBody, bodyNotEmpty),
+                Arguments.of("To is empty", requestWithEmptyTo, toSize),
+                Arguments.of("Template code exceeds 100 characters", requestWithLongTemplateCode, templateCodeSize)
         );
     }
 
@@ -132,10 +132,10 @@ class EmailEventControllerTest {
         requestWithLongTemplateCode.setTemplateCode("T".repeat(101));
 
         return Stream.of(
-            Arguments.of("Subject is empty (TR)", requestWithEmptySubject, subjectSize),
-            Arguments.of("Body is empty (TR)", requestWithEmptyBody, bodyNotEmpty),
-            Arguments.of("To is empty (TR)", requestWithEmptyTo, toSize),
-            Arguments.of("Template code exceeds 100 characters (TR)", requestWithLongTemplateCode, templateCodeSize)
+                Arguments.of("Subject is empty (TR)", requestWithEmptySubject, subjectSize),
+                Arguments.of("Body is empty (TR)", requestWithEmptyBody, bodyNotEmpty),
+                Arguments.of("To is empty (TR)", requestWithEmptyTo, toSize),
+                Arguments.of("Template code exceeds 100 characters (TR)", requestWithLongTemplateCode, templateCodeSize)
         );
     }
 
@@ -156,9 +156,9 @@ class EmailEventControllerTest {
         // Act
         // Assertions
         mockMvc.perform(post("/api/v1/email")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
         verify(emailEventProducer, times(1)).produce(any(EmailEventDto.class));
         verify(emailEventDtoMapper, times(1)).toDto(any(EmailEventRequest.class));
@@ -171,10 +171,10 @@ class EmailEventControllerTest {
         // Act
         // Assertions
         mockMvc.perform(post("/api/v1/email")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message", containsString(expectedMessage)));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString(expectedMessage)));
 
         verifyNoInteractions(emailEventProducer);
     }
@@ -186,11 +186,11 @@ class EmailEventControllerTest {
         // Act
         // Assertions
         mockMvc.perform(post("/api/v1/email")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Accept-Language", "tr")
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message", containsString(expectedMessage)));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", "tr")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString(expectedMessage)));
 
         verifyNoInteractions(emailEventProducer);
     }

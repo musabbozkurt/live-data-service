@@ -24,8 +24,8 @@ public class RestResponseExceptionHandler {
     public ResponseEntity<@NonNull ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.warn("Validation failed: {}", ex.getMessage());
         String errorMessages = ex.getBindingResult().getFieldErrors().stream()
-            .map(error -> "%s: %s".formatted(error.getField(), error.getDefaultMessage()))
-            .collect(Collectors.joining(", "));
+                .map(error -> "%s: %s".formatted(error.getField(), error.getDefaultMessage()))
+                .collect(Collectors.joining(", "));
         return new ResponseEntity<>(new ErrorResponse(LiveDataErrorCode.VALIDATION_ERROR.getCode(), errorMessages), HttpStatus.BAD_REQUEST);
     }
 

@@ -109,14 +109,14 @@ class EmailTemplateControllerTest {
         requestWithLongDescription.setDescription("D".repeat(501));
 
         return Stream.of(
-            Arguments.of("Code is blank", requestWithBlankCode, codeNotBlank),
-            Arguments.of("Code is null", requestWithNullCode, codeNotBlank),
-            Arguments.of("Code exceeds 100 characters", requestWithLongCode, codeSize),
-            Arguments.of("Body is blank", requestWithBlankBody, bodyNotBlank),
-            Arguments.of("Body is null", requestWithNullBody, bodyNotBlank),
-            Arguments.of("Name exceeds 255 characters", requestWithLongName, nameSize),
-            Arguments.of("Subject exceeds 255 characters", requestWithLongSubject, subjectSize),
-            Arguments.of("Description exceeds 500 characters", requestWithLongDescription, descriptionSize)
+                Arguments.of("Code is blank", requestWithBlankCode, codeNotBlank),
+                Arguments.of("Code is null", requestWithNullCode, codeNotBlank),
+                Arguments.of("Code exceeds 100 characters", requestWithLongCode, codeSize),
+                Arguments.of("Body is blank", requestWithBlankBody, bodyNotBlank),
+                Arguments.of("Body is null", requestWithNullBody, bodyNotBlank),
+                Arguments.of("Name exceeds 255 characters", requestWithLongName, nameSize),
+                Arguments.of("Subject exceeds 255 characters", requestWithLongSubject, subjectSize),
+                Arguments.of("Description exceeds 500 characters", requestWithLongDescription, descriptionSize)
         );
     }
 
@@ -165,12 +165,12 @@ class EmailTemplateControllerTest {
         requestWithLongDescription.setDescription("D".repeat(501));
 
         return Stream.of(
-            Arguments.of("Code is blank (TR)", requestWithBlankCode, codeNotBlank),
-            Arguments.of("Code exceeds 100 characters (TR)", requestWithLongCode, codeSize),
-            Arguments.of("Body is blank (TR)", requestWithBlankBody, bodyNotBlank),
-            Arguments.of("Name exceeds 255 characters (TR)", requestWithLongName, nameSize),
-            Arguments.of("Subject exceeds 255 characters (TR)", requestWithLongSubject, subjectSize),
-            Arguments.of("Description exceeds 500 characters (TR)", requestWithLongDescription, descriptionSize)
+                Arguments.of("Code is blank (TR)", requestWithBlankCode, codeNotBlank),
+                Arguments.of("Code exceeds 100 characters (TR)", requestWithLongCode, codeSize),
+                Arguments.of("Body is blank (TR)", requestWithBlankBody, bodyNotBlank),
+                Arguments.of("Name exceeds 255 characters (TR)", requestWithLongName, nameSize),
+                Arguments.of("Subject exceeds 255 characters (TR)", requestWithLongSubject, subjectSize),
+                Arguments.of("Description exceeds 500 characters (TR)", requestWithLongDescription, descriptionSize)
         );
     }
 
@@ -202,9 +202,9 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(post("/api/v1/email/templates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validRequest)))
-            .andExpect(status().isOk());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validRequest)))
+                .andExpect(status().isOk());
 
         verify(emailTemplateService).create(any(EmailTemplateRequest.class));
     }
@@ -217,9 +217,9 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(put("/api/v1/email/templates/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validRequest)))
-            .andExpect(status().isOk());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validRequest)))
+                .andExpect(status().isOk());
 
         verify(emailTemplateService).update(eq(1L), any(EmailTemplateRequest.class));
     }
@@ -232,7 +232,7 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(get("/api/v1/email/templates/1"))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
 
         verify(emailTemplateService).getById(1L);
     }
@@ -245,7 +245,7 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(get("/api/v1/email/templates/code/WELCOME_EMAIL"))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
 
         verify(emailTemplateService).getByCode("WELCOME_EMAIL");
     }
@@ -260,9 +260,9 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(get("/api/v1/email/templates")
-                .param("page", "0")
-                .param("size", "20"))
-            .andExpect(status().isOk());
+                        .param("page", "0")
+                        .param("size", "20"))
+                .andExpect(status().isOk());
 
         verify(emailTemplateService).getAll(any(Pageable.class));
     }
@@ -277,7 +277,7 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(get("/api/v1/email/templates"))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
 
         verify(emailTemplateService).getAll(any(Pageable.class));
     }
@@ -290,7 +290,7 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(delete("/api/v1/email/templates/1"))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
 
         verify(emailTemplateService).delete(1L);
     }
@@ -302,10 +302,10 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(post("/api/v1/email/templates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message", containsString(expectedMessage)));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString(expectedMessage)));
 
         verifyNoInteractions(emailTemplateService);
     }
@@ -317,10 +317,10 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(put("/api/v1/email/templates/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message", containsString(expectedMessage)));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString(expectedMessage)));
 
         verifyNoInteractions(emailTemplateService);
     }
@@ -332,11 +332,11 @@ class EmailTemplateControllerTest {
         // Act
         // Assertions
         mockMvc.perform(post("/api/v1/email/templates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Accept-Language", "tr")
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message", containsString(expectedMessage)));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", "tr")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString(expectedMessage)));
 
         verifyNoInteractions(emailTemplateService);
     }
