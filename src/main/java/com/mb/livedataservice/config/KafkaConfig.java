@@ -1,5 +1,6 @@
 package com.mb.livedataservice.config;
 
+import com.mb.livedataservice.queue.dto.EmailEventDto;
 import com.mb.livedataservice.util.Topics;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,13 @@ import org.springframework.kafka.annotation.KafkaListenerConfigurer;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistrar;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.converter.BatchMessagingMessageConverter;
 import org.springframework.kafka.support.converter.ByteArrayJacksonJsonMessageConverter;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.util.backoff.FixedBackOff;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -48,6 +52,31 @@ public class KafkaConfig implements KafkaListenerConfigurer {
     public void configureKafkaListeners(KafkaListenerEndpointRegistrar registrar) {
         // https://docs.spring.io/spring-kafka/docs/2.8.1/reference/html/#kafka-validation
         registrar.setValidator(this.validator);
+    }
+
+    @Bean("emailConsumerFactory")
+    public ConsumerFactory<String, Object> emailConsumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+        config.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 1000);
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
+        config.put(JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, EmailEventDto.class);
+        config.put(JacksonJsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+        config.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "*");
+
+        return new DefaultKafkaConsumerFactory<>(config);
+    }
+
+    @Bean("emailKafkaListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, Object> emailKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(emailConsumerFactory());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+        return factory;
     }
 
     @Bean
