@@ -6,13 +6,13 @@ import com.mb.livedataservice.enums.EmailStatus;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import com.mb.livedataservice.queue.dto.EmailEventDto;
 import com.mb.livedataservice.queue.producer.impl.EmailEventProducer;
+import jakarta.mail.internet.MimeMessage;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -23,10 +23,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(
         classes = {TestcontainersConfiguration.class},
@@ -50,7 +51,7 @@ class EmailEventIntegrationTest {
     void produce_ShouldSendEmailAndSaveEvent_WhenValidEventProvided() {
         // Arrange
         EmailEventDto eventDto = createValidEventDto();
-        doNothing().when(javaMailSender).send(any(SimpleMailMessage.class));
+        when(javaMailSender.createMimeMessage()).thenReturn(mock(MimeMessage.class));
 
         // Act
         emailEventProducer.produce(eventDto);
@@ -60,7 +61,7 @@ class EmailEventIntegrationTest {
                 .atMost(Duration.ofSeconds(15))
                 .pollInterval(Duration.ofMillis(500))
                 .untilAsserted(() -> {
-                    verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
+                    verify(javaMailSender, times(1)).send(any(MimeMessage.class));
 
                     Optional<EmailEvent> savedEvent = emailEventRepository.findById(eventDto.getId());
                     assertThat(savedEvent).isPresent();
@@ -75,7 +76,8 @@ class EmailEventIntegrationTest {
     void produce_ShouldRetryAndProcessDLT_WhenEmailSenderFails() {
         // Arrange
         EmailEventDto eventDto = createValidEventDto();
-        doThrow(new MailSendException("Email service unavailable")).when(javaMailSender).send(any(SimpleMailMessage.class));
+        when(javaMailSender.createMimeMessage()).thenReturn(mock(MimeMessage.class));
+        doThrow(new MailSendException("Email service unavailable")).when(javaMailSender).send(any(MimeMessage.class));
 
         // Act
         emailEventProducer.produce(eventDto);
@@ -85,7 +87,7 @@ class EmailEventIntegrationTest {
                 .atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .untilAsserted(() -> {
-                    verify(javaMailSender, Mockito.atLeast(5)).send(any(SimpleMailMessage.class));
+                    verify(javaMailSender, Mockito.atLeast(5)).send(any(MimeMessage.class));
 
                     Optional<EmailEvent> savedEvent = emailEventRepository.findById(eventDto.getId());
                     assertThat(savedEvent).isPresent();
