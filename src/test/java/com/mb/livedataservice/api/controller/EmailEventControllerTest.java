@@ -1,5 +1,6 @@
 package com.mb.livedataservice.api.controller;
 
+import com.mb.livedataservice.api.request.EmailAttachmentRequest;
 import com.mb.livedataservice.api.request.EmailEventRequest;
 import com.mb.livedataservice.exception.RestResponseExceptionHandler;
 import com.mb.livedataservice.mapper.EmailEventDtoMapper;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +58,10 @@ class EmailEventControllerTest {
         String bodyNotEmpty = MessageUtils.getMessageFromBundle("validation.body.notEmpty", Locale.ENGLISH);
         String toSize = MessageUtils.getMessageFromBundle("validation.to.size", Locale.ENGLISH);
         String templateCodeSize = MessageUtils.getMessageFromBundle("validation.templateCode.size", Locale.ENGLISH);
+        String attachmentFileNameNotBlank = MessageUtils.getMessageFromBundle("validation.attachment.fileName.notBlank", Locale.ENGLISH);
+        String attachmentFileNameSize = MessageUtils.getMessageFromBundle("validation.attachment.fileName.size", Locale.ENGLISH);
+        String attachmentContentNotNull = MessageUtils.getMessageFromBundle("validation.attachment.content.notNull", Locale.ENGLISH);
+        String attachmentContentTypeSize = MessageUtils.getMessageFromBundle("validation.attachment.contentType.size", Locale.ENGLISH);
 
         // Subject is empty
         EmailEventRequest requestWithEmptySubject = new EmailEventRequest();
@@ -88,12 +94,28 @@ class EmailEventControllerTest {
         requestWithLongTemplateCode.setTo(Set.of("test@example.com"));
         requestWithLongTemplateCode.setTemplateCode("T".repeat(101));
 
+        // Attachment with empty file name
+        EmailEventRequest requestWithEmptyAttachmentFileName = getEventRequest("", "dGVzdA==");
+
+        // Attachment with file name exceeding 255 characters
+        EmailEventRequest requestWithLongAttachmentFileName = getEventRequest("A".repeat(256) + ".pdf", "dGVzdA==");
+
+        // Attachment with null content
+        EmailEventRequest requestWithNullAttachmentContent = getEventRequest("test.pdf", null);
+
+        // Attachment with content type exceeding 100 characters
+        EmailEventRequest requestWithLongAttachmentContentType = getEmailEventRequest();
+
         return Stream.of(
                 Arguments.of("Subject is empty", requestWithEmptySubject, subjectSize),
                 Arguments.of("Subject exceeds 100 characters", requestWithLongSubject, subjectSize),
                 Arguments.of("Body is empty", requestWithEmptyBody, bodyNotEmpty),
                 Arguments.of("To is empty", requestWithEmptyTo, toSize),
-                Arguments.of("Template code exceeds 100 characters", requestWithLongTemplateCode, templateCodeSize)
+                Arguments.of("Template code exceeds 100 characters", requestWithLongTemplateCode, templateCodeSize),
+                Arguments.of("Attachment file name is empty", requestWithEmptyAttachmentFileName, attachmentFileNameNotBlank),
+                Arguments.of("Attachment file name exceeds 255 characters", requestWithLongAttachmentFileName, attachmentFileNameSize),
+                Arguments.of("Attachment content is null", requestWithNullAttachmentContent, attachmentContentNotNull),
+                Arguments.of("Attachment content type exceeds 100 characters", requestWithLongAttachmentContentType, attachmentContentTypeSize)
         );
     }
 
@@ -105,6 +127,10 @@ class EmailEventControllerTest {
         String bodyNotEmpty = MessageUtils.getMessageFromBundle("validation.body.notEmpty", trLocale);
         String toSize = MessageUtils.getMessageFromBundle("validation.to.size", trLocale);
         String templateCodeSize = MessageUtils.getMessageFromBundle("validation.templateCode.size", trLocale);
+        String attachmentFileNameNotBlank = MessageUtils.getMessageFromBundle("validation.attachment.fileName.notBlank", trLocale);
+        String attachmentFileNameSize = MessageUtils.getMessageFromBundle("validation.attachment.fileName.size", trLocale);
+        String attachmentContentNotNull = MessageUtils.getMessageFromBundle("validation.attachment.content.notNull", trLocale);
+        String attachmentContentTypeSize = MessageUtils.getMessageFromBundle("validation.attachment.contentType.size", trLocale);
 
         // Subject is empty
         EmailEventRequest requestWithEmptySubject = new EmailEventRequest();
@@ -131,12 +157,53 @@ class EmailEventControllerTest {
         requestWithLongTemplateCode.setTo(Set.of("test@example.com"));
         requestWithLongTemplateCode.setTemplateCode("T".repeat(101));
 
+        // Attachment with empty file name
+        EmailEventRequest requestWithEmptyAttachmentFileName = getEventRequest("", "dGVzdA==");
+
+        // Attachment with file name exceeding 255 characters
+        EmailEventRequest requestWithLongAttachmentFileName = getEventRequest("A".repeat(256) + ".pdf", "dGVzdA==");
+
+        // Attachment with null content
+        EmailEventRequest requestWithNullAttachmentContent = getEventRequest("test.pdf", null);
+
+        // Attachment with content type exceeding 100 characters
+        EmailEventRequest requestWithLongAttachmentContentType = getEmailEventRequest();
+
         return Stream.of(
                 Arguments.of("Subject is empty (TR)", requestWithEmptySubject, subjectSize),
                 Arguments.of("Body is empty (TR)", requestWithEmptyBody, bodyNotEmpty),
                 Arguments.of("To is empty (TR)", requestWithEmptyTo, toSize),
-                Arguments.of("Template code exceeds 100 characters (TR)", requestWithLongTemplateCode, templateCodeSize)
+                Arguments.of("Template code exceeds 100 characters (TR)", requestWithLongTemplateCode, templateCodeSize),
+                Arguments.of("Attachment file name is empty (TR)", requestWithEmptyAttachmentFileName, attachmentFileNameNotBlank),
+                Arguments.of("Attachment file name exceeds 255 characters (TR)", requestWithLongAttachmentFileName, attachmentFileNameSize),
+                Arguments.of("Attachment content is null (TR)", requestWithNullAttachmentContent, attachmentContentNotNull),
+                Arguments.of("Attachment content type exceeds 100 characters (TR)", requestWithLongAttachmentContentType, attachmentContentTypeSize)
         );
+    }
+
+    private static EmailEventRequest getEventRequest(String fileName, String contentBase64) {
+        EmailEventRequest requestWithEmptyAttachmentFileName = new EmailEventRequest();
+        requestWithEmptyAttachmentFileName.setSubject("Test Subject");
+        requestWithEmptyAttachmentFileName.setBody("Test Body");
+        requestWithEmptyAttachmentFileName.setTo(Set.of("test@example.com"));
+        EmailAttachmentRequest attachmentWithEmptyFileName = new EmailAttachmentRequest();
+        attachmentWithEmptyFileName.setFileName(fileName);
+        attachmentWithEmptyFileName.setContentBase64(contentBase64);
+        requestWithEmptyAttachmentFileName.setAttachments(List.of(attachmentWithEmptyFileName));
+        return requestWithEmptyAttachmentFileName;
+    }
+
+    private static EmailEventRequest getEmailEventRequest() {
+        EmailEventRequest requestWithLongAttachmentContentType = new EmailEventRequest();
+        requestWithLongAttachmentContentType.setSubject("Test Subject");
+        requestWithLongAttachmentContentType.setBody("Test Body");
+        requestWithLongAttachmentContentType.setTo(Set.of("test@example.com"));
+        EmailAttachmentRequest attachmentWithLongContentType = new EmailAttachmentRequest();
+        attachmentWithLongContentType.setFileName("test.pdf");
+        attachmentWithLongContentType.setContentBase64("dGVzdA==");
+        attachmentWithLongContentType.setContentType("A".repeat(101));
+        requestWithLongAttachmentContentType.setAttachments(List.of(attachmentWithLongContentType));
+        return requestWithLongAttachmentContentType;
     }
 
     @Test

@@ -1,12 +1,16 @@
 package com.mb.livedataservice.service.impl;
 
 import com.mb.livedataservice.data.model.EmailTemplate;
+import com.mb.livedataservice.queue.dto.EmailAttachment;
 import com.mb.livedataservice.queue.dto.EmailEventDto;
 import com.mb.livedataservice.service.EmailSender;
 import com.mb.livedataservice.service.EmailTemplateService;
 import com.mb.livedataservice.service.ThymeleafTemplateService;
 import com.mb.livedataservice.util.EmailUtils;
+import com.mb.livedataservice.util.MimeTypeUtils;
+import jakarta.activation.DataSource;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -60,9 +64,10 @@ public class SmtpEmailSender implements EmailSender {
             }
 
             boolean isHtml = isHtmlContent(body);
+            boolean hasAttachments = !CollectionUtils.isEmpty(emailEventDto.getAttachments());
 
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, hasAttachments, "UTF-8");
 
             helper.setFrom(emailFrom);
             helper.setSubject(subjectPrefix + subject);
@@ -77,6 +82,18 @@ public class SmtpEmailSender implements EmailSender {
             Set<String> bcc = emailEventDto.getBcc();
             if (!CollectionUtils.isEmpty(bcc)) {
                 helper.setBcc(bcc.toArray(new String[0]));
+            }
+
+            // Add attachments if present
+            if (hasAttachments) {
+                for (EmailAttachment attachment : emailEventDto.getAttachments()) {
+                    if (attachment.getContent() != null && StringUtils.isNotBlank(attachment.getFileName())) {
+                        String contentType = MimeTypeUtils.resolveContentType(attachment.getFileName(), attachment.getContentType());
+                        DataSource dataSource = new ByteArrayDataSource(attachment.getContent(), contentType);
+                        helper.addAttachment(attachment.getFileName(), dataSource);
+                        log.debug("Added attachment: {} with content type: {}", attachment.getFileName(), contentType);
+                    }
+                }
             }
 
             javaMailSender.send(mimeMessage);

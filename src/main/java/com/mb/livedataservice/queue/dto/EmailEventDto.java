@@ -5,6 +5,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +25,7 @@ public class EmailEventDto {
     private Long createdBy;
     private String templateCode;
     private Map<String, Object> templateParameters;
+    private List<EmailAttachment> attachments = new ArrayList<>();
 
     public EmailEventDto() {
         this.id = UUID.randomUUID();
