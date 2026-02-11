@@ -98,6 +98,12 @@
             - **GET /api/graphql/examples/mutations** - Example mutation payloads
     - gRPC API Documentation in Swagger UI:
         - **Swagger UI**: http://localhost:8080/swagger-ui/index.html - Select `live-data-service` from the dropdown
+    - Mailpit UI: http://localhost:8025/
+        - `username`: `admin`
+        - `password`: `admin`
+        - Mailpit is a local SMTP server for testing email sending functionality without actually sending emails to real
+          addresses. It captures and displays emails sent by the application, allowing developers to verify email
+          content and functionality during development.
 
 - Test via `Postman` (OPTIONAL):
     1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)
