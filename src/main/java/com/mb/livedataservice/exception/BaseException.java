@@ -19,6 +19,12 @@ public class BaseException extends RuntimeException implements Serializable {
     private final transient ErrorCode errorCode;
     private final transient String message;
 
+    public BaseException(String message) {
+        super(message);
+        this.errorCode = null;
+        this.message = message;
+    }
+
     public BaseException(ErrorCode errorCode) {
         this(errorCode, null);
     }
