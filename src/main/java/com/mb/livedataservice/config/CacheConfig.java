@@ -77,8 +77,12 @@ public class CacheConfig {
 
     @Bean
     @Primary
-    public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration());
+    public RedisConnectionFactory redisConnectionFactory(@Value("${spring.data.redis.host:localhost}") String host,
+                                                         @Value("${spring.data.redis.port:6379}") int port) {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(host);
+        config.setPort(port);
+        return new LettuceConnectionFactory(config);
     }
 
     @Bean
