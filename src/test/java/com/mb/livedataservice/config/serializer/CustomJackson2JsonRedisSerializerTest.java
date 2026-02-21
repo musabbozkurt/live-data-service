@@ -1,14 +1,15 @@
 package com.mb.livedataservice.config.serializer;
 
-import com.mb.livedataservice.data.model.redis.dto.TestAddressDto;
-import com.mb.livedataservice.data.model.redis.dto.TestCompanyDto;
-import com.mb.livedataservice.data.model.redis.dto.TestDepartmentDto;
-import com.mb.livedataservice.data.model.redis.dto.TestPersonDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,8 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Integration tests for CustomJackson2JsonRedisSerializer.
  * Tests all cacheable structures: list, object, map, set, nested objects, and nested collections.
+ * Uses inner static classes instead of external Test DTOs to keep the test self-contained.
  */
-@DisplayName("CustomJackson2JsonRedisSerializer Integration Tests")
+@DisplayName("CustomJackson2JsonRedisSerializer Tests")
 class CustomJackson2JsonRedisSerializerTest {
 
     private CustomJackson2JsonRedisSerializer serializer;
@@ -44,8 +46,8 @@ class CustomJackson2JsonRedisSerializerTest {
 
     // ==================== Helper Methods ====================
 
-    private TestPersonDto createTestPerson(Long id, String name) {
-        return TestPersonDto.builder()
+    private Person createTestPerson(Long id, String name) {
+        return Person.builder()
                 .id(id)
                 .name(name)
                 .email(name.toLowerCase().replace(" ", ".") + "@test.com")
@@ -56,8 +58,8 @@ class CustomJackson2JsonRedisSerializerTest {
                 .build();
     }
 
-    private TestAddressDto createTestAddress(Long id, String city) {
-        return TestAddressDto.builder()
+    private Address createTestAddress(Long id, String city) {
+        return Address.builder()
                 .id(id)
                 .street("123 Main Street")
                 .city(city)
@@ -66,8 +68,8 @@ class CustomJackson2JsonRedisSerializerTest {
                 .build();
     }
 
-    private TestCompanyDto createTestCompany() {
-        List<TestPersonDto> employees = new ArrayList<>();
+    private Company createTestCompany() {
+        List<Person> employees = new ArrayList<>();
         employees.add(createTestPerson(1L, "John Doe"));
         employees.add(createTestPerson(2L, "Jane Smith"));
 
@@ -76,15 +78,15 @@ class CustomJackson2JsonRedisSerializerTest {
         departments.add("Marketing");
         departments.add("Sales");
 
-        Map<String, TestPersonDto> managers = new HashMap<>();
+        Map<String, Person> managers = new HashMap<>();
         managers.put("eng", createTestPerson(3L, "Tech Lead"));
         managers.put("mkt", createTestPerson(4L, "Marketing Manager"));
 
-        List<TestAddressDto> branches = new ArrayList<>();
+        List<Address> branches = new ArrayList<>();
         branches.add(createTestAddress(1L, "Istanbul"));
         branches.add(createTestAddress(2L, "Ankara"));
 
-        return TestCompanyDto.builder()
+        return Company.builder()
                 .id(1L)
                 .name("Test Company")
                 .industry("Technology")
@@ -96,12 +98,12 @@ class CustomJackson2JsonRedisSerializerTest {
                 .build();
     }
 
-    private TestDepartmentDto createTestDepartment() {
+    private Department createTestDepartment() {
         List<List<String>> teamGroups = new ArrayList<>();
         teamGroups.add(List.of("Team A1", "Team A2"));
         teamGroups.add(List.of("Team B1", "Team B2", "Team B3"));
 
-        Map<String, List<TestPersonDto>> teamMembers = new HashMap<>();
+        Map<String, List<Person>> teamMembers = new HashMap<>();
         teamMembers.put("frontend", List.of(createTestPerson(1L, "Dev 1"), createTestPerson(2L, "Dev 2")));
         teamMembers.put("backend", List.of(createTestPerson(3L, "Dev 3")));
 
@@ -114,13 +116,68 @@ class CustomJackson2JsonRedisSerializerTest {
         configs.add(config1);
         configs.add(config2);
 
-        return TestDepartmentDto.builder()
+        return Department.builder()
                 .id(1L)
                 .name("Engineering")
                 .teamGroups(teamGroups)
                 .teamMembers(teamMembers)
                 .configurations(configs)
                 .build();
+    }
+
+    // ==================== Inner Test Model Classes ====================
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Person implements Serializable {
+        private Long id;
+        private String name;
+        private String email;
+        private Integer age;
+        private Boolean active;
+        private LocalDate birthDate;
+        private LocalDateTime createdAt;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Address implements Serializable {
+        private Long id;
+        private String street;
+        private String city;
+        private String country;
+        private String zipCode;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Company implements Serializable {
+        private Long id;
+        private String name;
+        private String industry;
+        private Address headquarters;
+        private List<Person> employees;
+        private Set<String> departments;
+        private Map<String, Person> managersById;
+        private List<Address> branchAddresses;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Department implements Serializable {
+        private Long id;
+        private String name;
+        private List<List<String>> teamGroups;
+        private Map<String, List<Person>> teamMembers;
+        private List<Map<String, String>> configurations;
     }
 
     // ==================== Single Object Tests ====================
@@ -130,9 +187,10 @@ class CustomJackson2JsonRedisSerializerTest {
     class SingleObjectTests {
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeSimpleObject_WhenValidObjectProvided() {
+        @DisplayName("Should serialize and deserialize a simple object")
+        void serialize_ShouldSerializeAndDeserialize_WhenSimpleObject() {
             // Arrange
-            TestPersonDto person = createTestPerson(1L, "John Doe");
+            Person person = createTestPerson(1L, "John Doe");
 
             // Act
             byte[] serialized = serializer.serialize(person);
@@ -141,9 +199,9 @@ class CustomJackson2JsonRedisSerializerTest {
             // Assertions
             assertNotNull(serialized);
             assertNotNull(deserialized);
-            assertInstanceOf(TestPersonDto.class, deserialized);
+            assertInstanceOf(Person.class, deserialized);
 
-            TestPersonDto result = (TestPersonDto) deserialized;
+            Person result = (Person) deserialized;
             assertEquals(person.getId(), result.getId());
             assertEquals(person.getName(), result.getName());
             assertEquals(person.getEmail(), result.getEmail());
@@ -154,9 +212,10 @@ class CustomJackson2JsonRedisSerializerTest {
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeObjectWithNestedObject_WhenNestedObjectProvided() {
+        @DisplayName("Should serialize and deserialize an object with nested object")
+        void serialize_ShouldSerializeAndDeserialize_WhenObjectWithNestedObject() {
             // Arrange
-            TestCompanyDto company = TestCompanyDto.builder()
+            Company company = Company.builder()
                     .id(1L)
                     .name("Nested Test Company")
                     .industry("Tech")
@@ -169,9 +228,9 @@ class CustomJackson2JsonRedisSerializerTest {
 
             // Assertions
             assertNotNull(deserialized);
-            assertInstanceOf(TestCompanyDto.class, deserialized);
+            assertInstanceOf(Company.class, deserialized);
 
-            TestCompanyDto result = (TestCompanyDto) deserialized;
+            Company result = (Company) deserialized;
             assertEquals(company.getId(), result.getId());
             assertEquals(company.getName(), result.getName());
             assertNotNull(result.getHeadquarters());
@@ -179,18 +238,21 @@ class CustomJackson2JsonRedisSerializerTest {
         }
 
         @Test
-        void serialize_ShouldHandleNullValues_WhenNullProvided() {
+        @DisplayName("Should handle null values")
+        void serialize_ShouldReturnEmpty_WhenNullValue() {
             // Act
             byte[] serialized = serializer.serialize(null);
             Object deserialized = serializer.deserialize(null);
 
             // Assertions
+            assertNotNull(serialized);
             assertEquals(0, serialized.length);
             assertNull(deserialized);
         }
 
         @Test
-        void deserialize_ShouldHandleEmptyByteArray_WhenEmptyByteArrayProvided() {
+        @DisplayName("Should handle empty byte array")
+        void deserialize_ShouldReturnNull_WhenEmptyByteArray() {
             // Act
             Object deserialized = serializer.deserialize(new byte[0]);
 
@@ -206,9 +268,10 @@ class CustomJackson2JsonRedisSerializerTest {
     class ListTests {
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeListOfObjects_WhenListOfObjectsProvided() {
+        @DisplayName("Should serialize and deserialize a list of objects")
+        void serialize_ShouldSerializeAndDeserialize_WhenListOfObjects() {
             // Arrange
-            List<TestPersonDto> persons = new ArrayList<>();
+            List<Person> persons = new ArrayList<>();
             persons.add(createTestPerson(1L, "John Doe"));
             persons.add(createTestPerson(2L, "Jane Smith"));
             persons.add(createTestPerson(3L, "Bob Wilson"));
@@ -222,7 +285,7 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            List<TestPersonDto> result = (List<TestPersonDto>) deserialized;
+            List<Person> result = (List<Person>) deserialized;
             assertEquals(3, result.size());
             assertEquals("John Doe", result.get(0).getName());
             assertEquals("Jane Smith", result.get(1).getName());
@@ -230,9 +293,10 @@ class CustomJackson2JsonRedisSerializerTest {
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeEmptyList_WhenEmptyListProvided() {
+        @DisplayName("Should serialize and deserialize an empty list")
+        void serialize_ShouldSerializeAndDeserialize_WhenEmptyList() {
             // Arrange
-            List<TestPersonDto> emptyList = new ArrayList<>();
+            List<Person> emptyList = new ArrayList<>();
 
             // Act
             byte[] serialized = serializer.serialize(emptyList);
@@ -243,14 +307,15 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            List<TestPersonDto> result = (List<TestPersonDto>) deserialized;
+            List<Person> result = (List<Person>) deserialized;
             assertTrue(result.isEmpty());
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeListWithNestedObjects_WhenListWithNestedObjectsProvided() {
+        @DisplayName("Should serialize and deserialize list with nested objects")
+        void serialize_ShouldSerializeAndDeserialize_WhenListWithNestedObjects() {
             // Arrange
-            List<TestCompanyDto> companies = new ArrayList<>();
+            List<Company> companies = new ArrayList<>();
             companies.add(createTestCompany());
 
             // Act
@@ -262,7 +327,7 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            List<TestCompanyDto> result = (List<TestCompanyDto>) deserialized;
+            List<Company> result = (List<Company>) deserialized;
             assertEquals(1, result.size());
             assertNotNull(result.getFirst().getHeadquarters());
             assertNotNull(result.getFirst().getEmployees());
@@ -276,9 +341,10 @@ class CustomJackson2JsonRedisSerializerTest {
     class SetTests {
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeSetOfObjects_WhenSetOfObjectsProvided() {
+        @DisplayName("Should serialize and deserialize a set of objects")
+        void serialize_ShouldSerializeAndDeserialize_WhenSetOfObjects() {
             // Arrange
-            Set<TestPersonDto> persons = new HashSet<>();
+            Set<Person> persons = new HashSet<>();
             persons.add(createTestPerson(1L, "John Doe"));
             persons.add(createTestPerson(2L, "Jane Smith"));
 
@@ -292,14 +358,15 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            List<TestPersonDto> result = (List<TestPersonDto>) deserialized;
+            List<Person> result = (List<Person>) deserialized;
             assertEquals(2, result.size());
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeLinkedHashSet_WhenLinkedHashSetProvided() {
+        @DisplayName("Should serialize and deserialize a LinkedHashSet")
+        void serialize_ShouldSerializeAndDeserialize_WhenLinkedHashSet() {
             // Arrange
-            Set<TestAddressDto> addresses = new LinkedHashSet<>();
+            Set<Address> addresses = new LinkedHashSet<>();
             addresses.add(createTestAddress(1L, "Istanbul"));
             addresses.add(createTestAddress(2L, "Ankara"));
             addresses.add(createTestAddress(3L, "Izmir"));
@@ -313,7 +380,7 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            List<TestAddressDto> result = (List<TestAddressDto>) deserialized;
+            List<Address> result = (List<Address>) deserialized;
             assertEquals(3, result.size());
         }
     }
@@ -325,9 +392,10 @@ class CustomJackson2JsonRedisSerializerTest {
     class MapTests {
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeMapWithObjectValues_WhenMapWithStringKeysAndObjectValuesProvided() {
+        @DisplayName("Should serialize and deserialize a map with string keys and object values")
+        void serialize_ShouldSerializeAndDeserialize_WhenMapWithObjectValues() {
             // Arrange
-            Map<String, TestPersonDto> personMap = new HashMap<>();
+            Map<String, Person> personMap = new HashMap<>();
             personMap.put("person1", createTestPerson(1L, "John Doe"));
             personMap.put("person2", createTestPerson(2L, "Jane Smith"));
 
@@ -340,7 +408,7 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(Map.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            Map<String, TestPersonDto> result = (Map<String, TestPersonDto>) deserialized;
+            Map<String, Person> result = (Map<String, Person>) deserialized;
             // Map should have exactly 2 entries (no @class key)
             assertEquals(2, result.size());
             assertTrue(result.containsKey("person1"));
@@ -350,9 +418,10 @@ class CustomJackson2JsonRedisSerializerTest {
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeEmptyMap_WhenEmptyMapProvided() {
+        @DisplayName("Should serialize and deserialize an empty map")
+        void serialize_ShouldSerializeAndDeserialize_WhenEmptyMap() {
             // Arrange
-            Map<String, TestPersonDto> emptyMap = new HashMap<>();
+            Map<String, Person> emptyMap = new HashMap<>();
 
             // Act
             byte[] serialized = serializer.serialize(emptyMap);
@@ -363,14 +432,15 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(Map.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            Map<String, TestPersonDto> result = (Map<String, TestPersonDto>) deserialized;
+            Map<String, Person> result = (Map<String, Person>) deserialized;
             assertTrue(result.isEmpty());
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeMapWithNestedCollections_WhenMapWithNestedCollectionsProvided() {
+        @DisplayName("Should serialize and deserialize a map with nested collections")
+        void serialize_ShouldSerializeAndDeserialize_WhenMapWithNestedCollections() {
             // Arrange
-            Map<String, List<TestPersonDto>> teamMap = new HashMap<>();
+            Map<String, List<Person>> teamMap = new HashMap<>();
             teamMap.put("team1", List.of(createTestPerson(1L, "Dev 1"), createTestPerson(2L, "Dev 2")));
             teamMap.put("team2", List.of(createTestPerson(3L, "Dev 3")));
 
@@ -383,7 +453,7 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(Map.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            Map<String, List<TestPersonDto>> result = (Map<String, List<TestPersonDto>>) deserialized;
+            Map<String, List<Person>> result = (Map<String, List<Person>>) deserialized;
             // Map should have exactly 2 entries (no @class key)
             assertEquals(2, result.size());
             assertTrue(result.containsKey("team1"));
@@ -394,8 +464,8 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, result.get("team1"));
             assertInstanceOf(List.class, result.get("team2"));
 
-            List<TestPersonDto> team1 = result.get("team1");
-            List<TestPersonDto> team2 = result.get("team2");
+            List<Person> team1 = result.get("team1");
+            List<Person> team2 = result.get("team2");
             assertEquals(2, team1.size());
             assertEquals(1, team2.size());
         }
@@ -408,9 +478,10 @@ class CustomJackson2JsonRedisSerializerTest {
     class NestedObjectTests {
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeObjectWithMultipleLevelsOfNesting_WhenObjectWithMultipleLevelsOfNestingProvided() {
+        @DisplayName("Should serialize and deserialize object with multiple levels of nesting")
+        void serialize_ShouldSerializeAndDeserialize_WhenObjectWithMultipleLevelsOfNesting() {
             // Arrange
-            TestCompanyDto company = createTestCompany();
+            Company company = createTestCompany();
 
             // Act
             byte[] serialized = serializer.serialize(company);
@@ -418,9 +489,9 @@ class CustomJackson2JsonRedisSerializerTest {
 
             // Assertions
             assertNotNull(deserialized);
-            assertInstanceOf(TestCompanyDto.class, deserialized);
+            assertInstanceOf(Company.class, deserialized);
 
-            TestCompanyDto result = (TestCompanyDto) deserialized;
+            Company result = (Company) deserialized;
             assertEquals(company.getId(), result.getId());
             assertEquals(company.getName(), result.getName());
 
@@ -444,9 +515,10 @@ class CustomJackson2JsonRedisSerializerTest {
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeObjectWithNullNestedFields_WhenObjectWithNullNestedFieldsProvided() {
+        @DisplayName("Should serialize and deserialize object with null nested fields")
+        void serialize_ShouldSerializeAndDeserialize_WhenObjectWithNullNestedFields() {
             // Arrange
-            TestCompanyDto company = TestCompanyDto.builder()
+            Company company = Company.builder()
                     .id(1L)
                     .name("Simple Company")
                     .industry("Tech")
@@ -463,9 +535,9 @@ class CustomJackson2JsonRedisSerializerTest {
 
             // Assertions
             assertNotNull(deserialized);
-            assertInstanceOf(TestCompanyDto.class, deserialized);
+            assertInstanceOf(Company.class, deserialized);
 
-            TestCompanyDto result = (TestCompanyDto) deserialized;
+            Company result = (Company) deserialized;
             assertEquals(company.getId(), result.getId());
             assertNull(result.getHeadquarters());
             assertNull(result.getEmployees());
@@ -479,9 +551,10 @@ class CustomJackson2JsonRedisSerializerTest {
     class NestedCollectionsTests {
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeDeeplyNestedCollections_WhenDeeplyNestedCollectionsProvided() {
+        @DisplayName("Should serialize and deserialize deeply nested collections")
+        void serialize_ShouldSerializeAndDeserialize_WhenDeeplyNestedCollections() {
             // Arrange
-            TestDepartmentDto department = createTestDepartment();
+            Department department = createTestDepartment();
 
             // Act
             byte[] serialized = serializer.serialize(department);
@@ -489,9 +562,9 @@ class CustomJackson2JsonRedisSerializerTest {
 
             // Assertions
             assertNotNull(deserialized);
-            assertInstanceOf(TestDepartmentDto.class, deserialized);
+            assertInstanceOf(Department.class, deserialized);
 
-            TestDepartmentDto result = (TestDepartmentDto) deserialized;
+            Department result = (Department) deserialized;
             assertEquals(department.getId(), result.getId());
             assertEquals(department.getName(), result.getName());
 
@@ -508,11 +581,12 @@ class CustomJackson2JsonRedisSerializerTest {
         }
 
         @Test
-        void serialize_ShouldSerializeAndDeserializeListOfDepartmentsWithNestedCollections_WhenListOfDepartmentsWithNestedCollectionsProvided() {
+        @DisplayName("Should serialize and deserialize list of departments with nested collections")
+        void serialize_ShouldSerializeAndDeserialize_WhenListOfDepartmentsWithNestedCollections() {
             // Arrange
-            List<TestDepartmentDto> departments = new ArrayList<>();
+            List<Department> departments = new ArrayList<>();
             departments.add(createTestDepartment());
-            departments.add(TestDepartmentDto.builder()
+            departments.add(Department.builder()
                     .id(2L)
                     .name("Marketing")
                     .teamGroups(List.of(List.of("Campaign Team")))
@@ -527,7 +601,7 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            List<TestDepartmentDto> result = (List<TestDepartmentDto>) deserialized;
+            List<Department> result = (List<Department>) deserialized;
             assertEquals(2, result.size());
             assertEquals("Engineering", result.get(0).getName());
             assertEquals("Marketing", result.get(1).getName());
@@ -541,11 +615,21 @@ class CustomJackson2JsonRedisSerializerTest {
     class LegacyFormatTests {
 
         @Test
-        void deserialize_ShouldDeserializeLegacyFormatWithClassProperty_WhenLegacyFormatWithClassPropertyProvided() {
+        @DisplayName("Should deserialize legacy format with @class property inside objects")
+        void deserialize_ShouldDeserialize_WhenLegacyFormatWithClassProperty() {
             // Arrange - Legacy format: [{"@class":"...", "id":1, ...}]
-            String legacyJson = "[{\"@class\":\"com.mb.livedataservice.data.model.redis.dto.TestPersonDto\"," +
-                    "\"id\":1,\"name\":\"Legacy User\",\"email\":\"legacy@test.com\"," +
-                    "\"age\":25,\"active\":true}]";
+            String legacyJson = """
+                    [
+                       {
+                          "@class":"com.mb.livedataservice.config.serializer.CustomJackson2JsonRedisSerializerTest$Person",
+                          "id":1,
+                          "name":"Legacy User",
+                          "email":"legacy@test.com",
+                          "age":25,
+                          "active":true
+                       }
+                    ]
+                    """;
 
             // Act
             Object deserialized = serializer.deserialize(legacyJson.getBytes());
@@ -555,27 +639,35 @@ class CustomJackson2JsonRedisSerializerTest {
             assertInstanceOf(List.class, deserialized);
 
             @SuppressWarnings("unchecked")
-            List<TestPersonDto> result = (List<TestPersonDto>) deserialized;
+            List<Person> result = (List<Person>) deserialized;
             assertEquals(1, result.size());
             assertEquals("Legacy User", result.getFirst().getName());
             assertEquals(1L, result.getFirst().getId());
         }
 
         @Test
-        void deserialize_ShouldDeserializeSingleObjectWithClassProperty_WhenSingleObjectWithClassPropertyProvided() {
+        @DisplayName("Should deserialize single object with @class property")
+        void deserialize_ShouldDeserialize_WhenSingleObjectWithClassProperty() {
             // Arrange
-            String legacyJson = "{\"@class\":\"com.mb.livedataservice.data.model.redis.dto.TestAddressDto\"," +
-                    "\"id\":1,\"street\":\"Test Street\",\"city\":\"Istanbul\"," +
-                    "\"country\":\"Turkey\",\"zipCode\":\"34000\"}";
+            String legacyJson = """
+                    {
+                       "@class":"com.mb.livedataservice.config.serializer.CustomJackson2JsonRedisSerializerTest$Address",
+                       "id":1,
+                       "street":"Test Street",
+                       "city":"Istanbul",
+                       "country":"Turkey",
+                       "zipCode":"34000"
+                    }
+                    """;
 
             // Act
             Object deserialized = serializer.deserialize(legacyJson.getBytes());
 
             // Assertions
             assertNotNull(deserialized);
-            assertInstanceOf(TestAddressDto.class, deserialized);
+            assertInstanceOf(Address.class, deserialized);
 
-            TestAddressDto result = (TestAddressDto) deserialized;
+            Address result = (Address) deserialized;
             assertEquals("Istanbul", result.getCity());
             assertEquals("Test Street", result.getStreet());
         }
@@ -588,21 +680,22 @@ class CustomJackson2JsonRedisSerializerTest {
     class RoundTripTests {
 
         @Test
-        void serialize_ShouldMaintainDataIntegrityThroughMultipleCycles_WhenMultipleSerializeDeserializeCyclesPerformed() {
+        @DisplayName("Should maintain data integrity through multiple serialize/deserialize cycles")
+        void serialize_ShouldMaintainDataIntegrity_WhenMultipleCycles() {
             // Arrange
-            TestCompanyDto original = createTestCompany();
+            Company original = createTestCompany();
 
             // Act - First cycle
             byte[] serialized1 = serializer.serialize(original);
-            TestCompanyDto deserialized1 = (TestCompanyDto) serializer.deserialize(serialized1);
+            Company deserialized1 = (Company) serializer.deserialize(serialized1);
 
             // Second cycle
             byte[] serialized2 = serializer.serialize(deserialized1);
-            TestCompanyDto deserialized2 = (TestCompanyDto) serializer.deserialize(serialized2);
+            Company deserialized2 = (Company) serializer.deserialize(serialized2);
 
             // Third cycle
             byte[] serialized3 = serializer.serialize(deserialized2);
-            TestCompanyDto deserialized3 = (TestCompanyDto) serializer.deserialize(serialized3);
+            Company deserialized3 = (Company) serializer.deserialize(serialized3);
 
             // Assertions
             assertNotNull(deserialized3);
@@ -613,9 +706,10 @@ class CustomJackson2JsonRedisSerializerTest {
         }
 
         @Test
-        void serialize_ShouldProduceConsistentSerializationOutput_WhenSameObjectSerializedMultipleTimes() {
+        @DisplayName("Should produce consistent serialization output")
+        void serialize_ShouldProduceConsistentOutput_WhenSameObject() {
             // Arrange
-            TestPersonDto person = createTestPerson(1L, "Consistent User");
+            Person person = createTestPerson(1L, "Consistent User");
 
             // Act
             byte[] serialized1 = serializer.serialize(person);
