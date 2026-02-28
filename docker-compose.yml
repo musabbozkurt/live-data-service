@@ -8,7 +8,7 @@ services:
 
   postgres:
     container_name: postgredb
-    image: postgres:16.6
+    image: postgres:18.3
     ports:
       - "5432:5432"
     environment:
@@ -19,7 +19,7 @@ services:
       - my-network
 
   mongodb:
-    image: mongo:8.0.4
+    image: mongo:8.2.5
     container_name: mongodb
     ports:
       - "27017:27017"
@@ -51,7 +51,7 @@ services:
       - my-network
 
   broker:
-    image: confluentinc/confluent-local:7.4.1
+    image: confluentinc/confluent-local:8.1.1
     hostname: broker
     container_name: broker
     ports:
@@ -90,7 +90,7 @@ services:
       - my-network
 
   zipkin:
-    image: openzipkin/zipkin:3
+    image: openzipkin/zipkin:3.5.1
     container_name: zipkin
     ports:
       - "9411:9411"
@@ -98,7 +98,7 @@ services:
       - my-network
 
   mailpit:
-    image: axllent/mailpit:v1.28.4
+    image: axllent/mailpit:v1.29.2
     container_name: mailpit
     restart: always
     ports:
@@ -127,7 +127,7 @@ services:
       - my-network
 
   redis:
-    image: redis:8.4.0
+    image: redis:8.6.1
     container_name: redis
     restart: always
     ports:
@@ -139,7 +139,7 @@ services:
       - my-network
 
   redis-insight:
-    image: redis/redisinsight:2.70.1
+    image: redis/redisinsight:3.2.0
     restart: always
     container_name: redis-insight
     ports:
@@ -150,7 +150,7 @@ services:
       - my-network
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.1
     container_name: elasticsearch
     environment:
       - bootstrap.memory_lock=true
@@ -168,7 +168,7 @@ services:
       - my-network
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:9.2.2
+    image: docker.elastic.co/kibana/kibana:9.3.1
     container_name: kibana
     ports:
       - "5601:5601"
@@ -180,7 +180,7 @@ services:
       - my-network
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:9.2.2
+    image: docker.elastic.co/logstash/logstash:9.3.1
     container_name: logstash
     volumes:
       - ./src/main/resources/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml

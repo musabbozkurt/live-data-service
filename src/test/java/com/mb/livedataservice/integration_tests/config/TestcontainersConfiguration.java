@@ -2,7 +2,10 @@ package com.mb.livedataservice.integration_tests.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
@@ -11,12 +14,59 @@ import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-@Testcontainers(disabledWithoutDocker = true)
 @TestConfiguration(proxyBeanMethods = false)
-public class TestcontainersConfiguration {
+@Testcontainers(disabledWithoutDocker = true)
+public class TestcontainersConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    // ── Static Redis container — started once when the class is loaded ────────────────
+    // Must be static so it starts BEFORE the Spring context is created.
+    // Properties are injected via ApplicationContextInitializer.initialize(),
+    // which runs before any bean instantiation or @Value resolution.
+    //
+    // Why not @DynamicPropertySource?  → Not processed in @TestConfiguration classes.
+    // Why not System.setProperty?      → Spring Environment may already be populated.
+    // Why not @ServiceConnection?      → Provides ConnectionDetails but does NOT set
+    //                                    spring.data.redis.* properties, so CacheConfig's
+    //                                    @Value("${spring.data.redis.host:localhost}")
+    //                                    would still resolve to the default.
+
+    private static final GenericContainer<?> REDIS;
+
+    static {
+        REDIS = new GenericContainer<>(DockerImageName.parse("redis:8.6.1"))
+                .withExposedPorts(6379)
+                .withReuse(true);
+
+        REDIS.start();
+
+        assertThat(REDIS.isRunning()).isTrue();
+    }
+
+    @Override
+    public void initialize(ConfigurableApplicationContext ctx) {
+        String host = REDIS.getHost();
+        String port = REDIS.getMappedPort(6379).toString();
+
+        // Inject as highest-priority property source — all @Value, placeholder, and
+        // autoconfiguration resolutions will see these before application.yml defaults.
+        ctx.getEnvironment()
+                .getPropertySources()
+                .addFirst(
+                        new MapPropertySource(
+                                "testcontainers-redis",
+                                Map.of(
+                                        "spring.data.redis.host", host,
+                                        "spring.data.redis.port", port,
+                                        "redisson.url", "redis://%s:%s".formatted(host, port)
+                                )
+                        )
+                );
+    }
 
     @Bean
     public JavaMailSender javaMailSender() {
@@ -61,7 +111,7 @@ public class TestcontainersConfiguration {
     @ServiceConnection
     @Bean(destroyMethod = "stop") // Stop the container when all tests are done
     public ElasticsearchContainer elasticsearch() {
-        var elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:9.2.2"));
+        var elasticsearchContainer = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:9.3.1"));
         elasticsearchContainer.withEnv("discovery.type", "single-node")
                 .withEnv("xpack.security.enabled", "false")
                 .withEnv("xpack.security.http.ssl.enabled", "false")
@@ -79,7 +129,7 @@ public class TestcontainersConfiguration {
     @ServiceConnection
     @Bean(destroyMethod = "stop")
     public PostgreSQLContainer postgres() {
-        var postgreSQLContainer = new PostgreSQLContainer("postgres:17.2");
+        var postgreSQLContainer = new PostgreSQLContainer("postgres:18.3");
         postgreSQLContainer.withReuse(true);
         postgreSQLContainer.start();
 
@@ -92,25 +142,10 @@ public class TestcontainersConfiguration {
         return postgreSQLContainer;
     }
 
-    @Bean(destroyMethod = "stop")
-    public GenericContainer<?> redis() {
-        GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.4.2"))
-                .withExposedPorts(6379)
-                .withReuse(true);
-
-        redisContainer.start();
-
-        System.setProperty("spring.data.redis.host", redisContainer.getHost());
-        System.setProperty("spring.data.redis.port", redisContainer.getMappedPort(6379).toString());
-        System.setProperty("redisson.url", "redis://%s:%d".formatted(redisContainer.getHost(), redisContainer.getMappedPort(6379)));
-
-        return redisContainer;
-    }
-
     @ServiceConnection
     @Bean(destroyMethod = "stop")
     public KafkaContainer kafka() {
-        KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.0.0"))
+        KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.2.0"))
                 .withReuse(true);
 
         kafkaContainer.start();

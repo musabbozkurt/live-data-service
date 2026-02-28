@@ -1,6 +1,6 @@
-package com.mb.livedataservice.config;
+package com.mb.livedataservice.config.redis;
 
-import com.mb.livedataservice.config.serializer.CustomJackson2JsonRedisSerializer;
+import com.mb.livedataservice.config.redis.serializer.CustomJackson2JsonRedisSerializer;
 import com.mb.livedataservice.service.CacheService;
 import com.mb.livedataservice.util.JsonUtils;
 import com.mb.livedataservice.util.RedisConstants;
@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -104,13 +105,19 @@ public class CacheConfig {
 
     @Bean
     @Primary
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory, @Value("${spring.application.name}") String applicationName) {
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig()
-                        .prefixCacheNameWith(applicationName + ":")
-                        .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new CustomJackson2JsonRedisSerializer())))
-                .build();
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
+        RedisCacheWriter writer = RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory);
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .computePrefixWith("%s:"::formatted)
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new CustomJackson2JsonRedisSerializer()));
+        return new TypeAwareRedisCache.Manager(writer, config, objectMapper);
+    }
+
+    @Bean
+    @Primary
+    public TypeAwareRedisCache.Resolver cacheResolver(RedisCacheManager redisCacheManager, ObjectMapper objectMapper) {
+        return new TypeAwareRedisCache.Resolver(redisCacheManager, objectMapper);
     }
 
     @Bean

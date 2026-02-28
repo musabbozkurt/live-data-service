@@ -1,4 +1,4 @@
-package com.mb.livedataservice.integration_tests.config.serializer;
+package com.mb.livedataservice.integration_tests.config.redis.serializer;
 
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import com.mb.livedataservice.service.CacheService;
@@ -361,6 +361,8 @@ class RedisSerializerIntegrationTest {
 
             // Act
             cacheService.put(key, personMap);
+
+            @SuppressWarnings("unchecked")
             Map<String, Person> result = (Map<String, Person>) cacheService.get(key, Map.class);
 
             // Assertions
@@ -380,6 +382,8 @@ class RedisSerializerIntegrationTest {
 
             // Act
             cacheService.put(key, emptyMap);
+
+            @SuppressWarnings("unchecked")
             Map<String, Person> result = (Map<String, Person>) cacheService.get(key, Map.class);
 
             // Assertions
@@ -398,6 +402,8 @@ class RedisSerializerIntegrationTest {
 
             // Act
             cacheService.put(key, teamMap);
+
+            @SuppressWarnings("unchecked")
             Map<String, List<Person>> result = (Map<String, List<Person>>) cacheService.get(key, Map.class);
 
             // Assertions
@@ -1103,7 +1109,7 @@ class RedisSerializerIntegrationTest {
 
         @Test
         @DisplayName("Should return HashOperations")
-        void getHashOps_ShouldReturnHashOperations() {
+        void getHashOps_ShouldReturnHashOperations_WhenCalled() {
             // Act
             var hashOps = cacheService.getHashOps();
 

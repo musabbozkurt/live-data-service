@@ -1,4 +1,4 @@
-package com.mb.livedataservice.config;
+package com.mb.livedataservice.config.redis;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;

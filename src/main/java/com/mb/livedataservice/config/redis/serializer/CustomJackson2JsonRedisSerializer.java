@@ -1,4 +1,4 @@
-package com.mb.livedataservice.config.serializer;
+package com.mb.livedataservice.config.redis.serializer;
 
 import com.mb.livedataservice.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
