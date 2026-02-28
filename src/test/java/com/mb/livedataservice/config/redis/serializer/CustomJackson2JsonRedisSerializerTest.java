@@ -1,4 +1,4 @@
-package com.mb.livedataservice.config.serializer;
+package com.mb.livedataservice.config.redis.serializer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -621,7 +621,7 @@ class CustomJackson2JsonRedisSerializerTest {
             String legacyJson = """
                     [
                        {
-                          "@class":"com.mb.livedataservice.config.serializer.CustomJackson2JsonRedisSerializerTest$Person",
+                          "@class":"%s",
                           "id":1,
                           "name":"Legacy User",
                           "email":"legacy@test.com",
@@ -629,7 +629,7 @@ class CustomJackson2JsonRedisSerializerTest {
                           "active":true
                        }
                     ]
-                    """;
+                    """.formatted(Person.class.getName());
 
             // Act
             Object deserialized = serializer.deserialize(legacyJson.getBytes());
@@ -651,14 +651,14 @@ class CustomJackson2JsonRedisSerializerTest {
             // Arrange
             String legacyJson = """
                     {
-                       "@class":"com.mb.livedataservice.config.serializer.CustomJackson2JsonRedisSerializerTest$Address",
+                       "@class":"%s",
                        "id":1,
                        "street":"Test Street",
                        "city":"Istanbul",
                        "country":"Turkey",
                        "zipCode":"34000"
                     }
-                    """;
+                    """.formatted(Address.class.getName());
 
             // Act
             Object deserialized = serializer.deserialize(legacyJson.getBytes());

@@ -1,4 +1,4 @@
-package com.mb.livedataservice.integration_tests.config.serializer;
+package com.mb.livedataservice.integration_tests.config.redis.serializer;
 
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import com.mb.livedataservice.service.CacheService;
@@ -361,6 +361,8 @@ class RedisSerializerIntegrationTest {
 
             // Act
             cacheService.put(key, personMap);
+
+            @SuppressWarnings("unchecked")
             Map<String, Person> result = (Map<String, Person>) cacheService.get(key, Map.class);
 
             // Assertions
@@ -380,6 +382,8 @@ class RedisSerializerIntegrationTest {
 
             // Act
             cacheService.put(key, emptyMap);
+
+            @SuppressWarnings("unchecked")
             Map<String, Person> result = (Map<String, Person>) cacheService.get(key, Map.class);
 
             // Assertions
@@ -398,6 +402,8 @@ class RedisSerializerIntegrationTest {
 
             // Act
             cacheService.put(key, teamMap);
+
+            @SuppressWarnings("unchecked")
             Map<String, List<Person>> result = (Map<String, List<Person>>) cacheService.get(key, Map.class);
 
             // Assertions
@@ -683,7 +689,7 @@ class RedisSerializerIntegrationTest {
             String key = KEY_PREFIX + "haskey:exists";
             cacheService.put(key, createTestPerson(1L, "Exists"));
 
-            // Assert
+            // Assertions
             assertTrue(cacheService.hasKey(key));
         }
     }
@@ -703,7 +709,7 @@ class RedisSerializerIntegrationTest {
             // Act
             cacheService.put(key, null);
 
-            // Assert
+            // Assertions
             assertFalse(cacheService.hasKey(key));
         }
 
@@ -716,7 +722,7 @@ class RedisSerializerIntegrationTest {
             // Act
             cacheService.put(key, null, 1, TimeUnit.HOURS);
 
-            // Assert
+            // Assertions
             assertFalse(cacheService.hasKey(key));
         }
 
@@ -731,7 +737,7 @@ class RedisSerializerIntegrationTest {
             cacheService.put(key, person);
             Person result = cacheService.get(key, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals("Store Test", result.getName());
         }
@@ -747,7 +753,7 @@ class RedisSerializerIntegrationTest {
             cacheService.put(key, address);
             Address result = cacheService.get(key, Address.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals("Istanbul", result.getCity());
         }
@@ -763,7 +769,7 @@ class RedisSerializerIntegrationTest {
             cacheService.put(key, createTestPerson(1L, "Updated"));
             Person result = cacheService.get(key, Person.class);
 
-            // Assert
+            // Assertions
             assertEquals("Updated", result.getName());
         }
     }
@@ -780,7 +786,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Person result = cacheService.get(KEY_PREFIX + "get:nonexistent", Person.class);
 
-            // Assert
+            // Assertions
             assertNull(result);
         }
 
@@ -795,7 +801,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Person result = cacheService.get(key, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals("Typed User", result.getName());
             assertEquals(1L, result.getId());
@@ -814,7 +820,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Collection<Person> result = cacheService.get(KEY_PREFIX + "collection:nonexistent", List.class, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertTrue(result.isEmpty());
         }
@@ -832,7 +838,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Collection<Person> result = cacheService.get(key, List.class, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertInstanceOf(List.class, result);
             assertEquals(2, result.size());
@@ -851,7 +857,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Collection<Person> result = cacheService.get(key, Set.class, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertInstanceOf(Set.class, result);
             assertEquals(2, result.size());
@@ -869,7 +875,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Collection<Person> result = cacheService.get(key, Collection.class, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals(1, result.size());
         }
@@ -887,7 +893,7 @@ class RedisSerializerIntegrationTest {
             // Act
             List<Address> result = (List<Address>) cacheService.get(key, List.class, Address.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals(2, result.size());
             assertEquals("Istanbul", result.get(0).getCity());
@@ -907,7 +913,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Map<String, Person> result = cacheService.getMap(KEY_PREFIX + "map:nonexistent", String.class, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertTrue(result.isEmpty());
         }
@@ -925,7 +931,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Map<String, Person> result = cacheService.getMap(key, String.class, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals(2, result.size());
             assertInstanceOf(Person.class, result.get("p1"));
@@ -946,7 +952,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Map<String, Address> result = cacheService.getMap(key, String.class, Address.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals(2, result.size());
             assertInstanceOf(Address.class, result.get("hq"));
@@ -966,7 +972,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Map<String, String> result = cacheService.getMap(key, String.class, String.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals(2, result.size());
             assertEquals("Java", result.get("lang"));
@@ -983,7 +989,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Map<String, Person> result = cacheService.getMap(key, String.class, Person.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertTrue(result.isEmpty());
         }
@@ -1006,7 +1012,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Set<String> keys = cacheService.getKeys(KEY_PREFIX + "keys:*");
 
-            // Assert
+            // Assertions
             assertNotNull(keys);
             assertEquals(3, keys.size());
         }
@@ -1017,7 +1023,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Set<String> keys = cacheService.getKeys(KEY_PREFIX + "nonexistent:pattern:*");
 
-            // Assert
+            // Assertions
             assertNotNull(keys);
             assertTrue(keys.isEmpty());
         }
@@ -1039,7 +1045,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Boolean result = cacheService.delete(key);
 
-            // Assert
+            // Assertions
             assertTrue(result);
             assertFalse(cacheService.hasKey(key));
         }
@@ -1050,7 +1056,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Boolean result = cacheService.delete(KEY_PREFIX + "delete:nonexistent");
 
-            // Assert
+            // Assertions
             assertFalse(result);
         }
 
@@ -1070,7 +1076,7 @@ class RedisSerializerIntegrationTest {
             // Act
             boolean result = cacheService.deleteAll(keysToDelete);
 
-            // Assert
+            // Assertions
             assertTrue(result);
             assertFalse(cacheService.hasKey(KEY_PREFIX + "deleteall:1"));
             assertFalse(cacheService.hasKey(KEY_PREFIX + "deleteall:2"));
@@ -1090,7 +1096,7 @@ class RedisSerializerIntegrationTest {
             // Act
             boolean result = cacheService.deleteAll(keysToDelete);
 
-            // Assert
+            // Assertions
             assertFalse(result); // Not all keys were deleted
         }
     }
@@ -1103,11 +1109,11 @@ class RedisSerializerIntegrationTest {
 
         @Test
         @DisplayName("Should return HashOperations")
-        void getHashOps_ShouldReturnHashOperations() {
+        void getHashOps_ShouldReturnHashOperations_WhenCalled() {
             // Act
             var hashOps = cacheService.getHashOps();
 
-            // Assert
+            // Assertions
             assertNotNull(hashOps);
         }
     }
@@ -1128,7 +1134,7 @@ class RedisSerializerIntegrationTest {
             // Act
             cacheService.put(key, person, 60, TimeUnit.SECONDS);
 
-            // Assert
+            // Assertions
             assertTrue(cacheService.hasKey(key));
             Person result = cacheService.get(key, Person.class);
             assertNotNull(result);
@@ -1147,7 +1153,7 @@ class RedisSerializerIntegrationTest {
             // Act
             cacheService.put(key, persons, 60, TimeUnit.SECONDS);
 
-            // Assert
+            // Assertions
             assertTrue(cacheService.hasKey(key));
             List<Person> result = (List<Person>) cacheService.get(key, List.class, Person.class);
             assertEquals(2, result.size());
@@ -1172,7 +1178,7 @@ class RedisSerializerIntegrationTest {
             cacheService.put(key, companyMap);
             Map<String, Company> result = cacheService.getMap(key, String.class, Company.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals(1, result.size());
             assertInstanceOf(Company.class, result.get("company1"));
@@ -1209,7 +1215,7 @@ class RedisSerializerIntegrationTest {
             // Act
             Department result = cacheService.get(key, Department.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals("Engineering", result.getName());
             assertNotNull(result.getTeamGroups());
