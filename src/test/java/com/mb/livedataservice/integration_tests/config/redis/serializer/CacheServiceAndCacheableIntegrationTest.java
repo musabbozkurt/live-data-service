@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,8 +46,22 @@ class CacheServiceAndCacheableIntegrationTest {
     @Autowired
     private CacheableTestService cacheableTestService;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     @BeforeEach
     void setUp() {
+        // Flush ALL keys in the Redis database before each test.
+        // This is the only reliable way to guarantee isolation when using a shared
+        // Testcontainers Redis instance — @CacheEvict only removes keys it knows about
+        // and can leave stale keys from previous test runs (especially with withReuse=true).
+        if (redisTemplate.getConnectionFactory() != null) {
+            redisTemplate.getConnectionFactory()
+                    .getConnection()
+                    .serverCommands()
+                    .flushDb();
+        }
+
         // Evict all caches before each test
         cacheableTestService.evictAllTemplates();
         cacheableTestService.evictTemplateByType();
@@ -183,7 +198,7 @@ class CacheServiceAndCacheableIntegrationTest {
             // Act — @Cacheable reads (should be a cache hit)
             Map<String, TemplateDto> result = cacheableTestService.getTemplateByType();
 
-            // Assert — verify map structure via @Cacheable
+            // Assertions — verify map structure via @Cacheable
             assertNotNull(result);
             assertEquals(3, result.size());
             assertTrue(result.containsKey("CUSTOM_MAIL_PDF"));
@@ -439,7 +454,7 @@ class CacheServiceAndCacheableIntegrationTest {
             // Act — @Cacheable reads the same key, but returns Map<String, TemplateSimpleDto>
             Map<String, TemplateSimpleDto> result = cacheableTestService.getTemplateByType2();
 
-            // Assert — TemplateSimpleDto has subset of TemplateDto fields (id, name, type, active)
+            // Assertions — TemplateSimpleDto has subset of TemplateDto fields (id, name, type, active)
             assertNotNull(result);
             assertEquals(3, result.size());
             assertFalse(result.containsKey("@class"));
@@ -462,7 +477,7 @@ class CacheServiceAndCacheableIntegrationTest {
             // Act — read as TemplateSimpleDto via CacheService.getMap
             Map<String, TemplateSimpleDto> result = cacheService.getMap("template-service:templateByType2:all", String.class, TemplateSimpleDto.class);
 
-            // Assert
+            // Assertions
             assertNotNull(result);
             assertEquals(3, result.size());
 
