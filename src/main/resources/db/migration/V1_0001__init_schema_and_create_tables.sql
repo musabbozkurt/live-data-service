@@ -315,3 +315,22 @@ CREATE TABLE IF NOT EXISTS mb_test.email_event
 
 CREATE INDEX IF NOT EXISTS idx_email_event_status ON mb_test.email_event (status);
 CREATE INDEX IF NOT EXISTS idx_email_event_created_at ON mb_test.email_event (created_at);
+
+CREATE SEQUENCE IF NOT EXISTS mb_test.seq_shelf_entry
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE IF NOT EXISTS mb_test.shelf_entry
+(
+    id         BIGINT  NOT NULL DEFAULT nextval('mb_test.seq_shelf_entry') PRIMARY KEY,
+    product_id BIGINT  NOT NULL,
+    start_date DATE    NOT NULL,
+    active     BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT udx_shelf_entry_01 UNIQUE (product_id, start_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_shelf_entry_product_id ON mb_test.shelf_entry (product_id);
+CREATE INDEX IF NOT EXISTS idx_shelf_entry_start_date ON mb_test.shelf_entry (start_date);

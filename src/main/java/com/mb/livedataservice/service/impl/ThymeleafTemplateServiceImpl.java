@@ -4,6 +4,7 @@ import com.mb.livedataservice.service.ThymeleafTemplateService;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.StringTemplateResolver;
 
@@ -12,14 +13,14 @@ import java.util.Map;
 @Service
 public class ThymeleafTemplateServiceImpl implements ThymeleafTemplateService {
 
-    private final TemplateEngine stringTemplateEngine;
+    private final TemplateEngine springTemplateEngine;
 
     public ThymeleafTemplateServiceImpl() {
         StringTemplateResolver stringTemplateResolver = new StringTemplateResolver();
         stringTemplateResolver.setTemplateMode(TemplateMode.HTML);
 
-        this.stringTemplateEngine = new TemplateEngine();
-        this.stringTemplateEngine.setTemplateResolver(stringTemplateResolver);
+        this.springTemplateEngine = new SpringTemplateEngine();
+        this.springTemplateEngine.setTemplateResolver(stringTemplateResolver);
     }
 
     @Override
@@ -33,6 +34,6 @@ public class ThymeleafTemplateServiceImpl implements ThymeleafTemplateService {
             context.setVariables(variables);
         }
 
-        return stringTemplateEngine.process(templateContent, context);
+        return springTemplateEngine.process(templateContent, context);
     }
 }
