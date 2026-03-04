@@ -5,10 +5,11 @@ import com.mb.livedataservice.integration_tests.config.redis.serializer.Cacheabl
 import com.mb.livedataservice.integration_tests.config.redis.serializer.CacheableTestService.TemplateDto;
 import com.mb.livedataservice.integration_tests.config.redis.serializer.CacheableTestService.TemplateSimpleDto;
 import com.mb.livedataservice.service.CacheService;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>Map without @class in values (CacheService put) read back correctly</li>
  * </ul>
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = TestcontainersConfiguration.class)
 @DisplayName("CacheService and @Cacheable Cross-Compatibility Tests")
 class CacheServiceAndCacheableIntegrationTest {
@@ -49,7 +51,7 @@ class CacheServiceAndCacheableIntegrationTest {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         // Flush ALL keys in the Redis database before each test.
         // This is the only reliable way to guarantee isolation when using a shared
