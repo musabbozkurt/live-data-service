@@ -8,6 +8,9 @@ spring:
   application:
     name: live-data-service
 
+  thymeleaf:
+    check-template-location: false
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

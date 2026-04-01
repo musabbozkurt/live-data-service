@@ -1,1 +1,0 @@
-org.springframework.context.ApplicationContextInitializer=com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration

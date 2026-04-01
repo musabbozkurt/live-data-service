@@ -1,10 +1,41 @@
 services:
-  #  live-data-service:
-  #    image: "mb/live-data-service"
-  #    restart: always
-  #    ports:
-  #      - "8080:8080"
-  #    container_name: live-data-service
+
+  live-data-service:
+    build: .
+    image: "mb/live-data-service"
+    restart: always
+    ports:
+      - "8080:8080"
+    container_name: live-data-service
+    profiles:
+      - start_application
+    depends_on:
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+      activemq:
+        condition: service_started
+      mailpit:
+        condition: service_started
+    environment:
+      REDIS_HOST_ENV: redis
+      REDIS_PORT_ENV: 6379
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      KAFKA_BOOTSTRAP_SERVERS: broker:29092
+      ACTIVEMQ_HOST: activemq
+      ACTIVEMQ_PORT: 61616
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_USERNAME: admin
+      MAIL_PASSWORD: admin
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
+      GRPC_CLIENT_ADDRESS: live-data-service:9091
+    networks:
+      - my-network
 
   postgres:
     container_name: postgredb
@@ -62,6 +93,12 @@ services:
       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker:29093'
       KAFKA_LISTENERS: 'PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 > /dev/null 2>&1 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
     networks:
       - my-network
 
@@ -164,6 +201,12 @@ services:
       - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     networks:
       - my-network
 

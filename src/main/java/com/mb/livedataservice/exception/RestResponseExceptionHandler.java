@@ -7,11 +7,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.retry.RetryException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.stream.Collectors;
 
@@ -65,5 +67,10 @@ public class RestResponseExceptionHandler {
     public ResponseEntity<@NonNull ErrorResponse> handleRetryExhaustedException(RetryException ex) {
         log.error("All retry attempts failed: {}", ex.getMessage());
         return new ResponseEntity<>(new ErrorResponse(LiveDataErrorCode.RETRY_EXHAUSTED.getCode(), "Service unavailable after retries"), LiveDataErrorCode.RETRY_EXHAUSTED.getHttpStatus());
+    }
+
+    @ExceptionHandler(HttpStatusCodeException.class)
+    public ProblemDetail handle(HttpStatusCodeException ex) {
+        return ProblemDetail.forStatusAndDetail(ex.getStatusCode(), ex.getMessage());
     }
 }

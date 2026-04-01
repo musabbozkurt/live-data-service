@@ -4,7 +4,6 @@ import com.mb.livedataservice.config.redis.serializer.CustomJackson2JsonRedisSer
 import com.mb.livedataservice.service.CacheService;
 import com.mb.livedataservice.util.JsonUtils;
 import com.mb.livedataservice.util.RedisConstants;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -17,8 +16,6 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -74,16 +71,6 @@ public class CacheConfig {
     @Bean
     public ObjectMapper objectMapper() {
         return JsonUtils.createMapper();
-    }
-
-    @Bean
-    @Primary
-    public RedisConnectionFactory redisConnectionFactory(@Value("${spring.data.redis.host:localhost}") String host,
-                                                         @Value("${spring.data.redis.port:6379}") int port) {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(host);
-        config.setPort(port);
-        return new LettuceConnectionFactory(config);
     }
 
     @Bean
