@@ -26,9 +26,6 @@ public class TestcontainersConfiguration {
         System.setProperty("spring.kafka.consumer.bootstrap-servers", CustomContainers.kafkaContainer.getBootstrapServers());
         System.setProperty("spring.kafka.producer.bootstrap-servers", CustomContainers.kafkaContainer.getBootstrapServers());
 
-        // Set default schema for JDBC connections
-        System.setProperty("spring.datasource.hikari.schema", "mb_test");
-
         System.setProperty("spring.data.redis.host", CustomContainers.redisContainer.getHost());
         System.setProperty("spring.data.redis.port", String.valueOf(CustomContainers.redisContainer.getMappedPort(6379)));
 

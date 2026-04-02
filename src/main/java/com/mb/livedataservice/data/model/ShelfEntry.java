@@ -24,7 +24,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @Table(
         name = "shelf_entry",
-        schema = "mb_test",
         uniqueConstraints = {
                 @UniqueConstraint(name = "udx_shelf_entry_01", columnNames = {"product_id", "start_date"})
         }
@@ -34,7 +33,7 @@ public class ShelfEntry {
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_shelf_entry")
-    @SequenceGenerator(name = "seq_shelf_entry", sequenceName = "mb_test.seq_shelf_entry", allocationSize = 1)
+    @SequenceGenerator(name = "seq_shelf_entry", sequenceName = "seq_shelf_entry", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false)

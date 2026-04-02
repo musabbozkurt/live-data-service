@@ -5,6 +5,10 @@ spring:
   thymeleaf:
     check-template-location: false
 
+  datasource:
+    hikari:
+      connection-init-sql: SET search_path TO mb_test,public
+
   data:
     redis:
       jedis:
@@ -18,9 +22,6 @@ spring:
     show-sql: ${SHOW_SQL_ENABLED:true}
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate:
-        default_schema: mb_test
 
   flyway:
     enabled: true
