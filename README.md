@@ -4,10 +4,8 @@
   <ol>
     <li><a href="#Summary">Summary</a></li>
     <li><a href="#Prerequisites">Prerequisites and Installation</a></li>
-    <li><a href="#Tech_Stack">Tech Stack</a></li>
     <li><a href="#How_To_Run_And_Test_Application">How To Run And Test Application</a></li>
-    <li><a href="#How_To_Run_And_Test_Dockerfile">How To Run And Test Application with Dockerfile (OPTIONAL)</a></li>
-    <li><a href="#How_To_Run_And_Test_Docker_Compose">How To Run And Test Application with docker-compose.yml (OPTIONAL)</a></li>
+    <li><a href="#Tech_Stack">Tech Stack</a></li>
     <li><a href="#Redis">Redis Commands</a></li>
     <li><a href="#Google_Play_Integrity_API">Google Play Integrity API</a></li>
     <li><a href="#References">References</a></li>
@@ -24,11 +22,43 @@
 
 ### Prerequisites
 
-- `Java 25+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 25)`
-- `Maven` needs to be installed
 - `Docker` needs to be installed
-- Install any Java IDE (`Eclipse`, `STS`, `Intellij` etc..) and ensure you are able to launch
 - Clone or checkout the project from version control system (`git`) and follow below steps
+- **For local development only** (not needed for Docker-based workflows):
+    - `Java 25+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 25)`
+    - `Maven` needs to be installed (or use the included Maven wrapper `./mvnw`)
+    - Install any Java IDE (`Eclipse`, `STS`, `Intellij` etc..)
+
+-------
+
+### How_To_Run_And_Test_Application
+
+- The Dockerfile uses a **multi-stage build** with **Maven cache mounts** and a **jlink custom runtime**, so you do
+  **not** need to build the JAR locally first. Docker handles the full build (compile + package) inside the container.
+- Tests are skipped during the Docker build because **Testcontainers** requires a Docker daemon which is not available
+  inside `docker build`. Run tests on the host before building.
+- The `start_application` profile builds the app image and starts it together with all infrastructure services
+  (Redis, Kafka, Elasticsearch, ActiveMQ, Mailpit, Zipkin, Jaeger, etc.). Services with healthchecks
+  (Elasticsearch, Kafka) must be healthy before the app starts.
+- `Docker` -> `Preferences` -> `Resources` -> `File sharing` -> click add button and select `prometheus` folder under
+  the `/src/main/resources` or just add `/etc/prometheus` path -> `Apply & Restart`
+    - ![img.png](img.png)
+
+```bash
+cd live-data-service
+
+# Run tests on the host (requires Docker for Testcontainers)
+mvn clean verify
+
+# Build and start the application together with all infrastructure services
+docker compose --profile start_application up -d --build
+
+# Start only infrastructure services (Redis, Kafka, Elasticsearch, etc.)
+docker compose up -d
+
+# For local development without Docker (requires infrastructure services running via docker compose up -d)
+./mvnw spring-boot:run   # or: mvn spring-boot:run
+```
 
 -------
 
@@ -110,52 +140,6 @@
     2. Right-click the imported Postman Collection and click _**Run Collection**_ section.
     3. On the right panel choose _**Functional**_ or _**Performance**_ section, edit _**Run configuration**_ and click
        _**run**_ to test the application.
-
--------
-
-### How_To_Run_And_Test_Application
-
-- Please follow the following steps, if you want to build and run Spring Boot Application
-
-```
-*** Run the application by following these steps.
-
-1 - cd live-data-service
-2 - docker-compose up -d
-3 - ./mvnw clean install or mvn clean install or mvn clean package 
-4 - ./mvnw spring-boot:run or mvn spring-boot:run
-```
-
--------
-
-### How_To_Run_And_Test_Dockerfile
-
-- Please follow the following steps, if you want to build and run Dockerfile
-
-```
-1 - cd live-data-service
-2 - docker-compose up -d
-3 - ./mvnw clean install or mvn clean install or mvn clean package --------THIS IS MUST---------
-4 - docker build -t mb/live-data-service .
-5 - docker run -p 8080:8080 mb/live-data-service
-```
-
--------
-
-### How_To_Run_And_Test_Docker_Compose
-
-- Please follow the following steps, if you want to build and run `docker-compose.yml`
-- Remove `live-data-service` service comment in `services` section in `docker-compose.yml`
-- `Docker` -> `Preferences` -> `Resources` -> `File sharing` -> click add button and select `prometheus` folder under
-  the `/src/main/resources` or just add `/etc/prometheus` path -> `Apply & Restart`
-    - ![img.png](img.png)
-
-```
-1 - cd live-data-service
-2 - ./mvnw clean install or mvn clean install or mvn clean package --------THIS IS MUST---------
-3 - docker build -t mb/live-data-service .
-4 - docker-compose up -d
-```
 
 -------
 

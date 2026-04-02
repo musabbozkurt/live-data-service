@@ -9,12 +9,14 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 
 @Slf4j
 @SpringBootApplication
+@EnableResilientMethods
 @RequiredArgsConstructor
 public class LiveDataServiceApplication implements CommandLineRunner {
 

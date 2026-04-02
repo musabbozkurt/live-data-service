@@ -1,14 +1,16 @@
-REDIS_HOST: ${REDIS_HOST_ENV:localhost}
-REDIS_PORT: ${REDIS_PORT_ENV:6378}
-
 spring:
   application:
     name: live-data-service
 
+  thymeleaf:
+    check-template-location: false
+
+  datasource:
+    hikari:
+      connection-init-sql: SET search_path TO mb_test,public
+
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
       jedis:
         pool:
           max-active: 7
@@ -27,6 +29,7 @@ spring:
     baseline-on-migrate: true
     schemas: mb_test
     table: schema_version
+    clean-disabled: false
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -42,7 +45,7 @@ spring:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
-      acks: all # Wait for all replicas to acknowledge. Default is 'all' for v3.0 and later
+      acks: all # Wait for all replicas to acknowledge. The default is 'all' for v3.0 and later
       properties:
         enable.idempotence: 'true' # Enable idempotence to avoid duplicate messages. Default is 'true' for v3.0 and later
         max.in.flight.requests.per.connection: 1 # To avoid reordering of messages.
@@ -62,7 +65,6 @@ swagger:
 
 redisson:
   enabled: true
-  url: redis://${REDIS_HOST}:${REDIS_PORT}
 
 services:
   token:

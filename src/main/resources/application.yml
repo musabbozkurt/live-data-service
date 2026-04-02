@@ -8,11 +8,16 @@ spring:
   application:
     name: live-data-service
 
+  thymeleaf:
+    check-template-location: false
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
 
   datasource:
+    hikari:
+      connection-init-sql: SET search_path TO mb_test,public
     username: sa
     password: ${DB_PASSWORD:}
     driverClassName: org.h2.Driver
