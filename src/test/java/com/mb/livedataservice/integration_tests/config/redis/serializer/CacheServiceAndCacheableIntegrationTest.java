@@ -16,12 +16,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,6 +71,7 @@ class CacheServiceAndCacheableIntegrationTest {
         cacheableTestService.evictTemplateByType();
         cacheableTestService.evictSingleTemplate();
         cacheableTestService.evictTemplateByType2();
+        cacheableTestService.evictAllTemplateIds();
 
         // Clean up any manual keys
         Set<String> keys = cacheService.getKeys("test:cross:*");
@@ -106,6 +109,27 @@ class CacheServiceAndCacheableIntegrationTest {
             assertTrue(template.getActive());
             assertNotNull(template.getAudit());
             assertEquals("test-user", template.getAudit().getCreatedBy());
+        }
+
+        @Test
+        @DisplayName("Should read List<Integer> stored by @Cacheable via CacheService.get(collectionType, elementType)")
+        void get_ShouldReturnTypedIntegerList_WhenStoredViaCacheable() {
+            // Act — @Cacheable stores the list
+            List<Integer> cacheableResult = cacheableTestService.findAllActiveTemplateIds();
+            assertNotNull(cacheableResult);
+            assertEquals(3, cacheableResult.size());
+
+            // Read via CacheService
+            Collection<Integer> cacheServiceResult = cacheService.get("template-service:templateIds:all", List.class, Integer.class);
+
+            // Assertions
+            assertNotNull(cacheServiceResult);
+            assertEquals(3, cacheServiceResult.size());
+
+            List<Integer> resultList = new ArrayList<>(cacheServiceResult);
+            assertEquals(104, resultList.get(0));
+            assertEquals(130, resultList.get(1));
+            assertEquals(47, resultList.get(2));
         }
 
         @Test
@@ -188,6 +212,24 @@ class CacheServiceAndCacheableIntegrationTest {
             Template template = result.getFirst();
             assertEquals(104L, template.getId());
             assertEquals("custom_mail_pdf_template.xlsx", template.getName());
+        }
+
+        @Test
+        @DisplayName("Should read List<Integer> stored by CacheService via @Cacheable")
+        void findAllActiveTemplateIds_ShouldReturnTypedList_WhenStoredViaCacheService() {
+            // Arrange — store via CacheService using the @Cacheable key format
+            List<Integer> templateIds = CacheableTestService.createSampleTemplateIds();
+            cacheService.put("template-service:templateIds:all", templateIds);
+
+            // Act — @Cacheable reads (should be a cache hit)
+            List<Integer> result = cacheableTestService.findAllActiveTemplateIds();
+
+            // Assertions
+            assertNotNull(result);
+            assertEquals(3, result.size());
+            assertEquals(104, result.get(0));
+            assertEquals(130, result.get(1));
+            assertEquals(47, result.get(2));
         }
 
         @Test
@@ -453,7 +495,7 @@ class CacheServiceAndCacheableIntegrationTest {
             // Store via CacheService (same key that @Cacheable("template-service:templateByType2") uses)
             cacheService.put("template-service:templateByType2:all", templateDtoMap);
 
-            // Act — @Cacheable reads the same key, but returns Map<String, TemplateSimpleDto>
+            // Act — @Cacheable reads the same key but returns Map<String, TemplateSimpleDto>
             Map<String, TemplateSimpleDto> result = cacheableTestService.getTemplateByType2();
 
             // Assertions — TemplateSimpleDto has subset of TemplateDto fields (id, name, type, active)
@@ -522,6 +564,288 @@ class CacheServiceAndCacheableIntegrationTest {
             assertEquals("company_research_export.xlsx", fullDto.getName());
             assertEquals("7c638142-65fc-4dc2-abaf-a08a39fe2e30.xlsx", fullDto.getPath());
             assertEquals(1, fullDto.getVersion());
+        }
+    }
+
+    // ==================== Primitive/Simple type collection and map tests ====================
+
+    @Nested
+    @DisplayName("Primitive/Simple type collections and maps via CacheService")
+    class PrimitiveTypeTests {
+
+        // ---- List ----
+
+        @Test
+        @DisplayName("Should store and retrieve List<Integer> via CacheService")
+        void get_ShouldReturnIntegerList_WhenStoredAsList() {
+            // Arrange
+            String key = "test:cross:primitive:list:integer";
+            List<Integer> ids = List.of(1, 2, 3, 42, 100);
+
+            // Act
+            cacheService.put(key, ids);
+            Collection<Integer> result = cacheService.get(key, List.class, Integer.class);
+
+            // Assertions
+            assertNotNull(result);
+            List<Integer> resultList = new ArrayList<>(result);
+            assertEquals(5, resultList.size());
+            assertEquals(1, resultList.get(0));
+            assertEquals(42, resultList.get(3));
+            assertEquals(100, resultList.get(4));
+        }
+
+        @Test
+        @DisplayName("Should store and retrieve List<Long> via CacheService")
+        void get_ShouldReturnLongList_WhenStoredAsList() {
+            // Arrange
+            String key = "test:cross:primitive:list:long";
+            List<Long> ids = List.of(100L, 200L, 300L);
+
+            // Act
+            cacheService.put(key, ids);
+            Collection<Long> result = cacheService.get(key, List.class, Long.class);
+
+            // Assertions
+            assertNotNull(result);
+            List<Long> resultList = new ArrayList<>(result);
+            assertEquals(3, resultList.size());
+            assertEquals(100L, resultList.get(0));
+            assertEquals(200L, resultList.get(1));
+            assertEquals(300L, resultList.get(2));
+        }
+
+        @Test
+        @DisplayName("Should store and retrieve List<String> via CacheService")
+        void get_ShouldReturnStringList_WhenStoredAsList() {
+            // Arrange
+            String key = "test:cross:primitive:list:string";
+            List<String> names = List.of("CUSTOM_MAIL_PDF", "COMPANY_RESEARCH_EXPORT", "EXCEL_ACTIVITY_STATUS");
+
+            // Act
+            cacheService.put(key, names);
+            Collection<String> result = cacheService.get(key, List.class, String.class);
+
+            // Assertions
+            assertNotNull(result);
+            List<String> resultList = new ArrayList<>(result);
+            assertEquals(3, resultList.size());
+            assertEquals("CUSTOM_MAIL_PDF", resultList.get(0));
+            assertEquals("COMPANY_RESEARCH_EXPORT", resultList.get(1));
+            assertEquals("EXCEL_ACTIVITY_STATUS", resultList.get(2));
+        }
+
+        @Test
+        @DisplayName("Should store and retrieve List<Double> via CacheService")
+        void get_ShouldReturnDoubleList_WhenStoredAsList() {
+            // Arrange
+            String key = "test:cross:primitive:list:double";
+            List<Double> values = List.of(1.5, 2.7, 3.14);
+
+            // Act
+            cacheService.put(key, values);
+            Collection<Double> result = cacheService.get(key, List.class, Double.class);
+
+            // Assertions
+            assertNotNull(result);
+            List<Double> resultList = new ArrayList<>(result);
+            assertEquals(3, resultList.size());
+            assertEquals(1.5, resultList.get(0));
+            assertEquals(2.7, resultList.get(1));
+            assertEquals(3.14, resultList.get(2));
+        }
+
+        @Test
+        @DisplayName("Should store and retrieve List<Boolean> via CacheService")
+        void get_ShouldReturnBooleanList_WhenStoredAsList() {
+            // Arrange
+            String key = "test:cross:primitive:list:boolean";
+            List<Boolean> flags = List.of(true, false, true);
+
+            // Act
+            cacheService.put(key, flags);
+            Collection<Boolean> result = cacheService.get(key, List.class, Boolean.class);
+
+            // Assertions
+            assertNotNull(result);
+            List<Boolean> resultList = new ArrayList<>(result);
+            assertEquals(3, resultList.size());
+            assertTrue(resultList.get(0));
+            assertFalse(resultList.get(1));
+            assertTrue(resultList.get(2));
+        }
+
+        // ---- Set ----
+
+        @Test
+        @DisplayName("Should store List<Integer> and read as Set<Integer> via CacheService")
+        void get_ShouldReturnIntegerSet_WhenStoredAsList() {
+            // Arrange
+            String key = "test:cross:primitive:set:integer";
+            List<Integer> ids = List.of(10, 20, 30);
+
+            // Act
+            cacheService.put(key, ids);
+            Collection<Integer> result = cacheService.get(key, Set.class, Integer.class);
+
+            // Assertions
+            assertNotNull(result);
+            assertInstanceOf(Set.class, result);
+            assertEquals(3, result.size());
+            assertTrue(result.contains(10));
+            assertTrue(result.contains(20));
+            assertTrue(result.contains(30));
+        }
+
+        @Test
+        @DisplayName("Should store List<String> and read as Set<String> via CacheService")
+        void get_ShouldReturnStringSet_WhenStoredAsList() {
+            // Arrange
+            String key = "test:cross:primitive:set:string";
+            List<String> names = List.of("A", "B", "C");
+
+            // Act
+            cacheService.put(key, names);
+            Collection<String> result = cacheService.get(key, Set.class, String.class);
+
+            // Assertions
+            assertNotNull(result);
+            assertInstanceOf(Set.class, result);
+            assertEquals(3, result.size());
+            assertTrue(result.contains("A"));
+            assertTrue(result.contains("B"));
+            assertTrue(result.contains("C"));
+        }
+
+        // ---- Map with primitive values ----
+
+        @Test
+        @DisplayName("Should store and retrieve Map<String, Integer> via CacheService.getMap")
+        void getMap_ShouldReturnIntegerValues_WhenStoredAsMap() {
+            // Arrange
+            String key = "test:cross:primitive:map:integer";
+            Map<String, Integer> map = new LinkedHashMap<>();
+            map.put("TEMPLATE_A", 104);
+            map.put("TEMPLATE_B", 130);
+            map.put("TEMPLATE_C", 47);
+
+            // Act
+            cacheService.put(key, map);
+            Map<String, Integer> result = cacheService.getMap(key, String.class, Integer.class);
+
+            // Assertions
+            assertNotNull(result);
+            assertEquals(3, result.size());
+            assertEquals(104, result.get("TEMPLATE_A"));
+            assertEquals(130, result.get("TEMPLATE_B"));
+            assertEquals(47, result.get("TEMPLATE_C"));
+        }
+
+        @Test
+        @DisplayName("Should store and retrieve Map<String, String> via CacheService.getMap")
+        void getMap_ShouldReturnStringValues_WhenStoredAsMap() {
+            // Arrange
+            String key = "test:cross:primitive:map:string";
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put("CUSTOM_MAIL_PDF", "custom_mail_pdf_template.xlsx");
+            map.put("COMPANY_RESEARCH_EXPORT", "company_research_export.xlsx");
+
+            // Act
+            cacheService.put(key, map);
+            Map<String, String> result = cacheService.getMap(key, String.class, String.class);
+
+            // Assertions
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertEquals("custom_mail_pdf_template.xlsx", result.get("CUSTOM_MAIL_PDF"));
+            assertEquals("company_research_export.xlsx", result.get("COMPANY_RESEARCH_EXPORT"));
+        }
+
+        @Test
+        @DisplayName("Should store and retrieve Map<String, Long> via CacheService.getMap")
+        void getMap_ShouldReturnLongValues_WhenStoredAsMap() {
+            // Arrange
+            String key = "test:cross:primitive:map:long";
+            Map<String, Long> map = new LinkedHashMap<>();
+            map.put("TEMPLATE_A", 104L);
+            map.put("TEMPLATE_B", 130L);
+
+            // Act
+            cacheService.put(key, map);
+            Map<String, Long> result = cacheService.getMap(key, String.class, Long.class);
+
+            // Assertions
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertEquals(104L, result.get("TEMPLATE_A"));
+            assertEquals(130L, result.get("TEMPLATE_B"));
+        }
+
+        @Test
+        @DisplayName("Should store and retrieve Map<String, Boolean> via CacheService.getMap")
+        void getMap_ShouldReturnBooleanValues_WhenStoredAsMap() {
+            // Arrange
+            String key = "test:cross:primitive:map:boolean";
+            Map<String, Boolean> map = new LinkedHashMap<>();
+            map.put("ACTIVE", true);
+            map.put("DELETED", false);
+
+            // Act
+            cacheService.put(key, map);
+            Map<String, Boolean> result = cacheService.getMap(key, String.class, Boolean.class);
+
+            // Assertions
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertTrue(result.get("ACTIVE"));
+            assertFalse(result.get("DELETED"));
+        }
+
+        // ---- Mixed: primitives with complex objects ----
+
+        @Test
+        @DisplayName("Should store List<Integer> and read as List<Integer> via CacheService, then store List<Template> and read correctly")
+        void get_ShouldHandleBothPrimitiveAndComplexLists_WhenStoredSequentially() {
+            // Arrange — primitive list
+            String primitiveKey = "test:cross:primitive:mixed:integers";
+            List<Integer> ids = List.of(104, 130, 47);
+            cacheService.put(primitiveKey, ids);
+
+            // Arrange — complex list
+            String complexKey = "test:cross:primitive:mixed:templates";
+            List<Template> templates = CacheableTestService.createSampleTemplates();
+            cacheService.put(complexKey, templates);
+
+            // Act & Assert — primitive list
+            Collection<Integer> intResult = cacheService.get(primitiveKey, List.class, Integer.class);
+            assertNotNull(intResult);
+            assertEquals(3, intResult.size());
+            List<Integer> intList = new ArrayList<>(intResult);
+            assertEquals(104, intList.getFirst());
+
+            // Act & Assert — complex list
+            Collection<Template> templateResult = cacheService.get(complexKey, List.class, Template.class);
+            assertNotNull(templateResult);
+            assertEquals(3, templateResult.size());
+            List<Template> templateList = new ArrayList<>(templateResult);
+            assertEquals(104L, templateList.getFirst().getId());
+            assertEquals("custom_mail_pdf_template.xlsx", templateList.getFirst().getName());
+        }
+
+        @Test
+        @DisplayName("Should store empty List<Integer> and retrieve empty collection")
+        void get_ShouldReturnEmptyList_WhenStoredAsEmptyIntegerList() {
+            // Arrange
+            String key = "test:cross:primitive:list:empty";
+            List<Integer> emptyList = List.of();
+
+            // Act
+            cacheService.put(key, emptyList);
+            Collection<Integer> result = cacheService.get(key, List.class, Integer.class);
+
+            // Assertions
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
         }
     }
 }
