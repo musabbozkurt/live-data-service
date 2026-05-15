@@ -28,7 +28,7 @@
         <google-api-client.version>2.9.0</google-api-client.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <ognl.version>3.5.0-BETA4</ognl.version>
-        <graphql-java-extended-scalars.version>2023-01-24T02-11-56-babda5f</graphql-java-extended-scalars.version>
+        <graphql-java-extended-scalars.version>24.0</graphql-java-extended-scalars.version>
         <spring-cloud-gcp-dependencies.version>8.0.2</spring-cloud-gcp-dependencies.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
