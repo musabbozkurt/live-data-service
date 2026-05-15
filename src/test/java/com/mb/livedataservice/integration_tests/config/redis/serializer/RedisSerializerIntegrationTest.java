@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Integration tests for CustomJackson2JsonRedisSerializer using actual Redis container.
+ * Integration tests for CustomJackson2JsonRedisSerializer using an actual Redis container.
  * Tests all cacheable structures: list, object, map, set, nested objects, and nested collections.
  * Uses inner static classes instead of external Test DTOs to keep the test self-contained.
  */

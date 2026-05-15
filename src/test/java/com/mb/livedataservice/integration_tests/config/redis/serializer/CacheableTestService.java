@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ public class CacheableTestService {
     private static final String TEMPLATE_BY_TYPE_CACHE = "template-service:templateByType";
     private static final String SINGLE_TEMPLATE_CACHE = "template-service:singleTemplate";
     private static final String TEMPLATE_BY_TYPE2_CACHE = "template-service:templateByType2";
+    private static final String TEMPLATE_SERVICE_TEMPLATE_IDS = "template-service:templateIds";
 
     // ==================== Model Classes ====================
 
@@ -150,12 +152,24 @@ public class CacheableTestService {
         return map;
     }
 
+    public static List<Integer> createSampleTemplateIds() {
+        return List.of(104, 130, 47);
+    }
+
     /**
      * Simulates: @Cacheable returning List of Template (like findAllByActiveIsTrue)
      */
     @Cacheable(value = ALL_TEMPLATES_CACHE, key = "'all'")
     public List<Template> findAllActiveTemplates() {
         return createSampleTemplates();
+    }
+
+    /**
+     * Simulates: @Cacheable returning List of Template ids (like findAllIdsByActiveIsTrue)
+     */
+    @Cacheable(value = TEMPLATE_SERVICE_TEMPLATE_IDS, key = "'all'")
+    public List<Integer> findAllActiveTemplateIds() {
+        return createSampleTemplateIds();
     }
 
     // ==================== @Cacheable methods ====================
@@ -219,11 +233,16 @@ public class CacheableTestService {
         // no-op, just evict
     }
 
+    @CacheEvict(value = TEMPLATE_SERVICE_TEMPLATE_IDS, allEntries = true)
+    public void evictAllTemplateIds() {
+        // no-op, just evict
+    }
+
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TemplateDto {
+    public static class TemplateDto implements Serializable {
         private Long id;
         private String name;
         private String type;
@@ -242,7 +261,7 @@ public class CacheableTestService {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TemplateSimpleDto {
+    public static class TemplateSimpleDto implements Serializable {
         private Long id;
         private String name;
         private String type;
@@ -253,7 +272,7 @@ public class CacheableTestService {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Template {
+    public static class Template implements Serializable {
         private Long id;
         private String name;
         private String type;
@@ -267,7 +286,7 @@ public class CacheableTestService {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class AuditInfo {
+    public static class AuditInfo implements Serializable {
         private String createdBy;
         private LocalDateTime createdDate;
         private String lastModifiedBy;

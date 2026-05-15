@@ -64,7 +64,7 @@ public class CustomJackson2JsonRedisSerializer implements RedisSerializer<Object
                 return deserializeArray(bytes);
             }
 
-            // Handle single object format
+            // Handle single object format: {"@class":"...", ...}
             if (json.startsWith("{")) {
                 return deserializeObject(bytes);
             }
@@ -80,20 +80,22 @@ public class CustomJackson2JsonRedisSerializer implements RedisSerializer<Object
         }
     }
 
-    private byte[] serializeCollection(@NonNull Collection<?> collection) {
+    private byte[] serializeCollection(Collection<?> collection) {
         ArrayNode arrayNode = objectMapper.createArrayNode();
         for (Object item : collection) {
             if (item != null) {
-                ObjectNode objectNode = objectMapper.valueToTree(item);
-                // Add @class as the first property
-                ObjectNode newNode = objectMapper.createObjectNode();
-                newNode.put(CLASS_PROPERTY, item.getClass().getName());
-
-                if (objectNode != null && objectNode.properties() != null) {
-                    objectNode.properties().forEach(entry -> newNode.set(entry.getKey(), entry.getValue()));
+                JsonNode node = objectMapper.valueToTree(item);
+                if (node.isObject()) {
+                    ObjectNode objectNode = (ObjectNode) node;
+                    // Add @class as the first property
+                    ObjectNode newNode = objectMapper.createObjectNode();
+                    newNode.put(CLASS_PROPERTY, item.getClass().getName());
+                    objectNode.properties().iterator().forEachRemaining(entry -> newNode.set(entry.getKey(), entry.getValue()));
+                    arrayNode.add(newNode);
+                } else {
+                    // Primitive/simple types (Integer, String, etc.) — add directly without @class
+                    arrayNode.add(node);
                 }
-
-                arrayNode.add(newNode);
             }
         }
         return objectMapper.writeValueAsBytes(arrayNode);
@@ -115,14 +117,15 @@ public class CustomJackson2JsonRedisSerializer implements RedisSerializer<Object
     }
 
     private byte[] serializeObject(@NonNull Object value) {
-        ObjectNode objectNode = objectMapper.valueToTree(value);
+        JsonNode node = objectMapper.valueToTree(value);
+        if (!node.isObject()) {
+            // Primitive/simple types — serialize directly without @class
+            return objectMapper.writeValueAsBytes(node);
+        }
+        ObjectNode objectNode = (ObjectNode) node;
         ObjectNode newNode = objectMapper.createObjectNode();
         newNode.put(CLASS_PROPERTY, value.getClass().getName());
-
-        if (objectNode != null && objectNode.properties() != null) {
-            objectNode.properties().forEach(entry -> newNode.set(entry.getKey(), entry.getValue()));
-        }
-
+        objectNode.properties().iterator().forEachRemaining(entry -> newNode.set(entry.getKey(), entry.getValue()));
         return objectMapper.writeValueAsBytes(newNode);
     }
 
@@ -169,10 +172,7 @@ public class CustomJackson2JsonRedisSerializer implements RedisSerializer<Object
                     String className = classNode.asString();
                     try {
                         Class<?> elementClass = Class.forName(className);
-                        // Remove @class property before deserializing
-                        ObjectNode cleanNode = objectNode.deepCopy();
-                        cleanNode.remove(CLASS_PROPERTY);
-                        Object element = objectMapper.treeToValue(cleanNode, elementClass);
+                        Object element = objectMapper.treeToValue(objectNode, elementClass);
                         result.add(element);
                     } catch (ClassNotFoundException _) {
                         // If class not found, add as LinkedHashMap
@@ -236,10 +236,7 @@ public class CustomJackson2JsonRedisSerializer implements RedisSerializer<Object
 
             try {
                 Class<?> clazz = Class.forName(className);
-                // Remove @class property before deserializing to avoid it being part of the target object
-                ObjectNode cleanNode = objectNode.deepCopy();
-                cleanNode.remove(CLASS_PROPERTY);
-                return objectMapper.treeToValue(cleanNode, clazz);
+                return objectMapper.treeToValue(objectNode, clazz);
             } catch (ClassNotFoundException _) {
                 // If class not found, return as Map
                 return objectMapper.treeToValue(objectNode, Object.class);
@@ -251,11 +248,12 @@ public class CustomJackson2JsonRedisSerializer implements RedisSerializer<Object
     }
 
     private boolean isMapType(String className) {
-        return className.equals(HashMap.class.getName()) ||
-                className.equals(LinkedHashMap.class.getName()) ||
-                className.equals(TreeMap.class.getName()) ||
-                className.equals(ConcurrentHashMap.class.getName()) ||
-                className.startsWith("java.util.") && className.contains("Map");
+        return className.equals(HashMap.class.getName())
+                || className.equals(LinkedHashMap.class.getName())
+                || className.equals(TreeMap.class.getName())
+                || className.equals(ConcurrentHashMap.class.getName())
+                || className.startsWith("java.util.")
+                && className.contains("Map");
     }
 
     private Map<String, Object> deserializeMap(ObjectNode objectNode, String className) {
