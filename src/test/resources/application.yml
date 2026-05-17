@@ -19,7 +19,7 @@ spring:
           max-wait: -1ms
 
   jpa:
-    show-sql: ${SHOW_SQL_ENABLED:true}
+    show-sql: ${SHOW_SQL_ENABLED:false}
     hibernate:
       ddl-auto: validate
 

@@ -9,6 +9,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.resilience.annotation.EnableResilientMethods;
 
 import java.time.OffsetDateTime;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 @SpringBootApplication
 @EnableResilientMethods
 @RequiredArgsConstructor
+@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class LiveDataServiceApplication implements CommandLineRunner {
 
     private final ScoreBoardRepository repository;

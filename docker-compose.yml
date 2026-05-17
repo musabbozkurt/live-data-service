@@ -10,6 +10,8 @@ services:
     profiles:
       - start_application
     depends_on:
+      grafana-lgtm:
+        condition: service_started
       redis:
         condition: service_started
       elasticsearch:
@@ -31,14 +33,15 @@ services:
       MAIL_PORT: 1025
       MAIL_USERNAME: admin
       MAIL_PASSWORD: admin
-      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
       GRPC_CLIENT_ADDRESS: live-data-service:9091
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
     networks:
       - my-network
 
   postgres:
-    container_name: postgredb
+    container_name: postgredb-service
     image: postgres:18.3
     ports:
       - "5432:5432"
@@ -51,7 +54,7 @@ services:
 
   mongodb:
     image: mongo:8.2.5
-    container_name: mongodb
+    container_name: mongodb-service
     ports:
       - "27017:27017"
     environment:
@@ -72,19 +75,22 @@ services:
     networks:
       - my-network
 
-  grafana:
-    image: "grafana/grafana"
-    restart: always
+  grafana-lgtm:
+    image: 'grafana/otel-lgtm:0.27.1'
     ports:
-      - "3000:3000"
-    container_name: grafana
+      - "3001:3000"   # Grafana UI
+      - "4318:4318"   # OTLP HTTP receiver
+      - "4317:4317"   # OTLP gRPC receiver
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - my-network
+    restart: on-failure
 
   broker:
     image: confluentinc/confluent-local:8.1.1
     hostname: broker
-    container_name: broker
+    container_name: broker-service
     ports:
       - "8082:8082"
       - "9092:9092"
@@ -126,14 +132,6 @@ services:
     networks:
       - my-network
 
-  zipkin:
-    image: openzipkin/zipkin:3.5.1
-    container_name: zipkin
-    ports:
-      - "9411:9411"
-    networks:
-      - my-network
-
   mailpit:
     image: axllent/mailpit:v1.29.2
     container_name: mailpit
@@ -148,18 +146,6 @@ services:
       - MP_SMTP_REQUIRE_TLS=false
       - MP_UI_AUTH=admin:admin
       - MP_SMTP_AUTH=admin:admin
-    networks:
-      - my-network
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.76.0
-    container_name: jaeger
-    ports:
-      - "16686:16686"  # Jaeger UI
-      - "4317:4317"    # OTLP gRPC
-      - "4318:4318"    # OTLP HTTP
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
     networks:
       - my-network
 
@@ -178,7 +164,7 @@ services:
   redis-insight:
     image: redis/redisinsight:3.2.0
     restart: always
-    container_name: redis-insight
+    container_name: redis-insight-service
     ports:
       - "5540:5540"
     volumes:
@@ -188,7 +174,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.3.1
-    container_name: elasticsearch
+    container_name: elasticsearch-service
     environment:
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"

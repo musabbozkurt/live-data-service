@@ -35,10 +35,14 @@ spring:
           max-wait: -1ms
 
   jpa:
-    show-sql: ${SHOW_SQL_ENABLED:true}
+    show-sql: ${SHOW_SQL_ENABLED:false} # writes directly to stdout instead of log
     hibernate:
       ddl-auto: validate
     open-in-view: false
+    properties:
+      hibernate:
+        show_sql: ${SHOW_SQL_ENABLED:false} # writes directly to stdout instead of log
+        format_sql: true # formats the SQL in the log
 
   flyway:
     enabled: true
@@ -143,16 +147,19 @@ management:
       zipkin:
         endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
 
-  # spring-boot-starter-opentelemetry and Jaeger can be used instead of spring-cloud-starter-zipkin and Zipkin for OpenTelemetry
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_EXPORTER_OTLP_METRICS_URL:http://localhost:4318/v1/metrics}
   opentelemetry:
     tracing:
       export:
         otlp:
-          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
-  otlp:
-    metrics:
+          endpoint: ${OTEL_EXPORTER_OTLP_TRACES_URL:http://localhost:4318/v1/traces}
+    logging:
       export:
-        enabled: false
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_LOGS_URL:http://localhost:4318/v1/logs}
 
 swagger:
   documentation:
