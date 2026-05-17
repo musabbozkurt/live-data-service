@@ -76,9 +76,13 @@ docker compose up -d
 - Centralize exception handling by `ControllerAdvice`
 - `Mapstruct` to map different type of objects to each other
 - `Micrometer` dependencies were added to track the logs easily
+- `OpenTelemetry` with `Grafana LGTM` stack for distributed tracing, metrics, and log correlation
+    - TraceId and SpanId are propagated to all log statements (including Hibernate SQL queries) via MDC
+    - AOT-compatible tracing configuration ensures context propagation works with Spring Boot AOT and virtual threads
 - `Testcontainers` dependencies were added for integration tests
-- `docker-compose.yml` contains `Grafana`, `Prometheus` and `Zipkin` to track metrics, `Kafka` for event-driven
-  architecture, `Redis` for caching, `Elasticsearch`, `Kibana`, and `Logstash` for search, analytics engine and logs,
+- `docker-compose.yml` contains `Grafana LGTM` (Loki, Grafana, Tempo, Mimir) for unified observability, `Prometheus` for
+  metrics scraping, `Kafka` for event-driven architecture, `Redis` for caching, `Elasticsearch`, `Kibana`, and
+  `Logstash` for search, analytics engine and logs,
   `PostgreSQL` and `MongoDB` for data storage.
     - Kafka and its UI are included for message streaming, while the Elastic Stack (Elasticsearch, Logstash, Kibana) is
       set up for log management and visualization.
@@ -89,20 +93,17 @@ docker compose up -d
         - `Redis Host`: `redis`
         - `Redis Port`: `6379`
     - `activemq-artemis Web Console`: http://localhost:8161
-    - `Grafana`
+    - `Grafana LGTM` (OpenTelemetry collector + Grafana UI)
         - Login Credentials
-            - Url: http://localhost:3000/
+            - Url: http://localhost:3001/
             - Email or username: `admin`
             - Password: `admin`
-        - Add `Prometheus` Datasource
-            - Url: http://host.docker.internal:9090
-        - Add Dashboards
-            - https://grafana.com/grafana/dashboards/4701-jvm-micrometer/
-            - https://grafana.com/grafana/dashboards/5373-micrometer-spring-throughput/
+        - Preconfigured datasources: Loki (logs), Tempo (traces), Mimir (metrics)
+        - OTLP endpoints: `http://localhost:4318` (HTTP), `http://localhost:4317` (gRPC)
     - `Prometheus`
         - `Actuator`: http://localhost:8080/actuator/prometheus
         - `Prometheus`: http://localhost:9090/graph
-    - `Zipkin UI`: http://localhost:9411
+        - `Docker internal url`: http://host.docker.internal:9090
     - `Elasticsearch`: http://localhost:9200/
     - `Kibana`: http://localhost:5601/app/home#/
         - Connect Spring Boot to `Elasticsearch` `(TESTED FOR SPRING BOOT 4)`
@@ -189,3 +190,5 @@ docker compose up -d
     - [Spring Data AOT Repositories: Better Performance AND Developer Experience](https://www.youtube.com/watch?v=s_kmDbitE8s)
     - [Spring Data AOT Coffee Shop Demo](https://github.com/danvega/spring-data-aot)
 - [Spring GRPC](https://docs.spring.io/spring-grpc/reference/getting-started.html)
+- [OpenTelemetry Logback Appender](https://opentelemetry.io/docs/languages/java/instrumentation/#log-appenders)
+- [Spring Boot Observability](https://docs.spring.io/spring-boot/reference/actuator/observability.html)
