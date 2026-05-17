@@ -26,9 +26,11 @@
         <instancio-junit.version>6.0.0-RC1</instancio-junit.version>
         <google-api-services-playintegrity.version>v1-rev20250828-2.0.0</google-api-services-playintegrity.version>
         <google-api-client.version>2.9.0</google-api-client.version>
+        <protobuf-java.version>4.34.1</protobuf-java.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <ognl.version>3.5.0-BETA4</ognl.version>
         <graphql-java-extended-scalars.version>24.0</graphql-java-extended-scalars.version>
+        <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
         <spring-cloud-gcp-dependencies.version>8.0.2</spring-cloud-gcp-dependencies.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
@@ -38,7 +40,6 @@
         <org.projectlombok.version>1.18.42</org.projectlombok.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
         <protobuf-maven-plugin.version>5.1.4</protobuf-maven-plugin.version>
-        <protobuf-java.version>4.34.1</protobuf-java.version>
         <grpc.version>1.79.0</grpc.version>
     </properties>
 
@@ -176,7 +177,18 @@
 
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-otlp</artifactId>
+        </dependency>
+
+        <!-- Explicit context-propagation for AOT compatibility with tracing MDC propagation -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>context-propagation</artifactId>
         </dependency>
 
         <!-- Keep the same TraceId across Feign calls -->
@@ -187,7 +199,24 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-zipkin</artifactId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-logback-appender-1.0</artifactId>
+        </dependency>
+
+        <!-- Required for OTLP metrics export -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf-java.version}</version>
         </dependency>
 
         <dependency>
@@ -374,6 +403,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- OpenTelemetry Instrumentation BOM: aligns API, SDK, and instrumentation versions
+                 to prevent NoSuchMethodError (e.g., LogRecordBuilder.setException) in CI clean builds -->
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>${opentelemetry-logback-appender-1.0.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>spring-cloud-gcp-dependencies</artifactId>
