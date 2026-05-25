@@ -451,6 +451,11 @@
                 <artifactId>protobuf-java</artifactId>
                 <version>${protobuf-java.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
