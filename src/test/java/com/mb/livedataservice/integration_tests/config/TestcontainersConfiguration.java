@@ -15,10 +15,12 @@ public class TestcontainersConfiguration {
     static {
         org.testcontainers.utility.TestcontainersConfiguration.getInstance().updateUserConfig("testcontainers.reuse.enable", "true");
 
+        // Start all containers and wait for them to be ready
         CustomContainers.artemisContainer.start();
         CustomContainers.kafkaContainer.start();
         CustomContainers.postgresContainer.start();
         CustomContainers.redisContainer.start();
+        CustomContainers.elasticsearchContainer.start();
 
         System.setProperty("spring.artemis.broker-url", "tcp://%s:%d".formatted(CustomContainers.artemisContainer.getHost(), CustomContainers.artemisContainer.getMappedPort(61616)));
 
@@ -32,10 +34,11 @@ public class TestcontainersConfiguration {
         System.setProperty("redisson.url", "redis://%s:%s".formatted(CustomContainers.redisContainer.getHost(), CustomContainers.redisContainer.getMappedPort(6379)));
     }
 
+    // repair() instead of clean() to avoid dropping tables used by other test contexts sharing this container
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
         return flyway -> {
-            flyway.clean();
+            flyway.repair();
             flyway.migrate();
         };
     }
