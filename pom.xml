@@ -41,6 +41,7 @@
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
         <protobuf-maven-plugin.version>5.1.4</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
+        <versions-maven-plugin.version>2.20.0</versions-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -569,6 +570,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
                 <configuration>
                     <!-- Ignore milestone, alpha, beta, RC versions by default -->
                     <rulesUri>file://${project.basedir}/version-rules.xml</rulesUri>
