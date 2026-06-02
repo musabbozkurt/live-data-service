@@ -15,12 +15,10 @@ public class TestcontainersConfiguration {
     static {
         org.testcontainers.utility.TestcontainersConfiguration.getInstance().updateUserConfig("testcontainers.reuse.enable", "true");
 
-        // Start all containers and wait for them to be ready
         CustomContainers.artemisContainer.start();
         CustomContainers.kafkaContainer.start();
         CustomContainers.postgresContainer.start();
         CustomContainers.redisContainer.start();
-        CustomContainers.elasticsearchContainer.start();
 
         System.setProperty("spring.artemis.broker-url", "tcp://%s:%d".formatted(CustomContainers.artemisContainer.getHost(), CustomContainers.artemisContainer.getMappedPort(61616)));
 
@@ -28,17 +26,28 @@ public class TestcontainersConfiguration {
         System.setProperty("spring.kafka.consumer.bootstrap-servers", CustomContainers.kafkaContainer.getBootstrapServers());
         System.setProperty("spring.kafka.producer.bootstrap-servers", CustomContainers.kafkaContainer.getBootstrapServers());
 
+        System.setProperty("spring.datasource.url", CustomContainers.postgresContainer.getJdbcUrl());
+        System.setProperty("spring.datasource.username", CustomContainers.postgresContainer.getUsername());
+        System.setProperty("spring.datasource.password", CustomContainers.postgresContainer.getPassword());
+        System.setProperty("spring.datasource.hikari.connection-init-sql", "SET search_path TO mb_test,public");
+
         System.setProperty("spring.data.redis.host", CustomContainers.redisContainer.getHost());
         System.setProperty("spring.data.redis.port", String.valueOf(CustomContainers.redisContainer.getMappedPort(6379)));
 
         System.setProperty("redisson.url", "redis://%s:%s".formatted(CustomContainers.redisContainer.getHost(), CustomContainers.redisContainer.getMappedPort(6379)));
     }
 
-    // repair() instead of clean() to avoid dropping tables used by other test contexts sharing this container
+    /**
+     * For reused containers: repair() fixes checksum mismatches in the Flyway
+     * schema history without dropping tables or the schema. Then migrate()
+     * applies any new migrations. Because all your migration scripts use
+     * "CREATE ... IF NOT EXISTS" and "INSERT ... VALUES" (no idempotency on
+     * data), we make data inserts idempotent below.
+     */
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
         return flyway -> {
-            flyway.repair();
+            flyway.clean();
             flyway.migrate();
         };
     }

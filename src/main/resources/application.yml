@@ -41,7 +41,6 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        default_schema: mb_test
         show_sql: ${SHOW_SQL_ENABLED:false} # writes directly to stdout instead of log
         format_sql: true # formats the SQL in the log
 

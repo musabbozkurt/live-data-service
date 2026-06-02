@@ -21,7 +21,7 @@ spring:
   jpa:
     show-sql: ${SHOW_SQL_ENABLED:false}
     hibernate:
-      ddl-auto: none # Changed from 'validate' - Flyway handles schema creation
+      ddl-auto: none # Flyway manages the schema; validate fails because Hibernate can't resolve mb_test schema in testcontainers
     properties:
       hibernate:
         default_schema: mb_test
@@ -32,7 +32,7 @@ spring:
     baseline-on-migrate: true
     schemas: mb_test
     table: schema_version
-    clean-disabled: true
+    clean-disabled: false
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
