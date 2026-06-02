@@ -22,9 +22,6 @@ spring:
     show-sql: ${SHOW_SQL_ENABLED:false}
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate:
-        default_schema: mb_test
 
   flyway:
     enabled: true
@@ -89,4 +86,8 @@ management:
   tracing:
     export:
       zipkin:
+        enabled: false
+  logging:
+    export:
+      otlp:
         enabled: false
