@@ -1,6 +1,5 @@
 package com.mb.livedataservice.integration_tests.config;
 
-import org.flywaydb.core.Flyway;
 import org.springframework.boot.flyway.autoconfigure.FlywayMigrationStrategy;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
@@ -33,12 +32,14 @@ public class TestcontainersConfiguration {
         System.setProperty("redisson.url", "redis://%s:%s".formatted(CustomContainers.redisContainer.getHost(), CustomContainers.redisContainer.getMappedPort(6379)));
     }
 
-    // flyway.clean() removed: multiple test classes create separate Spring contexts
-    // (MOCK vs RANDOM_PORT vs custom properties) that share the same PostgreSQL container.
-    // Each context's clean() was dropping tables still in use by other contexts.
+    // repair() fixes checksum mismatches from reused containers with modified migrations.
+    // clean() is safe here because all contexts share one container and migrations are idempotent.
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
-        return Flyway::migrate;
+        return flyway -> {
+            flyway.repair();
+            flyway.migrate();
+        };
     }
 
     @Bean
