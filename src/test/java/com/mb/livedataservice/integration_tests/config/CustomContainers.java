@@ -60,6 +60,7 @@ interface CustomContainers {
             .withEnv("xpack.security.enabled", "false")
             .withEnv("xpack.security.http.ssl.enabled", "false")
             .withEnv("cluster.name", "elasticsearch")
+            .withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m") // Cap heap to prevent OOM-kill in CI/test environments
             .withCommand("sh", "-c", "bin/elasticsearch-plugin install analysis-icu && exec /usr/local/bin/docker-entrypoint.sh elasticsearch")
             .withReuse(true);
 

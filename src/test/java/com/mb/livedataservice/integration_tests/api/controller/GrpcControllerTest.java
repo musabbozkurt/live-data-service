@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = TestcontainersConfiguration.class,
         properties = {
-                "spring.grpc.server.port=9999",
-                "spring.grpc.client.hello-service.address=localhost:9999"
+                "spring.grpc.server.port=9998",
+                "spring.grpc.client.hello-service.address=localhost:9998"
         }
 )
 class GrpcControllerTest {
