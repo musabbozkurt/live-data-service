@@ -86,11 +86,11 @@ clients:
     client-secret: ${JSON_PLACEHOLDER_CLIENT_SECRET:client-secret}
 
 management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
   tracing:
     export:
       zipkin:
-        enabled: false
-  logging:
-    export:
-      otlp:
         enabled: false

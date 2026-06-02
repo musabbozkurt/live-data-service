@@ -32,12 +32,10 @@ public class TestcontainersConfiguration {
         System.setProperty("redisson.url", "redis://%s:%s".formatted(CustomContainers.redisContainer.getHost(), CustomContainers.redisContainer.getMappedPort(6379)));
     }
 
-    // repair() fixes checksum mismatches from reused containers with modified migrations.
-    // clean() is safe here because all contexts share one container and migrations are idempotent.
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
         return flyway -> {
-            flyway.repair();
+            flyway.clean();
             flyway.migrate();
         };
     }
