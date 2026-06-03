@@ -108,7 +108,6 @@ jobs:
         run: |
           mvn -B versions:update-parent -DgenerateBackupPoms=false --file pom.xml
           mvn -B versions:update-properties -DgenerateBackupPoms=false --file pom.xml
-          mvn -B versions:use-latest-releases -DgenerateBackupPoms=false --file pom.xml
 
       - name: Check if pom.xml changed
         if: steps.pr-exists.outputs.skip == 'false'
