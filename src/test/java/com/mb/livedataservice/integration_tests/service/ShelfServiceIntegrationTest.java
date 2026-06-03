@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.fail;
 
 @DataJpaTest(showSql = false)
 @TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=none",
         "spring.jpa.show-sql=false",
         "spring.main.banner-mode=off"
 })

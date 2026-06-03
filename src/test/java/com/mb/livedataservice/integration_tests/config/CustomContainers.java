@@ -71,7 +71,6 @@ interface CustomContainers {
     @Container
     @ServiceConnection
     PostgreSQLContainer postgresContainer = new PostgreSQLContainer("postgres:18.3")
-            .withUrlParam("currentSchema", "mb_test")
             .withReuse(true);
 
     @Container

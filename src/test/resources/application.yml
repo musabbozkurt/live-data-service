@@ -21,14 +21,13 @@ spring:
   jpa:
     show-sql: ${SHOW_SQL_ENABLED:false}
     hibernate:
-      ddl-auto: none # Flyway manages the schema
+      ddl-auto: validate
 
   flyway:
     enabled: true
     baseline-version: 0
     baseline-on-migrate: true
     schemas: mb_test
-    create-schemas: true
     table: schema_version
     clean-disabled: false
 
