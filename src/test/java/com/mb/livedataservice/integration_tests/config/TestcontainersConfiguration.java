@@ -8,12 +8,20 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.mock;
 
 @TestConfiguration(proxyBeanMethods = false)
 @ImportTestcontainers(CustomContainers.class)
 public class TestcontainersConfiguration {
+
+    /**
+     * Ensures Flyway clean+migrate runs only once per test suite execution,
+     * regardless of how many Spring contexts are created. This prevents one
+     * context's clean() from dropping tables needed by another cached context.
+     */
+    private static final AtomicBoolean flywayInitialized = new AtomicBoolean(false);
 
     static {
         org.testcontainers.utility.TestcontainersConfiguration.getInstance().updateUserConfig("testcontainers.reuse.enable", "true");
@@ -51,15 +59,20 @@ public class TestcontainersConfiguration {
     }
 
     /**
-     * For reused containers: clean() resets the schema to a known state, then migrate()
-     * applies all migrations. The mb_test schema is pre-created in the static block above
-     * to ensure clean() works on fresh containers (CI).
+     * Flyway migration strategy that cleans and migrates only on the first context initialization.
+     * Subsequent contexts (e.g., @DataJdbcTest, @DataJpaTest slices) just run migrate()
+     * which is a no-op since all migrations are already applied. This prevents one context's
+     * clean() from destroying tables needed by other cached contexts sharing the same DB.
      */
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
         return flyway -> {
-            flyway.clean();
-            flyway.migrate();
+            if (flywayInitialized.compareAndSet(false, true)) {
+                flyway.clean();
+                flyway.migrate();
+            } else {
+                flyway.migrate();
+            }
         };
     }
 
