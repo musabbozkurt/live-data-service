@@ -37,13 +37,6 @@ public class TestcontainersConfiguration {
         System.setProperty("redisson.url", "redis://%s:%s".formatted(CustomContainers.redisContainer.getHost(), CustomContainers.redisContainer.getMappedPort(6379)));
     }
 
-    /**
-     * For reused containers: repair() fixes checksum mismatches in the Flyway
-     * schema history without dropping tables or the schema. Then migrate()
-     * applies any new migrations. Because all your migration scripts use
-     * "CREATE ... IF NOT EXISTS" and "INSERT ... VALUES" (no idempotency on
-     * data), we make data inserts idempotent below.
-     */
     @Bean
     public FlywayMigrationStrategy flywayMigrationStrategy() {
         return flyway -> {
