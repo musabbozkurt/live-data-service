@@ -20,31 +20,14 @@
     <!-- ===== OpenTelemetry Appender ===== -->
     <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender"/>
 
-    <!-- ===== Human-readable console (local) ===== -->
-    <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${localConsoleLogPattern}</pattern>
-        </encoder>
-    </appender>
-
-    <!-- ===== JSON console (dev/prod/stage) ===== -->
-    <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <version>[ignore]</version>
-                <levelValue>[ignore]</levelValue>
-            </fieldNames>
-            <includeContext>true</includeContext>
-            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-                <maxDepthPerThrowable>100</maxDepthPerThrowable>
-                <rootCauseFirst>true</rootCauseFirst>
-            </throwableConverter>
-        </encoder>
-    </appender>
-
     <!-- ===== Default / local profile ===== -->
     <springProfile name="! (dev | prod | stage)">
+        <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>${localConsoleLogPattern}</pattern>
+            </encoder>
+        </appender>
+
         <!-- Route Hibernate SQL through SLF4J to include traceId/spanId in query logs (replaces show-sql=true which bypasses MDC) -->
         <logger name="org.hibernate.SQL" level="DEBUG"/>
         <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
@@ -57,6 +40,21 @@
 
     <!-- ===== Dev / Prod / Stage ===== -->
     <springProfile name="(dev | prod | stage)">
+        <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <fieldNames>
+                    <timestamp>timestamp</timestamp>
+                    <version>[ignore]</version>
+                    <levelValue>[ignore]</levelValue>
+                </fieldNames>
+                <includeContext>true</includeContext>
+                <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                    <maxDepthPerThrowable>100</maxDepthPerThrowable>
+                    <rootCauseFirst>true</rootCauseFirst>
+                </throwableConverter>
+            </encoder>
+        </appender>
+
         <root level="INFO">
             <appender-ref ref="ConsoleAppender"/>
             <appender-ref ref="OTEL"/>

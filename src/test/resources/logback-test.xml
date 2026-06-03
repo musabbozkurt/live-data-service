@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Use log() instead of print() in MockMvc tests; log() outputs via SLF4J at DEBUG level,
+         so it is suppressed by the ERROR root level below. Change root to DEBUG to see output when needed. -->
+    <root level="ERROR">
+        <appender-ref ref="consoleAppender"/>
+    </root>
+</configuration>

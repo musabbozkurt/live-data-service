@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,7 +68,7 @@ class TutorialControllerTest extends BaseUnitTest {
                 .andExpect(jsonPath("$.title").value(apiTutorialResponse.getTitle()))
                 .andExpect(jsonPath("$.description").value(apiTutorialResponse.getDescription()))
                 .andExpect(jsonPath("$.published").value(apiTutorialResponse.isPublished()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -85,7 +85,7 @@ class TutorialControllerTest extends BaseUnitTest {
                 .andExpect(jsonPath("$.title").value(apiTutorialResponse.getTitle()))
                 .andExpect(jsonPath("$.description").value(apiTutorialResponse.getDescription()))
                 .andExpect(jsonPath("$.published").value(apiTutorialResponse.isPublished()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -97,7 +97,7 @@ class TutorialControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/api/tutorials/{id}", id))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> Assertions.assertInstanceOf(BaseException.class, result.getResolvedException()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -112,7 +112,7 @@ class TutorialControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/api/tutorials"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(apiTutorialResponses.size()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -131,7 +131,7 @@ class TutorialControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/api/tutorials").params(paramsMap))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(apiTutorialResponses.size()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -148,7 +148,7 @@ class TutorialControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/api/tutorials").params(paramsMap))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(0))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -170,7 +170,7 @@ class TutorialControllerTest extends BaseUnitTest {
                 .andExpect(jsonPath("$.title").value(apiTutorialResponse.getTitle()))
                 .andExpect(jsonPath("$.description").value(apiTutorialResponse.getDescription()))
                 .andExpect(jsonPath("$.published").value(apiTutorialResponse.isPublished()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -187,7 +187,7 @@ class TutorialControllerTest extends BaseUnitTest {
                         .content(objectMapper.writeValueAsString(apiTutorialUpdateRequest)))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> Assertions.assertInstanceOf(BaseException.class, result.getResolvedException()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -197,7 +197,7 @@ class TutorialControllerTest extends BaseUnitTest {
         doNothing().when(tutorialService).deleteById(id);
         mockMvc.perform(delete("/api/tutorials/{id}", id))
                 .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -205,7 +205,7 @@ class TutorialControllerTest extends BaseUnitTest {
         doNothing().when(tutorialService).deleteAll();
         mockMvc.perform(delete("/api/tutorials"))
                 .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -220,6 +220,6 @@ class TutorialControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/api/tutorials/published"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(apiTutorialResponses.size()))
-                .andDo(print());
+                .andDo(log());
     }
 }
