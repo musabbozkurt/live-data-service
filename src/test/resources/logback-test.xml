@@ -11,6 +11,8 @@
         </encoder>
     </appender>
 
+    <!-- Use log() instead of print() in MockMvc tests; log() outputs via SLF4J at DEBUG level,
+         so it is suppressed by the ERROR root level below. Change root to DEBUG to see output when needed. -->
     <root level="ERROR">
         <appender-ref ref="consoleAppender"/>
     </root>
