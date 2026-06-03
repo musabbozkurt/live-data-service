@@ -13,7 +13,6 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -36,11 +35,9 @@ import static org.assertj.core.api.Assertions.fail;
 
 @DataJpaTest(showSql = false)
 @TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.jpa.show-sql=false",
         "spring.main.banner-mode=off"
 })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Import({ShelfServiceImpl.class, TestcontainersConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = ShelfServiceIntegrationTest.TestConfig.class)

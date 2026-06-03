@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,7 +70,7 @@ class ScoreBoardControllerTest extends BaseUnitTest {
                 .andExpect(jsonPath("$.homeTeamName").value(apiScoreBoardResponse.getHomeTeamName()))
                 .andExpect(jsonPath("$.awayTeamName").value(apiScoreBoardResponse.getAwayTeamName()))
                 .andExpect(jsonPath("$.homeTeamScore").value(apiScoreBoardResponse.getHomeTeamScore()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -87,7 +87,7 @@ class ScoreBoardControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/score-boards"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(scoreBoards.getContent().size())))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -105,7 +105,7 @@ class ScoreBoardControllerTest extends BaseUnitTest {
                 .andExpect(jsonPath("$.homeTeamName").value(apiScoreBoardResponse.getHomeTeamName()))
                 .andExpect(jsonPath("$.awayTeamName").value(apiScoreBoardResponse.getAwayTeamName()))
                 .andExpect(jsonPath("$.homeTeamScore").value(apiScoreBoardResponse.getHomeTeamScore()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -117,7 +117,7 @@ class ScoreBoardControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/score-boards/{id}", id))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> Assertions.assertInstanceOf(BaseException.class, result.getResolvedException()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -141,7 +141,7 @@ class ScoreBoardControllerTest extends BaseUnitTest {
                 .andExpect(jsonPath("$.homeTeamName").value(updatedApiScoreBoardResponse.getHomeTeamName()))
                 .andExpect(jsonPath("$.awayTeamName").value(updatedApiScoreBoardResponse.getAwayTeamName()))
                 .andExpect(jsonPath("$.homeTeamScore").value(updatedApiScoreBoardResponse.getHomeTeamScore()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -159,7 +159,7 @@ class ScoreBoardControllerTest extends BaseUnitTest {
                         .content(objectMapper.writeValueAsString(apiScoreBoardUpdateRequest)))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> Assertions.assertInstanceOf(BaseException.class, result.getResolvedException()))
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -170,7 +170,7 @@ class ScoreBoardControllerTest extends BaseUnitTest {
 
         mockMvc.perform(delete("/score-boards/{id}", id))
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(log());
     }
 
     @Test
@@ -182,6 +182,6 @@ class ScoreBoardControllerTest extends BaseUnitTest {
         mockMvc.perform(get("/score-boards/summary"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(scoreBoardsAsStringList.size()))
-                .andDo(print());
+                .andDo(log());
     }
 }

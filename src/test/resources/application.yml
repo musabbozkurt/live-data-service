@@ -1,4 +1,7 @@
 spring:
+  main:
+    banner-mode: off
+
   application:
     name: live-data-service
 
@@ -83,6 +86,10 @@ clients:
     client-secret: ${JSON_PLACEHOLDER_CLIENT_SECRET:client-secret}
 
 management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
   tracing:
     export:
       zipkin:
