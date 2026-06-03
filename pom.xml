@@ -31,7 +31,7 @@
         <ognl.version>3.5.0-BETA4</ognl.version>
         <graphql-java-extended-scalars.version>24.0</graphql-java-extended-scalars.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <spring-cloud-gcp-dependencies.version>8.0.3</spring-cloud-gcp-dependencies.version>
+        <spring-cloud-gcp-dependencies.version>8.0.4</spring-cloud-gcp-dependencies.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
         <spring-grpc.version>1.0.3</spring-grpc.version>
@@ -40,7 +40,7 @@
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
         <protobuf-maven-plugin.version>5.1.4</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
-        <versions-maven-plugin.version>2.20.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
         <jacoco.version>0.8.14</jacoco.version>
     </properties>
 
