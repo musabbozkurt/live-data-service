@@ -26,7 +26,9 @@ public class TestcontainersConfiguration {
         System.setProperty("spring.kafka.consumer.bootstrap-servers", CustomContainers.kafkaContainer.getBootstrapServers());
         System.setProperty("spring.kafka.producer.bootstrap-servers", CustomContainers.kafkaContainer.getBootstrapServers());
 
-        System.setProperty("spring.datasource.url", CustomContainers.postgresContainer.getJdbcUrl());
+        String jdbcUrl = CustomContainers.postgresContainer.getJdbcUrl();
+        String separator = jdbcUrl.contains("?") ? "&" : "?";
+        System.setProperty("spring.datasource.url", jdbcUrl + separator + "currentSchema=mb_test");
         System.setProperty("spring.datasource.username", CustomContainers.postgresContainer.getUsername());
         System.setProperty("spring.datasource.password", CustomContainers.postgresContainer.getPassword());
         System.setProperty("spring.datasource.hikari.connection-init-sql", "SET search_path TO mb_test,public");
