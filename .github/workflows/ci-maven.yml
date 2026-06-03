@@ -19,8 +19,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    env:
-      TESTCONTAINERS_REUSE_ENABLE: true # https://java.testcontainers.org/features/reuse/
+    # Disable Testcontainers reuse in CI
+    #    env:
+    #      TESTCONTAINERS_REUSE_ENABLE: true # https://java.testcontainers.org/features/reuse/
 
     permissions:
       contents: write

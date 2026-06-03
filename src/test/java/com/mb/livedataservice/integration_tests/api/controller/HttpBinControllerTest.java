@@ -3,6 +3,7 @@ package com.mb.livedataservice.integration_tests.api.controller;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
@@ -12,6 +13,8 @@ import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// Disabled in CI because httpbin.org is an external service that may be unavailable
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestcontainersConfiguration.class)
 class HttpBinControllerTest {
 

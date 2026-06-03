@@ -21,10 +21,7 @@ spring:
   jpa:
     show-sql: ${SHOW_SQL_ENABLED:false}
     hibernate:
-      ddl-auto: none # Flyway manages the schema; validate fails because Hibernate can't resolve mb_test schema in testcontainers
-    properties:
-      hibernate:
-        default_schema: mb_test
+      ddl-auto: validate
 
   flyway:
     enabled: true
