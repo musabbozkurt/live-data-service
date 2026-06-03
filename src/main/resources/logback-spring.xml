@@ -29,8 +29,10 @@
         </appender>
 
         <!-- Route Hibernate SQL through SLF4J to include traceId/spanId in query logs (replaces show-sql=true which bypasses MDC) -->
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
-        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+        <logger name="org.hibernate.SQL" level="INFO"/>
+        <logger name="org.hibernate.orm.jdbc.bind" level="INFO"/>
+        <logger name="org.apache.kafka" level="WARN"/>
+        <logger name="org.springframework.kafka" level="WARN"/>
 
         <root level="INFO">
             <appender-ref ref="LocalConsoleAppender"/>
