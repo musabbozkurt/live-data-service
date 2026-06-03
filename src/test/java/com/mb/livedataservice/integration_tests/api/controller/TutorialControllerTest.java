@@ -12,8 +12,10 @@ import com.mb.livedataservice.exception.ErrorResponse;
 import com.mb.livedataservice.helper.RestResponsePage;
 import com.mb.livedataservice.integration_tests.config.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -23,19 +25,18 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Transactional
 @AutoConfigureTestRestTemplate
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestcontainersConfiguration.class)
 class TutorialControllerTest extends BaseUnitTest {
 
@@ -58,7 +59,8 @@ class TutorialControllerTest extends BaseUnitTest {
             testRestTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ApiTutorialResponse.class);
         }
 
-        ApiTutorialResponse[] tutorials = testRestTemplate.getForObject("/api/tutorials", ApiTutorialResponse[].class);
+        ResponseEntity<ApiTutorialResponse[]> response = testRestTemplate.exchange("/api/tutorials", HttpMethod.GET, null, ApiTutorialResponse[].class);
+        ApiTutorialResponse[] tutorials = Objects.requireNonNull(response.getBody());
 
         assertThat(tutorials).hasSizeGreaterThan(100);
 
@@ -66,7 +68,6 @@ class TutorialControllerTest extends BaseUnitTest {
     }
 
     @Test
-    @Rollback
     void shouldCreateNewTutorialWhenTutorialIsValid() {
         ApiTutorialRequest apiTutorialRequest = getApiTutorialRequest();
 
@@ -91,9 +92,9 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Test
     void shouldGetAllTutorials() {
-        ApiTutorialResponse[] tutorials = testRestTemplate.getForObject("/api/tutorials", ApiTutorialResponse[].class);
+        ResponseEntity<ApiTutorialResponse[]> response = testRestTemplate.exchange("/api/tutorials", HttpMethod.GET, null, ApiTutorialResponse[].class);
 
-        assertThat(tutorials).hasSizeGreaterThan(100);
+        assertThat(response.getBody()).isNotNull().hasSizeGreaterThan(100);
     }
 
     @Test
@@ -104,7 +105,6 @@ class TutorialControllerTest extends BaseUnitTest {
     }
 
     @Test
-    @Rollback
     void shouldUpdateTutorialWhenTutorialIsValid() {
         ApiTutorialUpdateRequest apiTutorialUpdateRequest = getApiTutorialUpdateRequest();
 
@@ -119,7 +119,7 @@ class TutorialControllerTest extends BaseUnitTest {
     }
 
     @Test
-    @Rollback
+    @Order(Integer.MAX_VALUE - 1)
     void shouldDeleteWithValidId() {
         ResponseEntity<Void> response = testRestTemplate.exchange("/api/tutorials/88", HttpMethod.DELETE, null, Void.class);
 
@@ -127,8 +127,7 @@ class TutorialControllerTest extends BaseUnitTest {
     }
 
     @Test
-    @Rollback
-    @Disabled("This test will delete all tutorials, so it should be disabled.")
+    @Order(Integer.MAX_VALUE)
     void shouldDeleteAllTutorials() {
         ResponseEntity<HttpStatus> response = testRestTemplate.exchange("/api/tutorials", HttpMethod.DELETE, null, HttpStatus.class);
 
@@ -137,9 +136,9 @@ class TutorialControllerTest extends BaseUnitTest {
 
     @Test
     void shouldGetAllTutorialsByPublishedTrue() {
-        ApiTutorialResponse[] tutorials = testRestTemplate.getForObject("/api/tutorials/published", ApiTutorialResponse[].class);
+        ResponseEntity<ApiTutorialResponse[]> response = testRestTemplate.exchange("/api/tutorials/published", HttpMethod.GET, null, ApiTutorialResponse[].class);
 
-        assertThat(tutorials).hasSizeGreaterThan(100);
+        assertThat(response.getBody()).isNotNull().hasSizeGreaterThan(100);
     }
 
     @Test

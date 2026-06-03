@@ -1,6 +1,7 @@
 package com.mb.livedataservice.service.impl;
 
 import com.mb.livedataservice.data.model.EmailTemplate;
+import com.mb.livedataservice.queue.dto.EmailAttachment;
 import com.mb.livedataservice.queue.dto.EmailEventDto;
 import com.mb.livedataservice.service.EmailTemplateService;
 import com.mb.livedataservice.service.ThymeleafTemplateService;
@@ -9,7 +10,6 @@ import jakarta.mail.internet.MimeMessage;
 import org.instancio.Instancio;
 import org.instancio.Select;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -289,7 +288,6 @@ class SmtpEmailSenderTest {
     }
 
     @Test
-    @Disabled("Disabled until handling of missing template is implemented")
     void send_ShouldSendEmailWithTemplate_WhenNoParametersProvided() {
         // Arrange
         EmailTemplate template = new EmailTemplate();
@@ -310,14 +308,9 @@ class SmtpEmailSenderTest {
 
         // Assertions
         verify(javaMailSender).send(any(MimeMessage.class));
-
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        verify(javaMailSender).send(messageCaptor.capture());
-
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        assertNotNull(sentMessage);
-        assertEquals("Prefix: Simple Subject", sentMessage.getSubject());
-        assertEquals("Simple body without placeholders", sentMessage.getText());
+        verify(emailTemplateService).findActiveByCode("SIMPLE_EMAIL");
+        verify(thymeleafTemplateService).processTemplate("Simple Subject", null);
+        verify(thymeleafTemplateService).processTemplate("Simple body without placeholders", null);
     }
 
     @Test
@@ -635,6 +628,131 @@ class SmtpEmailSenderTest {
 
         // Assertions
         verify(javaMailSender, times(1)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void send_ShouldSkipAttachment_WhenContentIsNull() {
+        // Arrange
+        EmailAttachment attachment = EmailAttachment.builder()
+                .fileName("report.pdf")
+                .content(null)
+                .contentType("application/pdf")
+                .build();
+
+        EmailEventDto emailEventDto = Instancio.of(EmailEventDto.class)
+                .set(Select.field(EmailEventDto::getTo), Set.of("to@test.com"))
+                .set(Select.field(EmailEventDto::getSubject), "Test Subject")
+                .set(Select.field(EmailEventDto::getBody), "Test Body")
+                .set(Select.field(EmailEventDto::getCc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getBcc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getTemplateCode), null)
+                .set(Select.field(EmailEventDto::getAttachments), List.of(attachment))
+                .create();
+
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+
+        // Act
+        smtpEmailSender.send(emailEventDto);
+
+        // Assertions - email is sent but attachment is skipped
+        verify(javaMailSender).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void send_ShouldSkipAttachment_WhenFileNameIsBlank() {
+        // Arrange
+        EmailAttachment attachment = EmailAttachment.builder()
+                .fileName("")
+                .content(new byte[]{1, 2, 3})
+                .contentType("application/pdf")
+                .build();
+
+        EmailEventDto emailEventDto = Instancio.of(EmailEventDto.class)
+                .set(Select.field(EmailEventDto::getTo), Set.of("to@test.com"))
+                .set(Select.field(EmailEventDto::getSubject), "Test Subject")
+                .set(Select.field(EmailEventDto::getBody), "Test Body")
+                .set(Select.field(EmailEventDto::getCc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getBcc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getTemplateCode), null)
+                .set(Select.field(EmailEventDto::getAttachments), List.of(attachment))
+                .create();
+
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+
+        // Act
+        smtpEmailSender.send(emailEventDto);
+
+        // Assertions - email is sent but attachment is skipped
+        verify(javaMailSender).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void send_ShouldSkipAttachment_WhenFileNameIsNull() {
+        // Arrange
+        EmailAttachment attachment = EmailAttachment.builder()
+                .fileName(null)
+                .content(new byte[]{1, 2, 3})
+                .contentType("application/pdf")
+                .build();
+
+        EmailEventDto emailEventDto = Instancio.of(EmailEventDto.class)
+                .set(Select.field(EmailEventDto::getTo), Set.of("to@test.com"))
+                .set(Select.field(EmailEventDto::getSubject), "Test Subject")
+                .set(Select.field(EmailEventDto::getBody), "Test Body")
+                .set(Select.field(EmailEventDto::getCc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getBcc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getTemplateCode), null)
+                .set(Select.field(EmailEventDto::getAttachments), List.of(attachment))
+                .create();
+
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+
+        // Act
+        smtpEmailSender.send(emailEventDto);
+
+        // Assertions - email is sent but attachment is skipped
+        verify(javaMailSender).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void send_ShouldAddAttachment_WhenContentAndFileNameAreValid() throws Exception {
+        // Arrange
+        byte[] content = "file content".getBytes();
+        EmailAttachment attachment = EmailAttachment.builder()
+                .fileName("report.pdf")
+                .content(content)
+                .contentType("application/pdf")
+                .build();
+
+        EmailEventDto emailEventDto = Instancio.of(EmailEventDto.class)
+                .set(Select.field(EmailEventDto::getTo), Set.of("to@test.com"))
+                .set(Select.field(EmailEventDto::getSubject), "Test Subject")
+                .set(Select.field(EmailEventDto::getBody), "Test Body")
+                .set(Select.field(EmailEventDto::getCc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getBcc), new HashSet<>())
+                .set(Select.field(EmailEventDto::getTemplateCode), null)
+                .set(Select.field(EmailEventDto::getAttachments), List.of(attachment))
+                .create();
+
+        Session session = Session.getDefaultInstance(new Properties());
+        MimeMessage realMimeMessage = new MimeMessage(session);
+        when(javaMailSender.createMimeMessage()).thenReturn(realMimeMessage);
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+
+        // Act
+        smtpEmailSender.send(emailEventDto);
+
+        // Assertions - email is sent with attachment
+        ArgumentCaptor<MimeMessage> captor = ArgumentCaptor.forClass(MimeMessage.class);
+        verify(javaMailSender).send(captor.capture());
+        MimeMessage sentMessage = captor.getValue();
+        assertNotNull(sentMessage);
+        // MimeMessage with attachment has multipart content
+        assertNotNull(sentMessage.getContent());
+        assertThat(sentMessage.getContent().getClass().getName()).contains("Multipart");
     }
 
     private EmailEventDto createValidEmailEventDto() {
