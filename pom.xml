@@ -18,7 +18,7 @@
         <java.version>25</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <redisson.version>4.4.0</redisson.version>
+        <redisson.version>4.5.0</redisson.version>
         <querydsl-apt.version>5.1.0</querydsl-apt.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <commons-validator.version>1.10.1</commons-validator.version>
@@ -41,7 +41,7 @@
         <protobuf-maven-plugin.version>5.1.4</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
         <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
-        <jacoco.version>0.8.14</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
     </properties>
 
     <dependencies>
