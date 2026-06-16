@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.grpc.test.autoconfigure.LocalGrpcPort;
+import org.springframework.boot.grpc.test.autoconfigure.LocalGrpcServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.grpc.client.GrpcChannelFactory;
 
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 )
 class GrpcServerServiceTest {
 
-    @LocalGrpcPort
+    @LocalGrpcServerPort
     private int grpcPort;
 
     @Autowired
