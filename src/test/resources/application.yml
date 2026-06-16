@@ -94,3 +94,13 @@ management:
     export:
       zipkin:
         enabled: false
+
+# Resilience4j to wait up to 10 seconds before timing out, which should give the JSONPlaceholder API enough time to respond.
+resilience4j:
+  timelimiter:
+    instances:
+      default:
+        timeoutDuration: 10s
+    configs:
+      default:
+        timeoutDuration: 10s

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.mb</groupId>
@@ -16,27 +16,24 @@
 
     <properties>
         <java.version>25</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <redisson.version>4.5.0</redisson.version>
+        <redisson.version>4.6.0</redisson.version>
         <querydsl-apt.version>5.1.0</querydsl-apt.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <commons-validator.version>1.10.1</commons-validator.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
-        <instancio-junit.version>6.0.0-RC1</instancio-junit.version>
+        <instancio-junit.version>5.6.0</instancio-junit.version>
         <google-api-services-playintegrity.version>v1-rev20250828-2.0.0</google-api-services-playintegrity.version>
         <google-api-client.version>2.9.0</google-api-client.version>
-        <protobuf-java.version>4.35.0</protobuf-java.version>
+        <protobuf-java.version>4.35.1</protobuf-java.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
-        <ognl.version>3.5.0-BETA4</ognl.version>
+        <ognl.version>3.4.11</ognl.version>
         <graphql-java-extended-scalars.version>24.0</graphql-java-extended-scalars.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
         <spring-cloud-gcp-dependencies.version>8.0.4</spring-cloud-gcp-dependencies.version>
-        <spring-cloud.version>2025.1.1</spring-cloud.version>
+        <spring-cloud.version>2025.1.2</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
-        <spring-grpc.version>1.0.3</spring-grpc.version>
+        <spring-grpc.version>1.1.0</spring-grpc.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
-        <org.projectlombok.version>1.18.42</org.projectlombok.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
         <protobuf-maven-plugin.version>5.1.4</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
@@ -391,13 +388,18 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.grpc</groupId>
-            <artifactId>spring-grpc-spring-boot-starter</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-grpc-server</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.grpc</groupId>
-            <artifactId>spring-grpc-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-grpc-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-grpc-client-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -452,11 +454,6 @@
                 <artifactId>protobuf-java</artifactId>
                 <version>${protobuf-java.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -488,7 +485,6 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>${org.projectlombok.version}</version>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
@@ -567,7 +563,36 @@
                 <configuration>
                     <!-- Ignore milestone, alpha, beta, RC versions by default -->
                     <rulesUri>file://${project.basedir}/version-rules.xml</rulesUri>
+                    <allowMajorUpdates>true</allowMajorUpdates>
+                    <allowMinorUpdates>true</allowMinorUpdates>
+                    <generateBackupPoms>false</generateBackupPoms>
+                    <!-- Explicitly process dependencyManagement BOMs (import scope) -->
+                    <processDependencyManagement>true</processDependencyManagement>
                 </configuration>
+                <!-- Apply newest versions to pom.xml during 'mvn clean install' (validate phase) -->
+                <executions>
+                    <execution>
+                        <id>update-parent</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-parent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>update-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-properties</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>use-latest-releases</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>use-latest-releases</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
