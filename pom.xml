@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>25</java.version>
-        <redisson.version>4.6.0</redisson.version>
+        <redisson.version>4.6.1</redisson.version>
         <querydsl-apt.version>5.1.0</querydsl-apt.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <commons-validator.version>1.10.1</commons-validator.version>
@@ -35,7 +35,7 @@
         <spring-grpc.version>1.1.0</spring-grpc.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
-        <protobuf-maven-plugin.version>5.1.4</protobuf-maven-plugin.version>
+        <protobuf-maven-plugin.version>5.1.5</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
         <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
         <jacoco.version>0.8.15</jacoco.version>
