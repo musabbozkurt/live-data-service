@@ -25,6 +25,8 @@ services:
     environment:
       REDIS_HOST_ENV: redis
       REDIS_PORT_ENV: 6379
+      REDIS_PASSWORD_ENV: redisPassword
+      SPRING_DATA_REDIS_PASSWORD: redisPassword
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       KAFKA_BOOTSTRAP_SERVERS: broker:29092
       ACTIVEMQ_HOST: activemq
@@ -154,15 +156,17 @@ services:
     container_name: redis
     restart: always
     ports:
-      - "6378:6379" # Default port is 6379
+      - "6378:6379" # Default port is 6379 - cluster x (primary)
+      - "6379:6380"  # cluster y
+      - "6380:6381"  # cluster z
     volumes:
       - redis-data:/data
-    command: redis-server --appendonly yes
+    command: sh -c "redis-server --appendonly yes --requirepass redisPassword & redis-server --port 6380 --requirepass redisPassword --daemonize yes & redis-server --port 6381 --requirepass redisPassword --daemonize yes & wait"
     networks:
       - my-network
 
   redis-insight:
-    image: redis/redisinsight:3.2.0
+    image: redis/redisinsight:3.6.0
     restart: always
     container_name: redis-insight-service
     ports:
