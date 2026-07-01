@@ -11,6 +11,9 @@ import org.testcontainers.utility.DockerImageName;
 
 interface CustomContainers {
 
+    String REDIS_USERNAME = "testUser";
+    String REDIS_PASSWORD = "testPassword";
+
     @Container
     @ServiceConnection
     ArtemisContainer artemisContainer = new ArtemisContainer(DockerImageName.parse("apache/activemq-artemis:latest-alpine"))
@@ -76,6 +79,7 @@ interface CustomContainers {
     @Container
     @ServiceConnection
     RedisContainer redisContainer = new RedisContainer("redis:8.6.1")
-            .withExposedPorts(6379)
+            .withExposedPorts(6379, 6380, 6381)
+            //.withCommand("redis-server", "--requirepass", REDIS_PASSWORD, "--user", REDIS_USERNAME, "on", ">" + REDIS_PASSWORD, "~*", "+@all")
             .withReuse(true);
 }

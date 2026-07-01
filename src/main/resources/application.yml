@@ -1,5 +1,6 @@
 REDIS_HOST: ${REDIS_HOST_ENV:localhost}
 REDIS_PORT: ${REDIS_PORT_ENV:6378}
+REDIS_PASSWORD: ${REDIS_PASSWORD_ENV:redisPassword}
 
 server:
   port: 8080
@@ -7,6 +8,9 @@ server:
 spring:
   application:
     name: live-data-service
+
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
 
   thymeleaf:
     check-template-location: false
@@ -27,6 +31,7 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
+      password: ${SPRING_DATA_REDIS_PASSWORD:redisPassword}
       jedis:
         pool:
           max-active: 7
@@ -171,9 +176,25 @@ swagger:
         url: /v2/api-docs
         version: 2.0
 
+redis:
+  clusters:
+    x:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD:redisPassword}
+      port: ${REDIS_PORT:6378}
+      primary: false
+    y:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD:redisPassword}
+      port: ${REDIS_PORT:6378}
+    z:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD:redisPassword}
+      port: ${REDIS_PORT:6378}
+
 redisson:
   enabled: true
-  url: redis://${REDIS_HOST}:${REDIS_PORT}
+  url: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}
 
 services:
   token:
