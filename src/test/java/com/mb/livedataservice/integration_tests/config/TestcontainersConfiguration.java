@@ -25,15 +25,7 @@ public class TestcontainersConfiguration {
         CustomContainers.postgresContainer.start();
         CustomContainers.redisContainer.start();
 
-        // 2. Start secondary Redis servers for dynamic clusters y/z.
-        try {
-            CustomContainers.redisContainer.execInContainer("redis-server", "--port", "6380", "--daemonize", "yes");
-            CustomContainers.redisContainer.execInContainer("redis-server", "--port", "6381", "--daemonize", "yes");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to start secondary Redis servers on ports 6380/6381", e);
-        }
-
-        // 3. Inject explicit core environment fallback parameters
+        // 2. Inject explicit core environment fallback parameters
         System.setProperty("spring.artemis.broker-url", "tcp://%s:%d".formatted(CustomContainers.artemisContainer.getHost(), CustomContainers.artemisContainer.getMappedPort(61616)));
 
         System.setProperty("spring.kafka.bootstrap-servers", CustomContainers.kafkaContainer.getBootstrapServers());

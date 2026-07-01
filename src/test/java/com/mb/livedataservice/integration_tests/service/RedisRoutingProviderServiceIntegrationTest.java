@@ -49,7 +49,7 @@ class RedisRoutingProviderServiceIntegrationTest {
         assertThat(templateX.opsForValue().get(keyX)).isEqualTo(valueX);
         assertThat(templateX.opsForValue().get(keyY)).isNull();
         assertThat(templateY.opsForValue().get(keyY)).isEqualTo(valueY);
-        assertThat(templateY.opsForValue().get(keyX)).isNotNull();
+        assertThat(templateY.opsForValue().get(keyX)).isNull();
         assertThat(primaryRedisTemplate.opsForValue().get(keyX)).isEqualTo(valueX);
     }
 

@@ -81,5 +81,6 @@ interface CustomContainers {
     RedisContainer redisContainer = new RedisContainer("redis:8.6.1")
             .withExposedPorts(6379, 6380, 6381)
             //.withCommand("redis-server", "--requirepass", REDIS_PASSWORD, "--user", REDIS_USERNAME, "on", ">" + REDIS_PASSWORD, "~*", "+@all")
+            .withCommand("sh", "-c", "redis-server --port 6379 & redis-server --port 6380 --daemonize yes && redis-server --port 6381 --daemonize yes && wait")
             .withReuse(true);
 }
