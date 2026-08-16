@@ -25,7 +25,7 @@
 - `Docker` needs to be installed
 - Clone or checkout the project from version control system (`git`) and follow below steps
 - **For local development only** (not needed for Docker-based workflows):
-    - `Java 25+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 25)`
+    - `Java 26+` needs to be installed `export JAVA_HOME=$(/usr/libexec/java_home -v 26)`
     - `Maven` needs to be installed (or use the included Maven wrapper `./mvnw`)
     - Install any Java IDE (`Eclipse`, `STS`, `Intellij` etc..)
 
@@ -37,9 +37,9 @@
   **not** need to build the JAR locally first. Docker handles the full build (compile + package) inside the container.
 - Tests are skipped during the Docker build because **Testcontainers** requires a Docker daemon which is not available
   inside `docker build`. Run tests on the host before building.
-- The `start_application` profile builds the app image and starts it together with all infrastructure services
-  (Redis, Kafka, Elasticsearch, ActiveMQ, Mailpit, Zipkin, Jaeger, etc.). Services with healthchecks
-  (Elasticsearch, Kafka) must be healthy before the app starts.
+- The `start_application` profile builds the app image and starts it together with all infrastructure services (Redis,
+  Kafka, Elasticsearch, ActiveMQ, Mailpit, Zipkin, Jaeger, etc.). Services with healthchecks (Elasticsearch, Kafka) must
+  be healthy before the app starts.
 - `Docker` -> `Preferences` -> `Resources` -> `File sharing` -> click add button and select `prometheus` folder under
   the `/src/main/resources` or just add `/etc/prometheus` path -> `Apply & Restart`
     - ![img.png](img.png)
@@ -64,7 +64,7 @@ docker compose up -d
 
 ### Tech_Stack
 
-- `Java 25`
+- `Java 26`
 - `Spring Boot 4`
 - `H2 Database` (Default values are provided below)
     - `Default H2 Database Url`: http://localhost:8080/h2-console
@@ -139,8 +139,8 @@ docker compose up -d
 - Test via `Postman` (OPTIONAL):
     1. Import [Postman Collection](docs%2Funit_test_service.postman_collection.json)
     2. Right-click the imported Postman Collection and click _**Run Collection**_ section.
-    3. On the right panel choose _**Functional**_ or _**Performance**_ section, edit _**Run configuration**_ and click
-       _**run**_ to test the application.
+    3. On the right panel choose _**Functional**_ or _**Performance**_ section, edit _**Run configuration**_ and click _
+       **run**_ to test the application.
 
 -------
 
@@ -170,8 +170,8 @@ docker compose up -d
   to [Initialize the SDK, Create and Download Firebase Credentials JSON File](https://firebase.google.com/docs/admin/setup#initialize-sdk)
     - After JSON file is downloaded, copy the content of downloaded file and replace `play-integrity-credentials.json`
       content with that copied text
-    - Replace `application-name` value in application.yml file with `project_id` variable that is
-      in `play-integrity-credentials.json`
+    - Replace `application-name` value in application.yml file with `project_id` variable that is in
+      `play-integrity-credentials.json`
     - [HELPFUL LINK BUT IT SHOULD NOT BE NEEDED](https://stackoverflow.com/a/40799378)
 
 -------
