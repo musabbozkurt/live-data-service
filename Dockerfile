@@ -1,6 +1,6 @@
 # Use a multi-stage build to optimize the image size
 # Stage 1: Build the application
-FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
+FROM maven:4.0.0-rc-5-eclipse-temurin-26-noble AS build
 
 # Set the working directory
 WORKDIR /app
@@ -36,7 +36,7 @@ RUN find /mbjavaruntime -name '*.so' -exec strip --strip-unneeded {} + 2>/dev/nu
 # Stage 2: Create the final image
 FROM debian:bookworm-slim
 
-ENV JAVA_HOME=/home/java/jdk25
+ENV JAVA_HOME=/home/java/jdk26
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Set the working directory for the final image
@@ -49,6 +49,6 @@ COPY --from=build /app/live-data-service/target/*.jar app.jar
 
 EXPOSE 8080
 
-# --enable-native-access=ALL-UNNAMED: Java 25's security model requires explicit
+# --enable-native-access=ALL-UNNAMED: Java 26's security model requires explicit
 # permission for libraries accessing native code (Netty, gRPC, Redisson, etc.)
 ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "app.jar"]
