@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public final class RedisConstants {
 
     public static final String CACHE_KEY = "cacheKey";
+    public static final String ORDERS_TOPIC = "orders";
 }
