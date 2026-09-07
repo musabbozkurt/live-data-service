@@ -144,6 +144,18 @@ docker compose up -d
 
 -------
 
+### Docker Compose image versions
+
+- Check pinned image tags in `docker-compose.yml`:
+    - Linux / macOS / Git Bash: `./docs/scripts/check-compose-image-updates.sh`
+    - Windows: `.\docs\scripts\check-compose-image-updates.cmd`
+    - Preview upgrades: `./docs/scripts/check-compose-image-updates.sh --dry-run`
+    - Apply OUTDATED bumps: `./docs/scripts/check-compose-image-updates.sh --apply`
+- CI runs the read-only check on every pipeline; automated Maven + Compose upgrades run via
+  `.github/workflows/dependency-update.yml`.
+
+-------
+
 ### Redis
 
 - The following command returns all matched data by `'keyPattern:*'` pattern
