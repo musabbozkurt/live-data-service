@@ -44,7 +44,7 @@ services:
 
   postgres:
     container_name: postgredb-service
-    image: postgres:18.3
+    image: postgres:18.6
     ports:
       - "5432:5432"
     environment:
@@ -55,7 +55,7 @@ services:
       - my-network
 
   mongodb:
-    image: mongo:8.2.5
+    image: mongo:8.3.8
     container_name: mongodb-service
     ports:
       - "27017:27017"
@@ -78,7 +78,7 @@ services:
       - my-network
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.27.1'
+    image: 'grafana/otel-lgtm:0.32.1'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -90,7 +90,7 @@ services:
     restart: on-failure
 
   broker:
-    image: confluentinc/confluent-local:8.1.1
+    image: confluentinc/confluent-local:8.3.1
     hostname: broker
     container_name: broker-service
     ports:
@@ -135,7 +135,7 @@ services:
       - my-network
 
   mailpit:
-    image: axllent/mailpit:v1.29.2
+    image: axllent/mailpit:v1.31.1
     container_name: mailpit
     restart: always
     ports:
@@ -152,7 +152,7 @@ services:
       - my-network
 
   redis:
-    image: redis:8.6.1
+    image: redis:8.10.1
     container_name: redis
     restart: always
     ports:
@@ -166,7 +166,7 @@ services:
       - my-network
 
   redis-insight:
-    image: redis/redisinsight:3.6.0
+    image: redis/redisinsight:3.8
     restart: always
     container_name: redis-insight-service
     ports:
