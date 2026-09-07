@@ -23,8 +23,8 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <instancio-junit.version>6.0.0</instancio-junit.version>
         <google-api-services-playintegrity.version>v1-rev20250828-2.0.0</google-api-services-playintegrity.version>
-        <google-api-client.version>2.9.0</google-api-client.version>
-        <protobuf-java.version>4.36.0</protobuf-java.version>
+        <google-api-client.version>2.9.1</google-api-client.version>
+        <protobuf-java.version>4.36.1</protobuf-java.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <ognl.version>3.4.12</ognl.version>
         <graphql-java-extended-scalars.version>24.0</graphql-java-extended-scalars.version>

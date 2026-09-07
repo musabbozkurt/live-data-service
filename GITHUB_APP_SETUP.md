@@ -3,7 +3,7 @@
 ## Setting Up a GitHub App Token for MB Dependency Version Update Workflow
 
 This document explains how to configure the GitHub App credentials required by
-`api-gateway-service/.github/workflows/dependency-update.yml`.
+`live-data-service/.github/workflows/dependency-update.yml`.
 
 ### 1. Create the GitHub App
 
@@ -38,7 +38,7 @@ Add them to the target GitHub repository:
 
 1. Open the GitHub App settings page.
 2. Select **Install App**.
-3. Install it on the `musabbozkurt/api-gateway-service` repository.
+3. Install it on the `musabbozkurt/live-data-service` repository.
 
 ### 4. Workflow Behavior
 
@@ -47,11 +47,14 @@ The dependency update workflow will:
 - run a read-only dependency check on pull requests,
 - run scheduled/manual update jobs on `main`,
 - generate a GitHub App token,
-- apply Maven dependency updates across all service `pom.xml` files,
-- compile only the services whose `pom.xml` files changed,
-- create or update an automated pull request.
+- apply Maven dependency updates in `pom.xml`,
+- apply Docker Compose image bumps via `docs/scripts/check-compose-image-updates.sh --apply`,
+- compile when `pom.xml` changed,
+- create or update an automated pull request on `automated/dependency-updates` (pushes new commits when that PR is
+  already open, instead of skipping).
 
 ### 5. Workflow File Reference
 
 - Workflow: `.github/workflows/dependency-update.yml`
 - Shared version rules: `version-rules.xml`
+- Compose image checker: `docs/scripts/check-compose-image-updates.sh`
