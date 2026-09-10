@@ -57,8 +57,8 @@ class KafkaDeadLetterPublishingTest {
 
         // Verify producer is configured with acks=all for durability
         assertThat(configs).containsEntry(ProducerConfig.ACKS_CONFIG, "all")
-                // Verify producer maintains message ordering with max in flight requests = 1
-                .containsEntry(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1")
+                // Verify producer maintains message ordering with max in flight requests = 5
+                .containsEntry(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5")
                 // Verify producer has idempotence enabled to prevent duplicate messages
                 .containsEntry(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
     }
