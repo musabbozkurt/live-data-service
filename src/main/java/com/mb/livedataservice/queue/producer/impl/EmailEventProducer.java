@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailEventProducer {
 
-    private final KafkaTemplate<String, EmailEventDto> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void produce(EmailEventDto emailEventDto) {
         if (!EmailUtils.isValid(emailEventDto)) {
