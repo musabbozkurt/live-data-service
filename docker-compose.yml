@@ -62,6 +62,8 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
+      # Workaround for MongoDB 8.x TCMalloc/rseq crash on Linux kernel 6.19-7.0.13 (SERVER-121912). Remove once the host kernel is >= 7.0.14.
+      - GLIBC_TUNABLES=glibc.pthread.rseq=1
     networks:
       - my-network
 
