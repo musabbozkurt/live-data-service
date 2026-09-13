@@ -19,8 +19,9 @@ interface CustomContainers {
     ArtemisContainer artemisContainer = new ArtemisContainer(DockerImageName.parse("apache/activemq-artemis:latest-alpine"))
             .withEnv("ANONYMOUS_LOGIN", "true")
             .withEnv("EXTRA_ARGS", "--global-max-size 256M")
-            .withExposedPorts(61616)
-            .withReuse(true);
+            // Overrides the 90% disk space limit threshold to 100% (No Blocking)
+            .withEnv("JAVA_ARGS_APPEND", "-Dbrokerconfig.maxDiskUsage=100")
+            .withExposedPorts(61616); // Removed .withReuse(true) for clean setups
 
     /**
      * Configures an Elasticsearch testcontainers with the analysis-icu plugin installed.

@@ -22,8 +22,9 @@
         <commons-validator.version>1.11.0</commons-validator.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <instancio-junit.version>6.0.0</instancio-junit.version>
-        <google-api-services-playintegrity.version>v1-rev20250828-2.0.0</google-api-services-playintegrity.version>
+        <google-api-services-playintegrity.version>v1-rev20260910-2.0.0</google-api-services-playintegrity.version>
         <google-api-client.version>2.9.1</google-api-client.version>
+        <bootui-spring-boot-starter.version>1.17.0</bootui-spring-boot-starter.version>
         <protobuf-java.version>4.36.1</protobuf-java.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <ognl.version>3.4.12</ognl.version>
@@ -401,6 +402,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-grpc-client-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.julien-dubois.bootui</groupId>
+            <artifactId>bootui-spring-boot-starter</artifactId>
+            <version>${bootui-spring-boot-starter.version}</version>
         </dependency>
     </dependencies>
 
