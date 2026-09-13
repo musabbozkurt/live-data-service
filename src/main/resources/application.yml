@@ -242,3 +242,9 @@ resilience4j:
         limitForPeriod: 2
         limitRefreshPeriod: 10s
         timeoutDuration: 3s
+
+bootui: # https://www.julien-dubois.com/boot-ui/
+  enabled: ON # http://localhost:8080/dev-console
+  trust-container-gateway: AUTO
+  allow-non-localhost: true
+  path: /dev-console
