@@ -27,7 +27,7 @@
         <bootui-spring-boot-starter.version>1.17.0</bootui-spring-boot-starter.version>
         <protobuf-java.version>4.36.1</protobuf-java.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
-        <ognl.version>3.4.12</ognl.version>
+        <ognl.version>3.4.13</ognl.version>
         <graphql-java-extended-scalars.version>24.0</graphql-java-extended-scalars.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
         <spring-cloud-gcp-dependencies.version>8.2.1</spring-cloud-gcp-dependencies.version>
@@ -36,7 +36,7 @@
         <spring-grpc.version>1.1.1</spring-grpc.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
-        <protobuf-maven-plugin.version>5.1.8</protobuf-maven-plugin.version>
+        <protobuf-maven-plugin.version>5.1.9</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
         <versions-maven-plugin.version>2.22.0</versions-maven-plugin.version>
         <jacoco.version>0.8.15</jacoco.version>
