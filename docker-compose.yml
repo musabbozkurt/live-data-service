@@ -55,7 +55,7 @@ services:
       - my-network
 
   mongodb:
-    image: mongo:8.3.9
+    image: mongo:8.3.11
     container_name: mongodb-service
     ports:
       - "27017:27017"
@@ -80,7 +80,7 @@ services:
       - my-network
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.33.0'
+    image: 'grafana/otel-lgtm:0.33.1'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -92,7 +92,7 @@ services:
     restart: on-failure
 
   broker:
-    image: confluentinc/confluent-local:8.3.1
+    image: confluentinc/confluent-local:8.3.2
     hostname: broker
     container_name: broker-service
     ports:
@@ -137,7 +137,7 @@ services:
       - my-network
 
   mailpit:
-    image: axllent/mailpit:v1.31.1
+    image: axllent/mailpit:v1.31.2
     container_name: mailpit
     restart: always
     ports:
