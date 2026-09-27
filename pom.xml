@@ -21,10 +21,10 @@
         <springdoc-openapi-starter-webmvc-ui.version>3.1.1</springdoc-openapi-starter-webmvc-ui.version>
         <commons-validator.version>1.11.0</commons-validator.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
-        <instancio-junit.version>6.0.1</instancio-junit.version>
+        <instancio-junit.version>6.1.0</instancio-junit.version>
         <google-api-services-playintegrity.version>v1-rev20260910-2.0.0</google-api-services-playintegrity.version>
         <google-api-client.version>2.9.1</google-api-client.version>
-        <bootui-spring-boot-starter.version>1.17.0</bootui-spring-boot-starter.version>
+        <bootui-spring-boot-starter.version>1.19.0</bootui-spring-boot-starter.version>
         <protobuf-java.version>4.36.2</protobuf-java.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <ognl.version>3.4.13</ognl.version>
@@ -36,7 +36,7 @@
         <spring-grpc.version>1.1.1</spring-grpc.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
-        <protobuf-maven-plugin.version>5.1.9</protobuf-maven-plugin.version>
+        <protobuf-maven-plugin.version>5.1.10</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
         <versions-maven-plugin.version>2.22.0</versions-maven-plugin.version>
         <jacoco.version>0.8.15</jacoco.version>
