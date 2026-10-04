@@ -80,7 +80,7 @@ services:
       - my-network
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.34.0'
+    image: 'grafana/otel-lgtm:0.35.0'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -137,7 +137,7 @@ services:
       - my-network
 
   mailpit:
-    image: axllent/mailpit:v1.31.2
+    image: axllent/mailpit:v1.31.4
     container_name: mailpit
     restart: always
     ports:
