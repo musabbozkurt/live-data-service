@@ -24,7 +24,7 @@
         <instancio-junit.version>6.2.1</instancio-junit.version>
         <google-api-services-playintegrity.version>v1-rev20260910-2.9.2</google-api-services-playintegrity.version>
         <google-api-client.version>2.9.2</google-api-client.version>
-        <bootui-spring-boot-starter.version>2.3.0</bootui-spring-boot-starter.version>
+        <bootui-spring-boot-starter.version>2.4.0</bootui-spring-boot-starter.version>
         <protobuf-java.version>4.36.2</protobuf-java.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <ognl.version>3.4.17</ognl.version>
@@ -38,7 +38,7 @@
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
         <protobuf-maven-plugin.version>5.1.12</protobuf-maven-plugin.version>
         <grpc.version>1.79.0</grpc.version>
-        <versions-maven-plugin.version>2.24.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.25.2</versions-maven-plugin.version>
         <jacoco.version>0.8.16</jacoco.version>
     </properties>
 
