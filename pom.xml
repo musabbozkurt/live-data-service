@@ -40,6 +40,14 @@
         <grpc.version>1.79.0</grpc.version>
         <versions-maven-plugin.version>2.25.2</versions-maven-plugin.version>
         <jacoco.version>0.8.16</jacoco.version>
+        <!-- Test methods use underscore naming (e.g. method_shouldX_whenY); exempt test sources from Sonar S100 -->
+        <sonar.issue.ignore.multicriteria>testNaming</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria.testNaming.ruleKey>
+            java:S100
+        </sonar.issue.ignore.multicriteria.testNaming.ruleKey>
+        <sonar.issue.ignore.multicriteria.testNaming.resourceKey>
+            src/test/**/*.java
+        </sonar.issue.ignore.multicriteria.testNaming.resourceKey>
     </properties>
 
     <dependencies>
