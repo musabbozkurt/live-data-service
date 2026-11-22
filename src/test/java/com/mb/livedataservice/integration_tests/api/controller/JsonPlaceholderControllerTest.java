@@ -12,13 +12,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 @TestPropertySource(properties = {
         "resilience4j.circuitbreaker.instances.live-data-service.minimumNumberOfCalls=3",
         "resilience4j.circuitbreaker.instances.live-data-service.failureRateThreshold=50",
@@ -47,7 +48,7 @@ import static org.mockito.Mockito.when;
 class JsonPlaceholderControllerTest {
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private RestTestClient restTestClient;
 
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
@@ -71,11 +72,11 @@ class JsonPlaceholderControllerTest {
                 .thenReturn(successResponse);
 
         // Act: Call retry endpoint
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/api/posts/retry/1", String.class);
+        EntityExchangeResult<String> response = restTestClient.get().uri("/api/posts/retry/1").exchange().returnResult(String.class);
 
         // Assertions: Should eventually succeed
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Test Post");
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getResponseBody()).contains("Test Post");
         verify(placeholderRestClient, times(3)).getPost(1);
     }
 
@@ -85,11 +86,11 @@ class JsonPlaceholderControllerTest {
         when(placeholderRestClient.getPost(1)).thenThrow(new RuntimeException("Service unavailable"));
 
         // Act: Call retry endpoint
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/api/posts/retry/1", String.class);
+        EntityExchangeResult<String> response = restTestClient.get().uri("/api/posts/retry/1").exchange().returnResult(String.class);
 
         // Assertions: Should return proper error response
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-        assertThat(response.getBody()).contains("Service unavailable");
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response.getResponseBody()).contains("Service unavailable");
         verify(placeholderRestClient, times(8)).getPost(1); // 1 initial + 7 retries
     }
 
@@ -105,11 +106,12 @@ class JsonPlaceholderControllerTest {
         // Use parallel execution to hit rate limit faster
         IntStream.range(0, 10).parallel().forEach(_ -> {
             try {
-                ResponseEntity<String> response = testRestTemplate
-                        .getRestTemplate()
-                        .getForEntity(testRestTemplate.getRootUri() + "/api/posts/rate-limit/1", String.class);
+                EntityExchangeResult<String> result = restTestClient.get()
+                        .uri("/api/posts/rate-limit/1")
+                        .exchange()
+                        .returnResult(String.class);
                 synchronized (responses) {
-                    responses.add(response);
+                    responses.add(ResponseEntity.status(result.getStatus()).body(result.getResponseBody()));
                 }
             } catch (Exception _) {
                 // Handle potential errors
@@ -154,7 +156,7 @@ class JsonPlaceholderControllerTest {
 
         // Act: Make multiple calls to trigger circuit breaker
         for (int i = 0; i < 5; i++) {
-            testRestTemplate.getForEntity("/api/posts/circuit-breaker/1", String.class);
+            restTestClient.get().uri("/api/posts/circuit-breaker/1").exchange().returnResult(String.class);
         }
 
         // Assertions: Circuit breaker should be open
@@ -170,11 +172,11 @@ class JsonPlaceholderControllerTest {
         getPost_ShouldTriggerCircuitBreaker_WhenMultipleFailuresOccur();
 
         // Act: Make a call with circuit breaker open
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/api/posts/circuit-breaker/1", String.class);
+        EntityExchangeResult<String> response = restTestClient.get().uri("/api/posts/circuit-breaker/1").exchange().returnResult(String.class);
 
         // Assertions: Should get fallback response
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Fallback response for post 1");
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getResponseBody()).contains("Fallback response for post 1");
     }
 
     @Test
@@ -184,11 +186,11 @@ class JsonPlaceholderControllerTest {
         when(placeholderRestClient.getPost(1)).thenReturn(successResponse);
 
         // Act: Call endpoint with all patterns
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/api/posts/all-patterns/1", String.class);
+        EntityExchangeResult<String> response = restTestClient.get().uri("/api/posts/all-patterns/1").exchange().returnResult(String.class);
 
         // Assertions: Should succeed
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Combined Success");
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getResponseBody()).contains("Combined Success");
     }
 
     @Test
@@ -197,11 +199,11 @@ class JsonPlaceholderControllerTest {
         when(placeholderRestClient.getPost(1)).thenThrow(new RuntimeException("Service unavailable"));
 
         // Act: Call all-patterns endpoint
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/api/posts/all-patterns/1", String.class);
+        EntityExchangeResult<String> response = restTestClient.get().uri("/api/posts/all-patterns/1").exchange().returnResult(String.class);
 
         // Assertions: Should eventually return fallback (circuit breaker may trigger before all retries)
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Fallback response for post 1");
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getResponseBody()).contains("Fallback response for post 1");
         // Circuit breaker can trigger after minimum calls (3), so verify at least 1 call was made
         verify(placeholderRestClient, atLeast(1)).getPost(1);
     }
@@ -215,12 +217,12 @@ class JsonPlaceholderControllerTest {
                 .thenReturn(successResponse);
 
         // Act: Call all-patterns endpoint
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/api/posts/all-patterns/1", String.class);
+        EntityExchangeResult<String> response = restTestClient.get().uri("/api/posts/all-patterns/1").exchange().returnResult(String.class);
 
         // Assertions: Should succeed after retries (but may get fallback if circuit breaker triggers)
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
         // Accept either success or fallback response due to circuit breaker interference
-        assertThat(response.getBody()).satisfiesAnyOf(
+        assertThat(response.getResponseBody()).satisfiesAnyOf(
                 body -> assertThat(body).contains("All Patterns Success"),
                 body -> assertThat(body).contains("Fallback response for post 1")
         );
@@ -243,7 +245,8 @@ class JsonPlaceholderControllerTest {
         // Act: Make rapid calls to all-patterns endpoint (more than the limit of 2)
         List<ResponseEntity<String>> responses = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            responses.add(testRestTemplate.getForEntity("/api/posts/all-patterns/1", String.class));
+            EntityExchangeResult<String> result = restTestClient.get().uri("/api/posts/all-patterns/1").exchange().returnResult(String.class);
+            responses.add(ResponseEntity.status(result.getStatus()).body(result.getResponseBody()));
         }
 
         // Assertions: Verify the pattern interaction results
@@ -289,7 +292,7 @@ class JsonPlaceholderControllerTest {
         // Trigger failures to open circuit breaker
         for (int i = 0; i < 5; i++) {
             try {
-                testRestTemplate.getForEntity("/api/posts/all-patterns/1", String.class);
+                restTestClient.get().uri("/api/posts/all-patterns/1").exchange().returnResult(String.class);
             } catch (Exception _) {
                 // Ignore exceptions during circuit breaker triggering
             }
@@ -306,11 +309,11 @@ class JsonPlaceholderControllerTest {
         when(placeholderRestClient.getPost(1)).thenReturn(recoveredResponse);
 
         // Act: Make a call
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/api/posts/all-patterns/1", String.class);
+        EntityExchangeResult<String> response = restTestClient.get().uri("/api/posts/all-patterns/1").exchange().returnResult(String.class);
 
         // Assertions: Accept either successful recovery or fallback response
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).satisfiesAnyOf(
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getResponseBody()).satisfiesAnyOf(
                 body -> assertThat(body).contains("Service Recovered"),
                 body -> assertThat(body).contains("Fallback response for post 1")
         );

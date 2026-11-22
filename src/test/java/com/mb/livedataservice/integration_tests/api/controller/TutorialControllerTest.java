@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.ExchangeResult;
+import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -35,7 +35,7 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestcontainersConfiguration.class)
 class TutorialControllerTest extends BaseUnitTest {
@@ -43,7 +43,7 @@ class TutorialControllerTest extends BaseUnitTest {
     private static Long tutorialId = 0L;
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private RestTestClient restTestClient;
 
     @Autowired
     private JSONPlaceholderRestClient placeholderRestClient;
@@ -52,15 +52,15 @@ class TutorialControllerTest extends BaseUnitTest {
     private DeclarativeJSONPlaceholderRestClient declarativeJSONPlaceholderRestClient;
 
     @BeforeAll
-    static void setup(@Autowired TestRestTemplate testRestTemplate) {
+    static void setup(@Autowired RestTestClient client) {
         // Prepare some test data
         for (int i = 0; i <= 100; i++) {
             ApiTutorialRequest apiTutorialRequest = new ApiTutorialRequest("Spring Boot @WebMvcTest%d".formatted(i), "Description%d".formatted(i), true);
-            testRestTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ApiTutorialResponse.class);
+            client.post().uri("/api/tutorials").body(apiTutorialRequest).exchange().expectStatus().isCreated();
         }
 
-        ResponseEntity<ApiTutorialResponse[]> response = testRestTemplate.exchange("/api/tutorials", HttpMethod.GET, null, ApiTutorialResponse[].class);
-        ApiTutorialResponse[] tutorials = Objects.requireNonNull(response.getBody());
+        EntityExchangeResult<ApiTutorialResponse[]> response = client.get().uri("/api/tutorials").exchange().expectStatus().isOk().expectBody(ApiTutorialResponse[].class).returnResult();
+        ApiTutorialResponse[] tutorials = Objects.requireNonNull(response.getResponseBody());
 
         assertThat(tutorials).hasSizeGreaterThan(100);
 
@@ -71,74 +71,74 @@ class TutorialControllerTest extends BaseUnitTest {
     void shouldCreateNewTutorialWhenTutorialIsValid() {
         ApiTutorialRequest apiTutorialRequest = getApiTutorialRequest();
 
-        ResponseEntity<ApiTutorialResponse> response = testRestTemplate.exchange("/api/tutorials", HttpMethod.POST, new HttpEntity<>(apiTutorialRequest), ApiTutorialResponse.class);
+        EntityExchangeResult<ApiTutorialResponse> response = restTestClient.post().uri("/api/tutorials").body(apiTutorialRequest).exchange().expectStatus().isCreated().expectBody(ApiTutorialResponse.class).returnResult();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getId()).isGreaterThan(0);
-        assertThat(response.getBody().getTitle()).isEqualTo("Spring Boot @WebMvcTest");
-        assertThat(response.getBody().getDescription()).isEqualTo("Description");
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getResponseBody()).isNotNull();
+        assertThat(response.getResponseBody().getId()).isGreaterThan(0);
+        assertThat(response.getResponseBody().getTitle()).isEqualTo("Spring Boot @WebMvcTest");
+        assertThat(response.getResponseBody().getDescription()).isEqualTo("Description");
     }
 
     @Test
     void shouldGetTutorialWhenValidTutorialId() {
-        ResponseEntity<ApiTutorialResponse> response = testRestTemplate.exchange("/api/tutorials/%d".formatted(tutorialId), HttpMethod.GET, null, ApiTutorialResponse.class);
+        EntityExchangeResult<ApiTutorialResponse> response = restTestClient.get().uri("/api/tutorials/%d".formatted(tutorialId)).exchange().expectStatus().isOk().expectBody(ApiTutorialResponse.class).returnResult();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getTitle()).isEqualTo("Spring Boot @WebMvcTest0");
-        assertThat(response.getBody().getDescription()).isEqualTo("Description0");
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getResponseBody()).isNotNull();
+        assertThat(response.getResponseBody().getTitle()).isEqualTo("Spring Boot @WebMvcTest0");
+        assertThat(response.getResponseBody().getDescription()).isEqualTo("Description0");
     }
 
     @Test
     void shouldGetAllTutorials() {
-        ResponseEntity<ApiTutorialResponse[]> response = testRestTemplate.exchange("/api/tutorials", HttpMethod.GET, null, ApiTutorialResponse[].class);
+        EntityExchangeResult<ApiTutorialResponse[]> response = restTestClient.get().uri("/api/tutorials").exchange().expectStatus().isOk().expectBody(ApiTutorialResponse[].class).returnResult();
 
-        assertThat(response.getBody()).isNotNull().hasSizeGreaterThan(100);
+        assertThat(response.getResponseBody()).isNotNull().hasSizeGreaterThan(100);
     }
 
     @Test
     void shouldThrowNotFoundWhenInvalidTutorialId() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/api/tutorials/999", HttpMethod.GET, null, ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = restTestClient.get().uri("/api/tutorials/999").exchange().expectStatus().isNotFound().expectBody(ErrorResponse.class).returnResult();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     void shouldUpdateTutorialWhenTutorialIsValid() {
         ApiTutorialUpdateRequest apiTutorialUpdateRequest = getApiTutorialUpdateRequest();
 
-        ResponseEntity<ApiTutorialResponse> updatedResponse = testRestTemplate.exchange("/api/tutorials/%d".formatted(tutorialId), HttpMethod.PUT, new HttpEntity<>(apiTutorialUpdateRequest), ApiTutorialResponse.class);
+        EntityExchangeResult<ApiTutorialResponse> updatedResponse = restTestClient.put().uri("/api/tutorials/%d".formatted(tutorialId)).body(apiTutorialUpdateRequest).exchange().expectStatus().isOk().expectBody(ApiTutorialResponse.class).returnResult();
 
         assertThat(updatedResponse).isNotNull();
-        assertThat(updatedResponse.getBody()).isNotNull();
+        assertThat(updatedResponse.getResponseBody()).isNotNull();
 
-        assertThat(updatedResponse.getBody().getId()).isEqualTo(tutorialId);
-        assertThat(updatedResponse.getBody().getTitle()).isEqualTo("Updated");
-        assertThat(updatedResponse.getBody().getDescription()).isEqualTo("Updated");
+        assertThat(updatedResponse.getResponseBody().getId()).isEqualTo(tutorialId);
+        assertThat(updatedResponse.getResponseBody().getTitle()).isEqualTo("Updated");
+        assertThat(updatedResponse.getResponseBody().getDescription()).isEqualTo("Updated");
     }
 
     @Test
     @Order(Integer.MAX_VALUE - 1)
     void shouldDeleteWithValidId() {
-        ResponseEntity<Void> response = testRestTemplate.exchange("/api/tutorials/88", HttpMethod.DELETE, null, Void.class);
+        ExchangeResult response = restTestClient.delete().uri("/api/tutorials/88").exchange().expectStatus().isNoContent().returnResult();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
     @Order(Integer.MAX_VALUE)
     void shouldDeleteAllTutorials() {
-        ResponseEntity<HttpStatus> response = testRestTemplate.exchange("/api/tutorials", HttpMethod.DELETE, null, HttpStatus.class);
+        ExchangeResult response = restTestClient.delete().uri("/api/tutorials").exchange().expectStatus().isNoContent().returnResult();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
     void shouldGetAllTutorialsByPublishedTrue() {
-        ResponseEntity<ApiTutorialResponse[]> response = testRestTemplate.exchange("/api/tutorials/published", HttpMethod.GET, null, ApiTutorialResponse[].class);
+        EntityExchangeResult<ApiTutorialResponse[]> response = restTestClient.get().uri("/api/tutorials/published").exchange().expectStatus().isOk().expectBody(ApiTutorialResponse[].class).returnResult();
 
-        assertThat(response.getBody()).isNotNull().hasSizeGreaterThan(100);
+        assertThat(response.getResponseBody()).isNotNull().hasSizeGreaterThan(100);
     }
 
     @Test
@@ -153,10 +153,10 @@ class TutorialControllerTest extends BaseUnitTest {
                 .queryParam("published", true)
                 .build();
 
-        ResponseEntity<RestResponsePage<ApiTutorialResponse>> tutorials = testRestTemplate.exchange(uriComponents.toString(), HttpMethod.GET, null, responseType);
-        RestResponsePage<ApiTutorialResponse> tutorialsBody = tutorials.getBody();
+        EntityExchangeResult<RestResponsePage<ApiTutorialResponse>> tutorials = restTestClient.get().uri(uriComponents.toString()).exchange().expectStatus().isOk().expectBody(responseType).returnResult();
+        RestResponsePage<ApiTutorialResponse> tutorialsBody = tutorials.getResponseBody();
 
-        assertThat(tutorials.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(tutorials.getStatus()).isEqualTo(HttpStatus.OK);
         assertThat(tutorialsBody).isNotNull();
         assertThat(tutorialsBody.getNumberOfElements()).isPositive();
     }
