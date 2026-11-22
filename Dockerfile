@@ -26,7 +26,7 @@ RUN "$JAVA_HOME"/bin/jlink \
          --strip-java-debug-attributes \
          --no-man-pages \
          --no-header-files \
-         --compress=2 \
+         --compress=zip-9 \
          --exclude-files="**/legal/**,**.diz" \
          --output /mbjavaruntime
 
@@ -34,7 +34,9 @@ RUN "$JAVA_HOME"/bin/jlink \
 RUN find /mbjavaruntime -name '*.so' -exec strip --strip-unneeded {} + 2>/dev/null || true
 
 # Stage 2: Create the final image
-FROM debian:bookworm-slim
+# distroless/cc = glibc + libstdc++/libgcc (what libjvm needs) + CA certs + tzdata,
+# no shell/apt/dpkg, and runs as non-root (uid 65532).
+FROM gcr.io/distroless/cc-debian12:nonroot
 
 ENV JAVA_HOME=/home/java/jdk26
 ENV PATH=$JAVA_HOME/bin:$PATH
@@ -46,6 +48,8 @@ COPY --from=build /mbjavaruntime $JAVA_HOME
 
 # Copy the packaged jar file from the build stage
 COPY --from=build /app/live-data-service/target/*.jar app.jar
+
+USER nonroot
 
 EXPOSE 8080
 
