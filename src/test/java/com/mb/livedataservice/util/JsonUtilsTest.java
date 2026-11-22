@@ -1553,9 +1553,11 @@ class JsonUtilsTest {
         @Test
         void readJSON_ShouldThrowException_WhenInvalidJsonObjectWithTrailingCommaProvided() {
             // Arrange
+            TypeReference<Map<String, Object>> typeReference = new TypeReference<>() {
+            };
+
             // Act
-            BaseException exception = assertThrows(BaseException.class, () -> JsonUtils.readJSON(INVALID_JSON_OBJECT, new TypeReference<Map<String, Object>>() {
-            }));
+            BaseException exception = assertThrows(BaseException.class, () -> JsonUtils.readJSON(INVALID_JSON_OBJECT, typeReference));
 
             // Assertions
             assertNotNull(exception);
@@ -1597,9 +1599,11 @@ class JsonUtilsTest {
         @Test
         void readJSON_ShouldThrowException_WhenInvalidJsonObjectWithTrailingTokensProvided() {
             // Arrange
+            TypeReference<Map<String, Object>> typeReference = new TypeReference<>() {
+            };
+
             // Act
-            BaseException exception = assertThrows(BaseException.class, () -> JsonUtils.readJSON(INVALID_JSON_OBJECT_WITH_TRAILING_TOKENS, new TypeReference<Map<String, Object>>() {
-            }));
+            BaseException exception = assertThrows(BaseException.class, () -> JsonUtils.readJSON(INVALID_JSON_OBJECT_WITH_TRAILING_TOKENS, typeReference));
 
             // Assertions
             assertNotNull(exception);

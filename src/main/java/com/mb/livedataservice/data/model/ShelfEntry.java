@@ -46,7 +46,7 @@ public class ShelfEntry {
     private boolean active;
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
         Class<?> oEffectiveClass = o instanceof HibernateProxy hp
@@ -61,7 +61,7 @@ public class ShelfEntry {
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return this instanceof HibernateProxy hp
                 ? hp.getHibernateLazyInitializer().getPersistentClass().hashCode()
                 : getClass().hashCode();

@@ -51,7 +51,8 @@ class EmailEventIntegrationTest {
     void produce_ShouldSendEmailAndSaveEvent_WhenValidEventProvided() {
         // Arrange
         EmailEventDto eventDto = createValidEventDto();
-        when(javaMailSender.createMimeMessage()).thenReturn(mock(MimeMessage.class));
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
 
         // Act
         emailEventProducer.produce(eventDto);
@@ -76,7 +77,8 @@ class EmailEventIntegrationTest {
     void produce_ShouldRetryAndProcessDLT_WhenEmailSenderFails() {
         // Arrange
         EmailEventDto eventDto = createValidEventDto();
-        when(javaMailSender.createMimeMessage()).thenReturn(mock(MimeMessage.class));
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
         doThrow(new MailSendException("Email service unavailable")).when(javaMailSender).send(any(MimeMessage.class));
 
         // Act
