@@ -480,6 +480,12 @@
                         <goals>
                             <goal>process-aot</goal>
                         </goals>
+                        <configuration>
+                            <!-- Refresh scope is not supported by Spring AOT; disable it only in the AOT processing JVM -->
+                            <jvmArguments>
+                                --enable-native-access=ALL-UNNAMED -Dspring.cloud.refresh.enabled=false
+                            </jvmArguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
